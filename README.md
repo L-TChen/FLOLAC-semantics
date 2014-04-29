@@ -1,4 +1,4 @@
-# Lecture Notes in Program Semantics for FLOLAC'14
+# Lecture Notes on Program Semantics for FLOLAC'14
 
 ## Compiling 
 
