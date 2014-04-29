@@ -1,0 +1,51 @@
+\documentclass[a4paper]{article}
+\usepackage{beamerarticle}
+\usetheme{JuanLesPins}
+\usecolortheme{beaver}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{mathrsfs,bussproofs}
+
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{corollary}[theorem]{Corollary}
+%\newtheorem{proposition}[theorem]{Proposition}
+%\newtheorem{axiom}[theorem]{Axiom}
+%\theoremstyle{remark}
+%\newtheorem{remark}{Remark}[section]
+%\theoremstyle{definition}
+%\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{assumption}{Assumption}
+%\newtheorem{notation}{Notation}
+%\newtheorem{example}[theorem]{Example}
+
+\newcommand{\leftexp}[2]{{\vphantom{#2}}^{#1}{#2}}
+\newcommand{\llbracket}{[\![}
+\newcommand{\rrbracket}{]\!]}
+\newcommand{\sem}[1]{\llbracket{#1}\rrbracket}
+\renewcommand{\>}{\rangle}
+\newcommand{\<}{\langle}
+\newcommand{\op}{\mathrm{op}}
+\newcommand*{\defeq}{\mathrel{\vcenter{\baselineskip0.5ex \lineskiplimit0pt
+                     \hbox{\scriptsize.}\hbox{\scriptsize.}}}%
+                     =}
+\newcommand{\set}[2]{\{\,#1\mid#2\,\}}
+
+\newcommand{\nat}{\mathbf{nat}}
+\newcommand{\bool}{\mathbf{bool}}
+
+\newcommand{\fix}{\mathtt{Y}}
+\newcommand{\natrec}{\mathtt{natrec}}
+\newcommand{\suc}{\mathtt{suc}}
+\newcommand{\pred}{\mathtt{pred}}
+\newcommand{\ifz}{\mathtt{ifz}}
+\newcommand{\zero}{\mathtt{zero}}
+% use \underline{n} for numeral n.
+
+\newcommand{\M}{\mathsf{M}}
+
+
+\date[FLOLAC'14]{Formosan Summer School on Logic, Language, and Computation
+  2014}
+\titlegraphic{\includegraphics[scale=.2]{IIS_logo.png}}
