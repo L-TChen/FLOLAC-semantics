@@ -1,9 +1,10 @@
 \documentclass[11pt,a4paper]{beamer}
-\usetheme{JuanLesPins}
+\usetheme{Pittsburgh}
 \usecolortheme{beaver}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\usepackage[british]{babel}
 \usepackage{mathrsfs,bussproofs}
 
 %\newtheorem{theorem}{Theorem}[section]
@@ -31,8 +32,11 @@
                      =}
 \newcommand{\set}[2]{\{\,#1\mid#2\,\}}
 
-\newcommand{\nat}{\mathbf{nat}}
-\newcommand{\bool}{\mathbf{bool}}
+\newcommand{\type}{\mathbf{Set}} % the type of types ...
+\newcommand{\nat}{\mathbf{Nat}}
+\newcommand{\bool}{\mathbf{Bool}}
+
+\newcommand{\val}{\mathbf{val}}
 
 \newcommand{\fix}{\mathtt{Y}}
 \newcommand{\natrec}{\mathtt{natrec}}
@@ -41,8 +45,11 @@
 \newcommand{\ifz}{\mathtt{ifz}}
 \newcommand{\zero}{\mathtt{zero}}
 % use \underline{n} for numeral n.
+\newcommand{\false}{\mathtt{false}}
+\newcommand{\true}{\mathtt{true}}
 
 \newcommand{\M}{\mathsf{M}}
+\newcommand{\N}{\mathsf{N}}
 
 
 \date[FLOLAC'14]{Formosan Summer School on Logic, Language, and Computation

@@ -1,5 +1,8 @@
-\documentclass[a4paper]{article}
+\documentclass[10pt,a4paper,twocolumn]{article}
 \usepackage{beamerarticle}
+\usepackage[british]{babel}
+\usepackage{fullpage}
+\usepackage{microtype}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -30,8 +33,11 @@
                      =}
 \newcommand{\set}[2]{\{\,#1\mid#2\,\}}
 
-\newcommand{\nat}{\mathbf{nat}}
-\newcommand{\bool}{\mathbf{bool}}
+\newcommand{\type}{\mathbf{Set}}
+\newcommand{\nat}{\mathbf{Nat}}
+\newcommand{\bool}{\mathbf{Bool}}
+
+\newcommand{\val}{\mathbf{val}}
 
 \newcommand{\fix}{\mathtt{Y}}
 \newcommand{\natrec}{\mathtt{natrec}}
@@ -40,8 +46,11 @@
 \newcommand{\ifz}{\mathtt{ifz}}
 \newcommand{\zero}{\mathtt{zero}}
 % use \underline{n} for numeral n.
+\newcommand{\true}{\mathtt{true}}
+\newcommand{\false}{\mathtt{false}}
 
 \newcommand{\M}{\mathsf{M}}
+\newcommand{\N}{\mathsf{N}}
 
 
 \date[FLOLAC'14]{Formosan Summer School on Logic, Language, and Computation
