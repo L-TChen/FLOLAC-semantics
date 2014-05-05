@@ -1,6 +1,7 @@
-\title[Operational Semantics]{Semantics of Functional Programming: PCF and its
-Operational Semantics}
-\author[L.-T. Chen]{Liang-Ting Chen}
+\title{Semantics of Functional Programming}
+\subtitle{Lecture I: \PCF{} and its Operational Semantics}
+\author[L.-T. Chen]{Chen, Liang-Ting\\
+  \href{mailto:lxc@iis.sinica.edu.tw}{\texttt{lxc@iis.sinica.edu.tw}}}
 \institute[IIS, Sinica]{Institute of Information Science, Academia Sinica}
 \begin{document}
 \frame{\maketitle}
@@ -41,46 +42,35 @@ Operational Semantics}
     \item Robert Harper, \emph{Practical Foundations for Programming
         Languages}, Cambridge University Press, 2012
   \end{enumerate}
-  Their preprints are available on the Internet. \\
-\end{frame}
-\begin{frame}
-  \frametitle{Recommended Reference}
-  \begin{enumerate}
-    \item B.\ C.\ Pierce, \emph{Types and Programming Languages}, MIT Press,
-      2002.
-    \item S.~Abramsky and A.~Jung, Domain Theory. In
-    \emph{Handbook of Logic in Computer
-        Science}, vol.~3, p.p.\ 1--168. Clarendon Press, 1994.
-  \end{enumerate}
+  Their preprints are available on the Internet.
 \end{frame}
 \section{Programming in PCF}
 \subsection{Syntax and typing rules for PCF}
 \begin{frame}
   \frametitle{What is PCF?}
-  \texttt{PCF} stands for \textbf{Programming Computable Functionals}, which is
+  \PCF{} stands for \textbf{Programming Computable Functionals}, which is
   \begin{enumerate}
-    \item an extension of simply typed lambda calculus with a fixpoint
-      operator~$\fix_\sigma$ for every type~$\sigma$; 
+    \item an extension of simply typed lambda calculus with general recursion; 
     \item extremely simple compared to modern programming languages;
     \item Turing complete, i.e.\ every computable function on natural numbers
-      can be defined in \texttt{PCF}.
+      can be defined in \PCF.
   \end{enumerate}
 \end{frame}
 \begin{frame}
   \frametitle{Syntax of PCF}
   \begin{definition}
-    The collection $\type$ of all types in PCF is defined inductively:
+    The collection $\type$ of all types in \PCF{} is defined inductively:
     \[
       \tau \defeq \nat \mid \tau_1 \to \tau_2
     \]
   \end{definition}
   \begin{definition}
-    The collection $\mathbf{Exp}$ of terms in PCF is defined inductively:
+    The collection $\mathbf{Exp}$ of terms in \PCF{} is defined inductively:
     \begin{align*}
-      \M \defeq x & \mid \zero \mid \suc(\M) \mid \ifz(\M, \M_0, x . \M_1) \\
-      & \mid \lambda (x : \tau . \M) \mid \M (\N) \mid \fix_\sigma(x . \M)
+      \M & \defeq x \mid \zero \mid \suc\;\M \mid \ifz(\M, \M_0, x .\,\M_1) \\
+      & \mid \lambda x .\, \M  \mid \M\;\N \mid \fix (x .\,\M)
     \end{align*}
-    where $x$ is a variable, $\tau$ and $\sigma$ are types. 
+    where $x$ is a variable. 
   \end{definition}
   The construct $\fix$ is called the \textbf{fixpoint operator}, or
   \textbf{general recursion}.
@@ -99,14 +89,14 @@ Operational Semantics}
     \begin{prooftree}
       \AxiomC{$\Gamma, x : \sigma \vdash \M : \tau$}
       %\RightLabel{(Abs)}
-      \UnaryInfC{$\Gamma \vdash (\lambda x : \sigma\,.\, \M) : \sigma \to
+      \UnaryInfC{$\Gamma \vdash \lambda x .\, \M : \sigma \to
         \tau$}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{$\Gamma \vdash \M : \sigma \to \tau$}
       \AxiomC{$\Gamma \vdash \N : \sigma$}
       %\RightLabel{(App)}
-      \BinaryInfC{$\Gamma \vdash \M\, (\N) : \tau$}
+      \BinaryInfC{$\Gamma \vdash \M\; \N : \tau$}
     \end{prooftree}
 
     \column{.5\textwidth}
@@ -116,56 +106,57 @@ Operational Semantics}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{$\Gamma \vdash \M : \nat$}
-      \UnaryInfC{$\Gamma \vdash \suc (\M) : \nat$}
+      \UnaryInfC{$\Gamma \vdash \suc\; \M : \nat$}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{$\Gamma, x : \sigma \vdash \M : \sigma$}
-      \UnaryInfC{$\Gamma\vdash \fix_\sigma(x . \M) : \sigma$}
+      \UnaryInfC{$\Gamma\vdash \fix(x .\, \M) : \sigma$}
     \end{prooftree}
   \end{columns}
     \begin{prooftree}
       \AxiomC{$\Gamma \vdash \M : \nat$}
       \AxiomC{$\Gamma \vdash \M_0 : \tau$}
       \AxiomC{$\Gamma, x : \nat \vdash \M_1 : \tau $}
-      \TrinaryInfC{$\Gamma \vdash \ifz(\M, \M_0, x . \M_1) : \tau$}
+      \TrinaryInfC{$\Gamma \vdash \ifz(\M, \M_0, x .\, \M_1) : \tau$}
     \end{prooftree}
 \end{frame}
 \begin{frame}
   \frametitle{Examples: Predecessor}
   The predecessor of natural numbers can be defined as
   \[
-    \pred \defeq \lambda x . \nat . \ifz (x, \zero, y . y)
+    \pred \defeq \lambda x .\, \ifz (x, \zero, y .\, y)
     : \nat \to \nat
   \]
   with the following typing derivation:
   \begin{prooftree}
-    \AxiomC{$x : \nat \vdash x : \nat$}
-    \AxiomC{$\vdash \zero : \nat$}
-    \AxiomC{$y : \nat \vdash y : \nat$}
-    \TrinaryInfC{$x : \nat \vdash \ifz (x, \zero, y . y) : \nat$}
-    \UnaryInfC{$\vdash \lambda x : \nat . \ifz (x, \zero, y . y) : \nat\to\nat$}
+    \AxiomC{$\Gamma \vdash x : \nat$}
+    \AxiomC{$\Gamma \vdash \zero : \nat$}
+    \AxiomC{$\Gamma, y : \nat \vdash y : \nat$}
+    \TrinaryInfC{$\Gamma \vdash \ifz (x, \zero, y .\, y) : \nat$}
+    \UnaryInfC{$\vdash \lambda x .\, \ifz (x, \zero, y .\, y) : \nat\to\nat$}
   \end{prooftree}
+  where $\Gamma \defeq x : \nat$. 
 \end{frame}
 \subsection{Operational semantics}
 \begin{frame}
   \frametitle{Small-step reduction relation}
   \begin{definition}
-    A \textbf{closed value}, denoted $\val$, in PCF is one of the following:
+    A \textbf{closed value}, denoted $\val$, in \PCF{} is one of the following:
     \begin{columns}
       \column{.3\textwidth}
       \begin{prooftree}
         \AxiomC{}
-        \UnaryInfC{$\zero : \val$}
+        \UnaryInfC{$\zero\;\,\val$}
       \end{prooftree}
       \column{.3\textwidth}
       \begin{prooftree}
-        \AxiomC{$\M : \val$}
-        \UnaryInfC{$\suc(\M) : \val$}
+        \AxiomC{$\M \;\,\val$}
+        \UnaryInfC{$\suc\; \M \;\,\val$}
       \end{prooftree}
       \column{.3\textwidth}
       \begin{prooftree}
         \AxiomC{}
-        \UnaryInfC{$(\lambda x : \tau . \M) : \val$}
+        \UnaryInfC{$\lambda x .\,\M \;\, \val$}
       \end{prooftree}
     \end{columns}
   \end{definition}
@@ -182,85 +173,62 @@ Operational Semantics}
   \end{block}
   For example, 
   \[
-    \ifz(\zero, \M_0, x . \M_1) \leadsto \M_0
+    \ifz(\zero, \M_0, x .\, \M_1) \leadsto \M_0
   \]
-  means that $\ifz(\zero, \M_0, x. \M_1)$ reduces to $\M_0$.
+  means that $\ifz(\zero, \M_0, x.\, \M_1)$ reduces to $\M_0$.
 \end{frame}
 \begin{frame}
   \frametitle{Non-strict interpretation: call-by-name}
-  A term can be applied even if it is not a closed value:
+  Every argument is only evaluated if needed:
   \begin{columns}[t]
-    \column{.5\textwidth}
+    \column[t]{.62\textwidth}
     \begin{prooftree}
       \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\ifz(\M, \M_0, x . \M_1) \leadsto \suc(\M', \M_0, \M_1)$}
+      \UnaryInfC{$\ifz(\M, \M_0, x .\,\M_1) \leadsto \ifz(\M', \M_0, x.\,\M_1)$}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{}
-      \UnaryInfC{$\ifz(\zero, \M_0, x . \M_1) \leadsto \M_0$}
+      \UnaryInfC{$\ifz(\zero, \M_0, x .\, \M_1) \leadsto \M_0$}
     \end{prooftree}
     \begin{prooftree}
-      \AxiomC{$\suc(\M) : \val$}
-      \UnaryInfC{$\ifz(\suc(\M), \M_0, x . \M_1) \leadsto \M_1[\M/x]$}
+      \AxiomC{$\suc\;\M \;\, \val$}
+      \UnaryInfC{$\ifz(\suc\;\M, \M_0, x .\, \M_1) \leadsto \M_1[\M/x]$}
     \end{prooftree}
-    \column{.5\textwidth}
+    \column[t]{.38\textwidth}
     \begin{prooftree}
       \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\M (\N) \leadsto \M' (\N)$}
+      \UnaryInfC{$\M\;\N \leadsto \M'\;\N$}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{}
-      \UnaryInfC{$(\lambda x : \tau . \M) (\N) \leadsto
+      \UnaryInfC{$(\lambda x .\, \M)\; \N \leadsto
         \M[\N/x] $}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{}
-      \UnaryInfC{$\fix_\sigma (x . \M) \leadsto \M[\fix_\sigma (x . M)/x]$}
+      \UnaryInfC{$\fix (x .\,\M) \leadsto \M[\fix (x .\, M)/x]$}
     \end{prooftree}
   \end{columns}
 \end{frame}
 \begin{frame}
   \frametitle{Strict interpretation: call-by-value}
-  Every application only happens if the input evaluates to a closed value:
-  \begin{columns}[t]
-    \column{.5\textwidth}
+  For the call-by-value evaluation strategy, every argument is evaluated
+  before application:
     \begin{prooftree}
       \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\suc(\M) \leadsto \suc(\M')$}
+      \UnaryInfC{$\suc\;\M \leadsto \suc\;\M'$}
     \end{prooftree}
     \begin{prooftree}
-      \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\ifz(\M, \M_0, \M_1) \leadsto \suc(\M', \M_0, \M_1)$}
-    \end{prooftree}
-    \begin{prooftree}
-      \AxiomC{}
-      \UnaryInfC{$\ifz(\zero, \M_0, \M_1) \leadsto \M_0$}
-    \end{prooftree}
-    \begin{prooftree}
-      \AxiomC{$\suc(\M) : \val$}
-      \UnaryInfC{$\ifz(\suc(\M), \M_0, x . \M_1) \leadsto \M_1[\M/x]$}
-    \end{prooftree}
-    \column{.5\textwidth}
-    \begin{prooftree}
-      \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\M (\N) \leadsto \M' (\N)$}
-    \end{prooftree}
-    \begin{prooftree}
-      \AxiomC{$\M : \val$}
+      \AxiomC{$\M \;\,\val$}
       \AxiomC{$\N \leadsto \N'$}
-      \BinaryInfC{$\M (\N) \leadsto \M' (\N)$}
+      \BinaryInfC{$\M\; \N \leadsto \M'\; \N$}
     \end{prooftree}
+    and modify the rule for application:
     \begin{prooftree}
-      \AxiomC{$\N : \val$}
-      \UnaryInfC{$(\lambda x : \tau . \M) (\N) \leadsto
+      \AxiomC{$\N \;\,\val$}
+      \UnaryInfC{$(\lambda x .\, \M)\; \N \leadsto
         \M[\N/x] $}
     \end{prooftree}
-    \begin{prooftree}
-      \AxiomC{}
-      \UnaryInfC{$\fix_\sigma(x . \M) \leadsto
-        \M[\fix_\sigma(x.\M) / x]$}
-    \end{prooftree}
-  \end{columns}
   In the following context, we adopt the call-by-name interpretation. 
 \end{frame}
 \begin{frame}
@@ -295,40 +263,41 @@ Operational Semantics}
   \frametitle{In-class Exercise}
   Try to be familiar with $\ifz$.
   \begin{enumerate}
-    \item Calculate $\pred(\M)$ for $\M : \val$
+    \item Calculate $\pred\;\M$ for $\M \;\,\val$
       to closed values with their derivations: \\
       For the base case
       $\zero$:
       \[
-        \pred(\zero) \leadsto^*\, ?
+        \pred\;\zero \leadsto^*\, ?
       \]
-      For the inductive case $\M \equiv \suc (\M)$:
+      For the inductive case $\M \equiv \suc\; \M$:
       \begin{prooftree}
-        \AxiomC{$\suc(M) : \val$}
-        \UnaryInfC{$\pred(\suc(\M)) \leadsto^*\, ?$}
+        \AxiomC{$\suc\;M \;\,\val$}
+        \UnaryInfC{$\pred\;(\suc\;\M) \leadsto^*\, ?$}
       \end{prooftree}
-    \item Define $\mathtt{swap}\colon \nat \to \nat$
-      such that $\mathtt{swap}(\zero) \leadsto^* \suc(\zero)$
-      and $\mathtt{swap}(\suc(\M)) \leadsto^* \zero$. 
+    \item Define $\mathtt{flip}\colon \nat \to \nat$
+      such that $\mathtt{flip}\;\zero \leadsto^* \suc\; \zero$
+      and $\mathtt{flip}\; (\suc \;\M) \leadsto^* \zero$. 
   \end{enumerate}
 \end{frame}
 \begin{frame}
   \frametitle{Calculating the triangular numbers}
   We would like to define $\mathtt{sum}:\nat \to\nat$ such that 
   \[
-    \mathtt{sum}(n) \leadsto^* \mathtt{0 + 1 + \dots + n} 
+    \mathtt{sum}\; n \leadsto^* \sum_{i = 0}^n i 
   \]
   by recursion:
   \begin{enumerate}
-    \item $\mathtt{sum}(\zero) \leadsto^* \zero$; 
-    \item $\mathtt{sum}(\suc(\M)) \leadsto^* \suc(\M)\mathbin{\mathtt{+}}\mathtt{sum}(\M)$
+    \item $\mathtt{sum}\;\zero \leadsto^* \zero$; 
+    \item $\mathtt{sum}\;(\suc\;\M) \leadsto^*
+      \suc\; \M\mathbin{\mathtt{+}}\mathtt{sum}\;\M$
   \end{enumerate}
   where the definition of $\texttt{+}$ is left as an exercise.
   % some intro here
   \begin{equation}
     \label{eq:triangular_num}
-    \fix_{\nat \to \nat}(f . (\lambda n . \ifz(n, \zero, m . n
-    \mathbin{\texttt{+}} f\, m)))
+    \fix(f .\, \lambda n .\, \ifz(n, \zero, m .\, n
+    \mathbin{\texttt{+}} f\, m)\,) : \nat \to \nat
   \end{equation}
 \end{frame}
 \begin{frame}
@@ -358,25 +327,25 @@ Operational Semantics}
   \begin{theorem}
     For every closed term $\M$ and closed value~$\mathsf{V}$, 
     \[
-      \M \Downarrow \mathsf{V}
-      \quad
+      \M \Downarrow \V
+      \qquad
       \text{if and only if}
-      \quad
-      \M \leadsto^* \mathsf{V}. 
+      \qquad
+      \M \leadsto^* \V. 
     \]
   \end{theorem}
 \end{frame}
 \section{Type safety}
 \begin{frame}
+  \frametitle{Inversion and substitution}
 \end{frame}
-\subsection{Inversion and substitution}
 \begin{frame}
 \end{frame}
-\subsection{Progress}
 \begin{frame}
+  \frametitle{Progress Theorem}
 \end{frame}
-\subsection{Preservation}
 \begin{frame}
+  \frametitle{Preservation Theorem}
 \end{frame}
 \section{Equivalences}
 \begin{frame}
@@ -384,7 +353,7 @@ Operational Semantics}
 \section*{Exercises}
 \begin{frame}<0>
   \begin{enumerate}
-    \item Define the following programs in PCF:
+    \item Define the following programs in \PCF{}:
       \begin{enumerate}
         \item addition, subtraction, and multiplication. 
         \item factorials
