@@ -4,142 +4,158 @@
   \href{mailto:lxc@iis.sinica.edu.tw}{\texttt{lxc@iis.sinica.edu.tw}}}
 \institute[IIS, Sinica]{Institute of Information Science, Academia Sinica}
 \begin{document}
+
+\setcounter{framenumber}{-1}
+
 \frame{\maketitle}
-\frame{\tableofcontents}
-\section{Introduction: Why semantics matters?}  
-\begin{frame}
-  \frametitle{Outline}
+\section{Introduction}
+
+\begin{frame}{The meaning of programs}
+  How can we tell if a program is correct? 
 \end{frame}
 \begin{frame}
-  \frametitle{Bug, bug, bug, everywhere!}
   \begin{enumerate}
-    \item \textbf{Heartbleed}
+    \item \textbf{Operational approach}: How values and functions are computed?
+      E.g., for $\mathtt{add}:\nat \to \nat \to\nat$ and numeral
+      $\underline{2}$, $\underline{4}$
+      \begin{align*}
+        & \mathtt{add}\;\underline{2}\;\underline{4}
+        \leadsto \suc\;(\mathtt{add}\; \underline{1}\;\underline{4}) \\
+        \leadsto{} & \suc\;\suc(\mathtt{add}\; \underline{0}\;\underline{4})
+        \leadsto \suc\;\suc\;\underline{4} \equiv
+        \underline{6}
+      \end{align*}
+    \item \textbf{Denotational approach}: What the values and functions are?
+      The set $\mathbb{N}_\bot$ of natural numbers with
+      \emph{divergence}~$\bot$ is the denotation of the type $\nat$, e.g., 
+      \begin{align*}
+        \sem{\mathtt{add}\;\underline{2}\;\underline{4}} 
+        & = \sem{\mathtt{add}\;\underline{2}}\;\sem{\underline{4}} 
+        = (\sem{\mathtt{add}}\;\sem{\underline{2}}) \;4  \\
+        & = (x \mapsto 2 + x)\;4 
+        = 2 + 4 = 6
+      \end{align*}
+      where $\sem{\mathtt{add}}\colon \mathbb{N}_\bot \to (\mathbb{N}_\bot \to
+      \mathbb{N}_\bot)$. 
   \end{enumerate}
 \end{frame}
-\begin{frame}
-  \frametitle{Language design}
-  % C undefined behaviour
-\end{frame}
-\begin{frame}
-  \frametitle{Verified software}
-\end{frame}
-\begin{frame}
-  \frametitle{Common approaches}
-  \begin{enumerate}
-    \item \textbf{Operational approach}
-    \item \textbf{Denotational approach}
-    \item \textbf{Axiomatic approach}
-  \end{enumerate}
-\end{frame}
-\subsection*{Reference}
-\begin{frame}
-  \frametitle{Reading Material}
-  \emph{Denotational Semantics} and this lecture are based on the following 
-  two books:
-  \begin{enumerate}
-    \item Thomas Streicher, \emph{Domain-Theoretic Foundations of Functional
-      Programming}, World Scientific, 2006
-    \item Robert Harper, \emph{Practical Foundations for Programming
-        Languages}, Cambridge University Press, 2012
-  \end{enumerate}
-  Their preprints are available on the Internet.
-\end{frame}
+
 \section{Programming in PCF}
+
 \subsection{Syntax and typing rules for PCF}
-\begin{frame}
-  \frametitle{What is PCF?}
-  \PCF{} stands for \textbf{Programming Computable Functionals}, which is
+
+\begin{frame}{What is PCF?}
+  \PCF{} stands for \textbf{Programming Computable Functionals}, i.e.\ 
   \begin{enumerate}
-    \item an extension of simply typed lambda calculus with general recursion; 
+    \item an extension of simply typed lambda calculus with $\nat$ and
+      general recursion; 
     \item extremely simple compared to modern programming languages;
     \item Turing complete, i.e.\ every computable function on natural numbers
       can be defined in \PCF.
   \end{enumerate}
 \end{frame}
-\begin{frame}
-  \frametitle{Syntax of PCF}
+
+\begin{frame}{Syntax of PCF}
   \begin{definition}
-    The collection $\type$ of all types in \PCF{} is defined inductively:
-    \[
-      \tau \defeq \nat \mid \tau_1 \to \tau_2
-    \]
+    Types in \PCF{} are defined by the inference rules
+    \begin{columns}[t]
+      \column{.5\textwidth}
+      \begin{prooftree}
+        \AxiomC{}
+        \UnaryInfC{$\nat\;\,\type$}
+      \end{prooftree}
+      \column{.5\textwidth}
+      \begin{prooftree}
+        \AxiomC{$\tau_1\;\,\type$}
+        \AxiomC{$\tau_2 \;\,\type$}
+        \BinaryInfC{$\tau_1 \to \tau_2 \;\,\type$}
+      \end{prooftree}
+    \end{columns}
+    or equivalently by the grammar $\tau \defeq \nat \mid \tau \to
+    \tau$.
   \end{definition}
   \begin{definition}
-    The collection $\mathbf{Exp}$ of terms in \PCF{} is defined inductively:
+    The collection of terms in \PCF{} is defined inductively:
     \begin{align*}
-      \M & \defeq x \mid \zero \mid \suc\;\M \mid \ifz(\M, \M_0, x .\,\M_1) \\
-      & \mid \lambda x .\, \M  \mid \M\;\N \mid \fix (x .\,\M)
+      \M \defeq{} & x \mid \lambda x .\, \M  \mid \M\;\N \mid \zero \mid \suc\;\M \\
+     \mid{} & \ifz(\M; \M; x .\,\M) \mid \fix x .\,\M
     \end{align*}
     where $x$ is a variable. 
   \end{definition}
-  The construct $\fix$ is called the \textbf{fixpoint operator}, or
+  The operator $\fix$ is called the \textbf{fixpoint operator}, or
   \textbf{general recursion}.
 \end{frame}
-\begin{frame}
-  \frametitle{Typing Rules for PCF}
-  Recall that a \textbf{judgement} $\Gamma \vdash \M : \tau$ denotes that $\M$
-  has type $\tau$ under the context.
-  \begin{columns}[t]
-    \column{.5\textwidth}
+
+\begin{frame}{Typing Rules for PCF}
+  A \textbf{judgement} $\Gamma \vdash \M : \tau$ denotes that $\M$ has type
+  $\tau$ under the context.  \PCF{} consists of
+  \begin{itemize}
+    \item simply typed lambda calculus (with $\to$ only):
     \begin{prooftree}
       \AxiomC{}
-      %\RightLabel{(Var)}
+      \RightLabel{(var)}
       \UnaryInfC{$\Gamma, x : \sigma, \Delta \vdash x : \sigma$}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{$\Gamma, x : \sigma \vdash \M : \tau$}
-      %\RightLabel{(Abs)}
+      \RightLabel{(abs)}
       \UnaryInfC{$\Gamma \vdash \lambda x .\, \M : \sigma \to
         \tau$}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{$\Gamma \vdash \M : \sigma \to \tau$}
       \AxiomC{$\Gamma \vdash \N : \sigma$}
-      %\RightLabel{(App)}
+      \RightLabel{(app)}
       \BinaryInfC{$\Gamma \vdash \M\; \N : \tau$}
     \end{prooftree}
-
-    \column{.5\textwidth}
+  \item the type of natural numbers:
     \begin{prooftree}
       \AxiomC{}
+      \RightLabel{(z)}
       \UnaryInfC{$\Gamma \vdash \zero : \nat$}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{$\Gamma \vdash \M : \nat$}
+      \RightLabel{(s)}
       \UnaryInfC{$\Gamma \vdash \suc\; \M : \nat$}
     \end{prooftree}
-    \begin{prooftree}
-      \AxiomC{$\Gamma, x : \sigma \vdash \M : \sigma$}
-      \UnaryInfC{$\Gamma\vdash \fix(x .\, \M) : \sigma$}
-    \end{prooftree}
-  \end{columns}
-    \begin{prooftree}
-      \AxiomC{$\Gamma \vdash \M : \nat$}
-      \AxiomC{$\Gamma \vdash \M_0 : \tau$}
-      \AxiomC{$\Gamma, x : \nat \vdash \M_1 : \tau $}
-      \TrinaryInfC{$\Gamma \vdash \ifz(\M, \M_0, x .\, \M_1) : \tau$}
-    \end{prooftree}
+  \end{itemize}
 \end{frame}
+
 \begin{frame}
-  \frametitle{Examples: Predecessor}
-  The predecessor of natural numbers can be defined as
-  \[
-    \pred \defeq \lambda x .\, \ifz (x, \zero, y .\, y)
-    : \nat \to \nat
-  \]
-  with the following typing derivation:
-  \begin{prooftree}
-    \AxiomC{$\Gamma \vdash x : \nat$}
-    \AxiomC{$\Gamma \vdash \zero : \nat$}
-    \AxiomC{$\Gamma, y : \nat \vdash y : \nat$}
-    \TrinaryInfC{$\Gamma \vdash \ifz (x, \zero, y .\, y) : \nat$}
-    \UnaryInfC{$\vdash \lambda x .\, \ifz (x, \zero, y .\, y) : \nat\to\nat$}
-  \end{prooftree}
-  where $\Gamma \defeq x : \nat$. 
+  \begin{itemize}
+    \item \textbf{if zero} test: it is meant to be the \emph{case analysis}
+      on natural numbers:
+      \small
+      \begin{prooftree}
+        \AxiomC{$\Gamma \vdash \M : \nat$}
+        \AxiomC{$\Gamma \vdash \M_0 : \tau$}
+        \AxiomC{$\Gamma, x : \nat \vdash \M_1 : \tau $}
+        \RightLabel{(ifz)}
+        \insertBetweenHyps{\hskip .1em}
+        \TrinaryInfC{$\Gamma \vdash \ifz(\M; \M_0; x .\, \M_1) : \tau$}
+      \end{prooftree}
+    \item \textbf{general recursion} (to be explained):
+      \begin{prooftree}
+        \AxiomC{$\Gamma, x : \sigma \vdash \M : \sigma$}
+        \RightLabel{(Y)}
+        \UnaryInfC{$\Gamma\vdash \fix .\, \M : \sigma$}
+      \end{prooftree}
+     \normalsize
+  \end{itemize}
+  \begin{definition}
+    A well-typed term~$\M$ without free variables is
+    called a \textbf{program} in \PCF.
+  \end{definition}
+  E.g.\ $\fix x .\, \suc\; x$ and $\ifz(\zero; \lambda
+  x.\,\zero; y.\, \lambda z.\, y)$ are programs, but 
+  $\ifz(\zero; \zero; x.\,(\lambda y.\,y))$
+  or $\suc (\lambda x .\, \suc\; x)$ are not.
 \end{frame}
+
 \subsection{Operational semantics}
-\begin{frame}
-  \frametitle{Small-step reduction relation}
+
+\begin{frame}{Small-step reduction relation}
   \begin{definition}
     A \textbf{closed value}, denoted $\val$, in \PCF{} is one of the following:
     \begin{columns}
@@ -150,8 +166,8 @@
       \end{prooftree}
       \column{.3\textwidth}
       \begin{prooftree}
-        \AxiomC{$\M \;\,\val$}
-        \UnaryInfC{$\suc\; \M \;\,\val$}
+        \AxiomC{$\underline{n} \;\,\val$}
+        \UnaryInfC{$\suc\; \underline{n} \;\,\val$}
       \end{prooftree}
       \column{.3\textwidth}
       \begin{prooftree}
@@ -160,41 +176,40 @@
       \end{prooftree}
     \end{columns}
   \end{definition}
-%  For convenience, define $\underline{0} \defeq \zero$
-%  and $\suc(\underline{n}) = \underline{n+1}$. 
   \begin{block}{Notation}
     The notation $\leadsto$ is a relation between terms, denoted
     \[
       \M \leadsto \M'
     \]
-    which means that the term~$\M$ reduces to~$\M'$ in \emph{one step},
-    and $\M \not\leadsto \M'$ means that there is no reduction from $\M$ to
-    $\M'$.
+    which means that the term~$\M$ reduces to~$\M'$ in \emph{one step}.
   \end{block}
-  For example, 
-  \[
-    \ifz(\zero, \M_0, x .\, \M_1) \leadsto \M_0
-  \]
-  means that $\ifz(\zero, \M_0, x.\, \M_1)$ reduces to $\M_0$.
-\end{frame}
-\begin{frame}
-  \frametitle{Non-strict interpretation: call-by-name}
-  Every argument is only evaluated if needed:
-  \begin{columns}[t]
-    \column[t]{.62\textwidth}
+  For example, for the \emph{eager} evaluation
+  $\suc\;\M$ reduces to $\suc\;\M'$ if $\M$ reduces to $\M'$
     \begin{prooftree}
       \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\ifz(\M, \M_0, x .\,\M_1) \leadsto \ifz(\M', \M_0, x.\,\M_1)$}
+      \UnaryInfC{$\suc\;\M \leadsto \suc\;\M'$.}
+    \end{prooftree}
+\end{frame}
+
+\begin{frame}{Non-strict interpretation: call-by-name}
+  Each argument is only evaluated if needed:
+  \begin{columns}[t]
+    \column[t]{.63\textwidth}
+    \begin{prooftree}
+      \AxiomC{$\M \leadsto \M'$}
+      \UnaryInfC{$\ifz(\M; \M_0; x .\,\M_1) \leadsto \ifz(\M'; \M_0; x.\,\M_1)$}
     \end{prooftree}
     \begin{prooftree}
       \AxiomC{}
-      \UnaryInfC{$\ifz(\zero, \M_0, x .\, \M_1) \leadsto \M_0$}
+      \UnaryInfC{$\ifz(\underline{0}; \M_0; x .\, \M_1) \leadsto \M_0$}
     \end{prooftree}
     \begin{prooftree}
-      \AxiomC{$\suc\;\M \;\, \val$}
-      \UnaryInfC{$\ifz(\suc\;\M, \M_0, x .\, \M_1) \leadsto \M_1[\M/x]$}
+      \AxiomC{$\suc\;\underline{n} \;\, \val$}
+      \UnaryInfC{$\ifz(\suc\;\underline{n}; \M_0; x .\, \M_1) \leadsto
+        \M_1[\underline{n}/x]$}
     \end{prooftree}
-    \column[t]{.38\textwidth}
+    \column[t]{.37\textwidth}
+    \alert{
     \begin{prooftree}
       \AxiomC{$\M \leadsto \M'$}
       \UnaryInfC{$\M\;\N \leadsto \M'\;\N$}
@@ -203,27 +218,22 @@
       \AxiomC{}
       \UnaryInfC{$(\lambda x .\, \M)\; \N \leadsto
         \M[\N/x] $}
-    \end{prooftree}
+    \end{prooftree}}
     \begin{prooftree}
       \AxiomC{}
-      \UnaryInfC{$\fix (x .\,\M) \leadsto \M[\fix (x .\, M)/x]$}
+      \UnaryInfC{$\fix x .\,\M \leadsto \M[\fix x .\, M/x]$}
     \end{prooftree}
   \end{columns}
 \end{frame}
-\begin{frame}
-  \frametitle{Strict interpretation: call-by-value}
+
+\begin{frame}{Strict interpretation: call-by-value}
   For the call-by-value evaluation strategy, every argument is evaluated
-  before application:
-    \begin{prooftree}
-      \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\suc\;\M \leadsto \suc\;\M'$}
-    \end{prooftree}
+  before application. The rules for application are modified:
     \begin{prooftree}
       \AxiomC{$\M \;\,\val$}
       \AxiomC{$\N \leadsto \N'$}
       \BinaryInfC{$\M\; \N \leadsto \M'\; \N$}
     \end{prooftree}
-    and modify the rule for application:
     \begin{prooftree}
       \AxiomC{$\N \;\,\val$}
       \UnaryInfC{$(\lambda x .\, \M)\; \N \leadsto
@@ -231,10 +241,11 @@
     \end{prooftree}
   In the following context, we adopt the call-by-name interpretation. 
 \end{frame}
+
 \begin{frame}
   \begin{definition}
     The relation $\leadsto^*$ between terms is defined inductively:\footnote{
-      In short $\leadsto^*$ is the transitive reflexive closure of $\leadsto$.}
+      In short, $\leadsto^*$ is the transitive reflexive closure of $\leadsto$.}
     \begin{columns}
       \column{.5\textwidth}
         \begin{prooftree}
@@ -245,6 +256,7 @@
         \begin{prooftree}
           \AxiomC{$\M \leadsto \M'$}
           \AxiomC{$\M' \leadsto^* \M''$}
+          \insertBetweenHyps{\hskip .5em}
           \BinaryInfC{$\M \leadsto^* \M''$}
         \end{prooftree}
     \end{columns}
@@ -259,8 +271,28 @@
     \]
   \end{theorem}
 \end{frame}
-\begin{frame}
-  \frametitle{In-class Exercise}
+
+\begin{frame}{Examples: Predecessor}
+  The predecessor of natural numbers can be defined as
+  \[
+    \pred \defeq \lambda x .\, \ifz (x; \zero; y .\, y)
+    : \nat \to \nat
+  \]
+  with the following typing derivation:
+  \begin{prooftree}
+    \AxiomC{}
+    \UnaryInfC{$\Gamma \vdash x : \nat$}
+    \AxiomC{}
+    \UnaryInfC{$\Gamma \vdash \zero : \nat$}
+    \AxiomC{}
+    \UnaryInfC{$\Gamma, y : \nat \vdash y : \nat$}
+    \TrinaryInfC{$\Gamma \vdash \ifz (x; \zero; y .\, y) : \nat$}
+    \UnaryInfC{$\vdash \lambda x .\, \ifz (x; \zero; y .\, y) : \nat\to\nat$}
+  \end{prooftree}
+  where $\Gamma \defeq x : \nat$. 
+\end{frame}
+
+\begin{frame}{In-class Exercise}
   Try to be familiar with $\ifz$.
   \begin{enumerate}
     \item Calculate $\pred\;\M$ for $\M \;\,\val$
@@ -270,60 +302,63 @@
       \[
         \pred\;\zero \leadsto^*\, ?
       \]
-      For the inductive case $\M \equiv \suc\; \M$:
+      For the inductive case $\M \equiv \suc\; \underline{n}$:
       \begin{prooftree}
-        \AxiomC{$\suc\;M \;\,\val$}
-        \UnaryInfC{$\pred\;(\suc\;\M) \leadsto^*\, ?$}
+        \AxiomC{$\suc\;\underline{n} \;\,\val$}
+        \UnaryInfC{$\pred\;(\suc\;\underline{n}) \leadsto^*\, ?$}
       \end{prooftree}
     \item Define $\mathtt{flip}\colon \nat \to \nat$
       such that $\mathtt{flip}\;\zero \leadsto^* \suc\; \zero$
       and $\mathtt{flip}\; (\suc \;\M) \leadsto^* \zero$. 
   \end{enumerate}
 \end{frame}
-\begin{frame}
-  \frametitle{Calculating the triangular numbers}
+
+\begin{frame}{Calculating the triangular numbers}
   We would like to define $\mathtt{sum}:\nat \to\nat$ such that 
+  $\mathtt{sum}\;\underline{n}$ calculates the sum from $\zero$
+  to $\underline{n}$, i.e.\ informally 
   \[
-    \mathtt{sum}\; n \leadsto^* \sum_{i = 0}^n i 
+    \mathtt{sum}\; \underline{n} = \sum_{i = 0}^n i 
   \]
-  by recursion:
+  Suppose we have $\texttt{add} : \nat \to \nat \to \nat$ for addition. 
+  Intuitively, we can define $\mathtt{sum}$ by
   \begin{enumerate}
-    \item $\mathtt{sum}\;\zero \leadsto^* \zero$; 
-    \item $\mathtt{sum}\;(\suc\;\M) \leadsto^*
+    \item $\mathtt{sum}\;\zero = \zero$; 
+    \item $\mathtt{sum}\;(\suc\;\M) =
       \suc\; \M\mathbin{\mathtt{+}}\mathtt{sum}\;\M$
   \end{enumerate}
-  where the definition of $\texttt{+}$ is left as an exercise.
-  % some intro here
+  Wait, $\texttt{sum}\;\M$
+ is used in the definition of $\texttt{sum}$, which is being defined. 
+\end{frame}
+
+\begin{frame}
   \begin{equation}
     \label{eq:triangular_num}
-    \fix(f .\, \lambda n .\, \ifz(n, \zero, m .\, n
-    \mathbin{\texttt{+}} f\, m)\,) : \nat \to \nat
+    \fix f.\, \lambda n .\, \ifz(n; \zero; m .\, \mathtt{add}\; n\; (f\; m))
   \end{equation}
 \end{frame}
-\begin{frame}
-  \frametitle{Comparison of natural numbers}
+
+\begin{frame}{\texttt{fold} over natural numbers}
 \end{frame}
-\begin{frame}
-  \frametitle{\texttt{fold} over natural numbers}
-\end{frame}
-\begin{frame}
-  \frametitle{Determinacy}
+
+\begin{frame}{Determinacy}
   \begin{theorem}
     Suppose that
-    $\M \leadsto \N_1$ and $\M \leadsto \N_2$. Then $\N_1 \equiv \N_2$. 
+    $\M \leadsto \N_1$ and $\M \leadsto \N_2$. Then $\N_1$ and $\N_2$
+    are $\alpha$-equivalent. 
   \end{theorem}
   \begin{proof}
     Prove it by structural induction on $\M$. 
   \end{proof}
 \end{frame}
-\begin{frame}
-  \frametitle{Big-step semantics}
+
+\begin{frame}{Big-step semantics}
   Instead of the small-step reduction relation~$\leadsto$, we can define a
   \textbf{big-step} reduction relation~$\Downarrow$
   between terms and \alert{closed values} as follows: 
 \end{frame}
-\begin{frame}
-  \frametitle{Big-step semantics coincides with small-step semantics}
+
+\begin{frame}{Big-step semantics coincides with small-step semantics}
   \begin{theorem}
     For every closed term $\M$ and closed value~$\mathsf{V}$, 
     \[
@@ -335,23 +370,28 @@
     \]
   \end{theorem}
 \end{frame}
+
 \section{Type safety}
-\begin{frame}
-  \frametitle{Inversion and substitution}
+
+\begin{frame}{Inversion and substitution}
 \end{frame}
+
 \begin{frame}
 \end{frame}
-\begin{frame}
-  \frametitle{Progress Theorem}
+
+\begin{frame}{Progress Theorem}
 \end{frame}
-\begin{frame}
-  \frametitle{Preservation Theorem}
+
+\begin{frame}{Preservation Theorem}
 \end{frame}
+
 \section{Equivalences}
-\begin{frame}
+
+\begin{frame}{Observational Equivalence}
 \end{frame}
 \section*{Exercises}
-\begin{frame}<0>
+
+\begin{frame}<0>{Basic}
   \begin{enumerate}
     \item Define the following programs in \PCF{}:
       \begin{enumerate}
@@ -359,18 +399,81 @@
         \item factorials
         \item anything interesting? 
       \end{enumerate}
-    \item Give the typing derivation of \eqref{eq:triangular_num}.
-    \item Let $\bool$ be a type with two constructs $\false : \bool$
-      and $\true : \bool$.
+    \item Infer the type of \eqref{eq:triangular_num}
+      with derivation. 
+    \item \seti Let $\bool$ be a type with two constructors:
+      \begin{columns}
+        \column{.5\textwidth}
+        \begin{prooftree}
+          \AXC{}
+          \UIC{$\true:\bool$}
+        \end{prooftree}
+        \column{.5\textwidth}
+        \begin{prooftree}
+          \AXC{}
+          \UIC{$\false:\bool$}
+        \end{prooftree}
+      \end{columns}
       \begin{enumerate}
-        \item Provide the suitable typing rule for
-          the \textbf{if-then-else} construct
-          $\mathtt{if}$.
+        \item Provide the typing rule for
+          the \textbf{if-then-else} construct:
+          \begin{prooftree}
+            \AXC{?}
+            \UIC{$\Gamma \vdash \mathtt{if}(\M_0; \M_1; \M_2):\tau$}
+          \end{prooftree}
         \item Provide its small-step semantics.
       \end{enumerate}
-    \item Compare the call-by-value and call-by-name interpretations. What
-      rules are missing from the call-by-name interpretation?
-    \item Primitive recursion, System T, totality. 
   \end{enumerate}
 \end{frame}
+
+\begin{frame}<0>{Advanced}
+  \begin{enumerate}
+    \conti
+    \item 
+      Define primitive recursion in \PCF{}
+      \[
+        \mathtt{rec} : \tau\to(\nat\to\tau\to\tau)\to\nat\to\tau
+      \]
+      such that it reduces to 
+      \begin{align*}
+        & \mathtt{rec}\;e_0\; f\; \zero && \leadsto^* e_0 \\
+        & \mathtt{rec}\;e_0\; f\; (\suc\;\M) && \leadsto^*
+        f\;\underline{n}\;(\mathtt{rec}\;e_0\; f\; \underline{n})
+      \end{align*}
+      on $\zero$ and $(\suc\;\M)$ respectively 
+    \item \seti
+      Show that $\mathtt{rec}\;e_0\;f\;\underline{n}$ reduces eventually
+      to a closed value if $f$ terminating and $\underline{n}$ a closed value.
+  \end{enumerate}
+    Consider G\"odel's \textbf{T}, simply typed lambda calculus with
+    natural numbers and \emph{primitive recursion}:
+    \begin{prooftree}
+      \AXC{$\Gamma \vdash e_0 : \tau$}
+      \AXC{$\Gamma \vdash \M : \nat$}
+      \AXC{$\Gamma, x : \nat, y : \tau \vdash e_1 : \tau$}
+      \insertBetweenHyps{\hskip .2em}
+      \TIC{$\Gamma \vdash \mathtt{rec}(e_0; x.\,y.\, e_1; \M) : \tau$}
+    \end{prooftree}
+  \begin{enumerate}
+      \conti
+    \item Provide the small-step semantics for $\mathtt{rec}$. 
+    \item Show that every well-typed closed term in \textbf{T} reduces to a closed
+      value eventually. This property is called \emph{totality}.
+    \item Show that \textbf{T} has Progress Theorem and Preservation Theorem.
+  \end{enumerate}
+\end{frame}
+\subsection*{Reference}
+\begin{frame}<0>
+  \emph{Denotational Semantics} and this lecture are based on the following 
+  two books:
+  \begin{enumerate}
+    \item
+      \href{http://www.mathematik.tu-darmstadt.de/~streicher/MGFP/MGFP.pdf.gz}{Thomas Streicher, \emph{Domain-Theoretic Foundations of Functional
+      Programming}, World Scientific, 2006}
+    \item \href{http://www.cs.cmu.edu/~rwh/plbook/book.pdf}{Robert Harper, \emph{Practical Foundations for Programming
+        Languages}, Cambridge University Press, 2012}
+  \end{enumerate}
+  Their preprints are available on the Internet.
+\end{frame}
+
 \end{document}
