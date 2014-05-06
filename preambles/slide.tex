@@ -1,11 +1,17 @@
-\documentclass[11pt,a4paper]{beamer}
-\usetheme{Pittsburgh}
+\documentclass[11pt,compress]{beamer}
+\beamertemplatenavigationsymbolsempty
+%\usetheme{Pittsburgh}
+
+\useinnertheme{rectangles}
 \usecolortheme{beaver}
+\usecolortheme{rose}
+
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[british]{babel}
 \usepackage{mathrsfs,bussproofs}
+\EnableBpAbbreviations
 
 %\newtheorem{theorem}{Theorem}[section]
 %\newtheorem{lemma}[theorem]{Lemma}
@@ -34,11 +40,11 @@
 
 \newcommand{\PCF}{\textbf{PCF}}
 
-\newcommand{\type}{\mathtt{set}} % the type of types ...
 \newcommand{\nat}{\mathtt{nat}}
-\newcommand{\bool}{\mathtt{Bool}}
+\newcommand{\bool}{\mathtt{bool}}
 
-\newcommand{\val}{\mathtt{val}}
+\newcommand{\val}{\mathbf{val}}
+\newcommand{\type}{\mathbf{set}} % the type of types ...
 
 \newcommand{\fix}{\mathtt{Y}}
 \newcommand{\natrec}{\mathtt{natrec}}
@@ -54,7 +60,11 @@
 \newcommand{\N}{\mathsf{N}}
 \newcommand{\V}{\mathsf{V}}
 
+\newcounter{saveenumi}
+\newcommand{\seti}{\setcounter{saveenumi}{\value{enumi}}}
+\newcommand{\conti}{\setcounter{enumi}{\value{saveenumi}}}
+
+\resetcounteronoverlays{saveenumi}
 
 \date[FLOLAC'14]{Formosan Summer School on Logic, Language, and Computation
   2014}
-\titlegraphic{\includegraphics[scale=.15]{IIS_logo.png}}

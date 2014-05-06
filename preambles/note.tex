@@ -7,6 +7,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{mathrsfs,bussproofs}
+\EnableBpAbbreviations
 \usepackage{hyperref}
 
 %\newtheorem{theorem}{Theorem}[section]
@@ -36,10 +37,10 @@
 
 \newcommand{\PCF}{\textbf{PCF}}
 
-\newcommand{\type}{\mathtt{set}}
 \newcommand{\nat}{\mathtt{nat}}
 \newcommand{\bool}{\mathtt{bool}}
 
+\newcommand{\type}{\mathbf{set}}
 \newcommand{\val}{\mathbf{val}}
 
 \newcommand{\fix}{\mathtt{Y}}
@@ -56,7 +57,9 @@
 \newcommand{\N}{\mathsf{N}}
 \newcommand{\V}{\mathsf{V}}
 
+\newcounter{saveenumi}
+\newcommand{\seti}{\setcounter{saveenumi}{\value{enumi}}}
+\newcommand{\conti}{\setcounter{enumi}{\value{saveenumi}}}
 
 \date[FLOLAC'14]{Formosan Summer School on Logic, Language, and Computation
   2014}
-\titlegraphic{\includegraphics[scale=.2]{IIS_logo.png}}
