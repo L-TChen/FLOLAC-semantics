@@ -12,11 +12,21 @@
 
 \begin{frame}{The meaning of programs}
   How can we tell if a program is correct? 
+  \begin{enumerate}
+    \item A rigorous specification of language is essential. Everything must be
+      defined without any ambiguities. No undefined behaviour. 
+    \item A structural approach to semantics. The meaning of a program is
+      built from its parts, so verification is possible. 
+    \item The precise definitions of notions, such as strict and lazy
+      evaluation strategies. 
+    \item The same approach can be applied to different language features.
+  \end{enumerate}
 \end{frame}
-\begin{frame}
+
+\begin{frame}{Two approaches to be taught}
   \begin{enumerate}
     \item \textbf{Operational approach}: How values and functions are computed?
-      E.g., for $\mathtt{add}:\nat \to \nat \to\nat$ and numeral
+      E.g., for $\mathtt{add}:\nat \to \nat \to\nat$ and numerals
       $\underline{2}$, $\underline{4}$
       \begin{align*}
         & \mathtt{add}\;\underline{2}\;\underline{4}
@@ -61,14 +71,14 @@
     \begin{columns}[t]
       \column{.5\textwidth}
       \begin{prooftree}
-        \AxiomC{}
-        \UnaryInfC{$\nat\;\,\type$}
+        \AXC{}
+        \UIC{$\nat\;\,\type$}
       \end{prooftree}
       \column{.5\textwidth}
       \begin{prooftree}
-        \AxiomC{$\tau_1\;\,\type$}
-        \AxiomC{$\tau_2 \;\,\type$}
-        \BinaryInfC{$\tau_1 \to \tau_2 \;\,\type$}
+        \AXC{$\tau_1\;\,\type$}
+        \AXC{$\tau_2 \;\,\type$}
+        \BIC{$\tau_1 \to \tau_2 \;\,\type$}
       \end{prooftree}
     \end{columns}
     or equivalently by the grammar $\tau \defeq \nat \mid \tau \to
@@ -88,36 +98,36 @@
 
 \begin{frame}{Typing Rules for PCF}
   A \textbf{judgement} $\Gamma \vdash \M : \tau$ denotes that $\M$ has type
-  $\tau$ under the context.  \PCF{} consists of
+  $\tau$ under the context~$\Gamma$.  \PCF{} consists of
   \begin{itemize}
     \item simply typed lambda calculus (with $\to$ only):
     \begin{prooftree}
-      \AxiomC{}
+      \AXC{}
       \RightLabel{(var)}
-      \UnaryInfC{$\Gamma, x : \sigma, \Delta \vdash x : \sigma$}
+      \UIC{$\Gamma, x : \sigma, \Delta \vdash x : \sigma$}
     \end{prooftree}
     \begin{prooftree}
-      \AxiomC{$\Gamma, x : \sigma \vdash \M : \tau$}
+      \AXC{$\Gamma, x : \sigma \vdash \M : \tau$}
       \RightLabel{(abs)}
-      \UnaryInfC{$\Gamma \vdash \lambda x .\, \M : \sigma \to
+      \UIC{$\Gamma \vdash \lambda x .\, \M : \sigma \to
         \tau$}
     \end{prooftree}
     \begin{prooftree}
-      \AxiomC{$\Gamma \vdash \M : \sigma \to \tau$}
-      \AxiomC{$\Gamma \vdash \N : \sigma$}
+      \AXC{$\Gamma \vdash \M : \sigma \to \tau$}
+      \AXC{$\Gamma \vdash \N : \sigma$}
       \RightLabel{(app)}
-      \BinaryInfC{$\Gamma \vdash \M\; \N : \tau$}
+      \BIC{$\Gamma \vdash \M\; \N : \tau$}
     \end{prooftree}
   \item the type of natural numbers:
     \begin{prooftree}
-      \AxiomC{}
+      \AXC{}
       \RightLabel{(z)}
-      \UnaryInfC{$\Gamma \vdash \zero : \nat$}
+      \UIC{$\Gamma \vdash \zero : \nat$}
     \end{prooftree}
     \begin{prooftree}
-      \AxiomC{$\Gamma \vdash \M : \nat$}
+      \AXC{$\Gamma \vdash \M : \nat$}
       \RightLabel{(s)}
-      \UnaryInfC{$\Gamma \vdash \suc\; \M : \nat$}
+      \UIC{$\Gamma \vdash \suc\; \M : \nat$}
     \end{prooftree}
   \end{itemize}
 \end{frame}
@@ -128,29 +138,54 @@
       on natural numbers:
       \small
       \begin{prooftree}
-        \AxiomC{$\Gamma \vdash \M : \nat$}
-        \AxiomC{$\Gamma \vdash \M_0 : \tau$}
-        \AxiomC{$\Gamma, x : \nat \vdash \M_1 : \tau $}
+        \AXC{$\Gamma \vdash \M : \nat$}
+        \AXC{$\Gamma \vdash \M_0 : \tau$}
+        \AXC{$\Gamma, x : \nat \vdash \M_1 : \tau $}
         \RightLabel{(ifz)}
         \insertBetweenHyps{\hskip .1em}
-        \TrinaryInfC{$\Gamma \vdash \ifz(\M; \M_0; x .\, \M_1) : \tau$}
+        \TIC{$\Gamma \vdash \ifz(\M; \M_0; x .\, \M_1) : \tau$}
       \end{prooftree}
     \item \textbf{general recursion} (to be explained):
       \begin{prooftree}
-        \AxiomC{$\Gamma, x : \sigma \vdash \M : \sigma$}
+        \AXC{$\Gamma, x : \sigma \vdash \M : \sigma$}
         \RightLabel{(Y)}
-        \UnaryInfC{$\Gamma\vdash \fix .\, \M : \sigma$}
+        \UIC{$\Gamma\vdash \fix .\, \M : \sigma$}
       \end{prooftree}
      \normalsize
   \end{itemize}
   \begin{definition}
-    A well-typed term~$\M$ without free variables is
-    called a \textbf{program} in \PCF.
+    A term~$\M$ of type $\tau$ is called a \textbf{program}
+    of type $\tau$ in \PCF{} if it is derivable under an empty context, i.e.\ 
+    the judgement
+    \[
+      () \vdash \M : \tau
+    \] 
+    is derivable where $()$ denotes the empty context for emphasis. 
   \end{definition}
   E.g.\ $\fix x .\, \suc\; x$ and $\ifz(\zero; \lambda
-  x.\,\zero; y.\, \lambda z.\, y)$ are programs, but 
-  $\ifz(\zero; \zero; x.\,(\lambda y.\,y))$
-  or $\suc (\lambda x .\, \suc\; x)$ are not.
+  x.\,\zero; y.\, \lambda z.\, y)$ are programs, but~$\lambda y.\, x\; y$
+  or $\suc\; (\lambda x .\, \suc\; x)$ are not.
+\end{frame}
+
+\begin{frame}{Example: Predecessor}
+  The predecessor of natural numbers can be defined as
+  \[
+    \pred \defeq \lambda x .\, \ifz (x; \zero; y .\, y)
+    : \nat \to \nat
+  \]
+  with the following typing derivation:
+  \begin{prooftree}
+    \AXC{}
+    \UIC{$\Gamma \vdash x : \nat$}
+    \AXC{}
+    \UIC{$\Gamma \vdash \zero : \nat$}
+    \AXC{}
+    \UIC{$\Gamma, y : \nat \vdash y : \nat$}
+    \insertBetweenHyps{\hskip .5em}
+    \TIC{$\Gamma \vdash \ifz (x; \zero; y .\, y) : \nat$}
+    \UIC{$\vdash \lambda x .\, \ifz (x; \zero; y .\, y) : \nat\to\nat$}
+  \end{prooftree}
+  where $\Gamma \defeq x : \nat$. 
 \end{frame}
 
 \subsection{Operational semantics}
@@ -161,18 +196,18 @@
     \begin{columns}
       \column{.3\textwidth}
       \begin{prooftree}
-        \AxiomC{}
-        \UnaryInfC{$\zero\;\,\val$}
+        \AXC{}
+        \UIC{$\zero\;\,\val$}
       \end{prooftree}
       \column{.3\textwidth}
       \begin{prooftree}
-        \AxiomC{$\underline{n} \;\,\val$}
-        \UnaryInfC{$\suc\; \underline{n} \;\,\val$}
+        \AXC{$\underline{n} \;\,\val$}
+        \UIC{$\suc\; \underline{n} \;\,\val$}
       \end{prooftree}
       \column{.3\textwidth}
       \begin{prooftree}
-        \AxiomC{}
-        \UnaryInfC{$\lambda x .\,\M \;\, \val$}
+        \AXC{}
+        \UIC{$\lambda x .\,\M \;\, \val$}
       \end{prooftree}
     \end{columns}
   \end{definition}
@@ -186,113 +221,156 @@
   For example, for the \emph{eager} evaluation
   $\suc\;\M$ reduces to $\suc\;\M'$ if $\M$ reduces to $\M'$
     \begin{prooftree}
-      \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\suc\;\M \leadsto \suc\;\M'$.}
+      \AXC{$\M \leadsto \M'$}
+      \RightLabel{($\leadsto$-$\suc$)}
+      \UIC{$\suc\;\M \leadsto \suc\;\M'$}
     \end{prooftree}
 \end{frame}
 
-\begin{frame}{Non-strict interpretation: call-by-name}
-  Each argument is only evaluated if needed:
-  \begin{columns}[t]
-    \column[t]{.63\textwidth}
+\begin{frame}{Reduction of $\ifz$ and $\fix$}
+  For the if-zero test,  the first argument must be reduced to a closed
+  value before branching, but branching can be done before the evaluation
+  on branches:
     \begin{prooftree}
-      \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\ifz(\M; \M_0; x .\,\M_1) \leadsto \ifz(\M'; \M_0; x.\,\M_1)$}
+      \AXC{$\M \leadsto \M'$}
+      \RightLabel{($\leadsto$-$\ifz$)}
+      \UIC{$\ifz(\M; \M_0; x .\,\M_1) \leadsto \ifz(\M'; \M_0; x.\,\M_1)$}
     \end{prooftree}
     \begin{prooftree}
-      \AxiomC{}
-      \UnaryInfC{$\ifz(\underline{0}; \M_0; x .\, \M_1) \leadsto \M_0$}
+      \AXC{}
+      \RightLabel{($\leadsto$-$\ifz_0$)}
+      \UIC{$\ifz(\zero; \M_0; x .\, \M_1) \leadsto \M_0$}
     \end{prooftree}
     \begin{prooftree}
-      \AxiomC{$\suc\;\underline{n} \;\, \val$}
-      \UnaryInfC{$\ifz(\suc\;\underline{n}; \M_0; x .\, \M_1) \leadsto
+      \AXC{$\suc\;\underline{n} \;\, \val$}
+      \RightLabel{($\leadsto$-$\ifz_1$)}
+      \UIC{$\ifz(\suc\;\underline{n}; \M_0; x .\, \M_1) \leadsto
         \M_1[\underline{n}/x]$}
     \end{prooftree}
-    \column[t]{.37\textwidth}
-    \alert{
+  For general recursion, each occurrence of $\fix.\,\M$ reduces to an substitution
+  of~$x$ in~$\M$ by itself:
     \begin{prooftree}
-      \AxiomC{$\M \leadsto \M'$}
-      \UnaryInfC{$\M\;\N \leadsto \M'\;\N$}
+      \AXC{}
+      \RightLabel{($\leadsto$-fix)}
+      \UIC{$\fix x .\,\M \leadsto \M[\fix x .\, M/x]$}
     \end{prooftree}
-    \begin{prooftree}
-      \AxiomC{}
-      \UnaryInfC{$(\lambda x .\, \M)\; \N \leadsto
-        \M[\N/x] $}
-    \end{prooftree}}
-    \begin{prooftree}
-      \AxiomC{}
-      \UnaryInfC{$\fix x .\,\M \leadsto \M[\fix x .\, M/x]$}
-    \end{prooftree}
-  \end{columns}
+  Where is recursion? Try to evaluate $\fix x.\, \suc x$. 
 \end{frame}
 
-\begin{frame}{Strict interpretation: call-by-value}
-  For the call-by-value evaluation strategy, every argument is evaluated
-  before application. The rules for application are modified:
+\begin{frame}{Reduction for application: call-by-name and call-by-value}
+  In call-by-name evaluation, arguments are substituted directly into the
+  function body. It is a \alert{non-strict} evaluation strategy, because
+  application with non-terminating arguments can be terminating.
     \begin{prooftree}
-      \AxiomC{$\M \;\,\val$}
-      \AxiomC{$\N \leadsto \N'$}
-      \BinaryInfC{$\M\; \N \leadsto \M'\; \N$}
+      \AXC{$\M \leadsto \M'$}
+      \RightLabel{($\leadsto$-lapp)}
+      \UIC{$\M\;\N \leadsto \M'\;\N$}
     \end{prooftree}
     \begin{prooftree}
-      \AxiomC{$\N \;\,\val$}
-      \UnaryInfC{$(\lambda x .\, \M)\; \N \leadsto
+      \AXC{}
+      \RightLabel{($\leadsto$-by-name)}
+      \UIC{$(\lambda x .\, \M)\; \N \leadsto
+        \M[\N/x] $}
+    \end{prooftree}
+  In call-by-value evaluation, each argument is evaluated
+  before application. It is a \alert{strict} evaluation strategy, as
+  non-terminating arguments always lead to non-terminating terms. 
+    \begin{prooftree}
+      \AXC{$\M \;\,\val$}
+      \AXC{$\N \leadsto \N'$}
+      \RightLabel{($\leadsto$-by-value-$1$)}
+      \BIC{$\M\; \N \leadsto \M'\; \N$}
+    \end{prooftree}
+    \begin{prooftree}
+      \AXC{$\N \;\,\val$}
+      \RightLabel{($\leadsto$-by-value-$2$)}
+      \UIC{$(\lambda x .\, \M)\; \N \leadsto
         \M[\N/x] $}
     \end{prooftree}
   In the following context, we adopt the call-by-name interpretation. 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Transitive reflexive closure of $\leadsto$}
   \begin{definition}
     The relation $\leadsto^*$ between terms is defined inductively:\footnote{
       In short, $\leadsto^*$ is the transitive reflexive closure of $\leadsto$.}
     \begin{columns}
       \column{.5\textwidth}
         \begin{prooftree}
-          \AxiomC{}
-          \UnaryInfC{$\M \leadsto^* \M$}
+          \AXC{}
+          \UIC{$\M \leadsto^* \M$}
         \end{prooftree}
       \column{.5\textwidth}
         \begin{prooftree}
-          \AxiomC{$\M \leadsto \M'$}
-          \AxiomC{$\M' \leadsto^* \M''$}
+          \AXC{$\M \leadsto \M'$}
+          \AXC{$\M' \leadsto^* \M''$}
           \insertBetweenHyps{\hskip .5em}
-          \BinaryInfC{$\M \leadsto^* \M''$}
+          \BIC{$\M \leadsto^* \M''$}
         \end{prooftree}
     \end{columns}
   \end{definition}
   We say that a term $\M$ \emph{reduces to $\M'$ eventually} if $\M \leadsto^* \M'$. 
-  \begin{theorem}
+  \begin{proposition}
     For any two terms $\M$ and $\M'$, 
-    $\M \leadsto^* \M'$ if and only if
-    $\M' \equiv \M$ or there exists a finite sequence 
+    $\M \leadsto^* \M'$ if and only if there exists a finite sequence 
     \[
-      \M \equiv \M_0 \leadsto \M_1 \leadsto \cdots \leadsto \M_k \equiv \M'. 
+      \M \equiv \M_1 \leadsto \M_2 \leadsto \cdots \leadsto \M_k \equiv \M'. 
     \]
-  \end{theorem}
+  \end{proposition}
 \end{frame}
 
-\begin{frame}{Examples: Predecessor}
-  The predecessor of natural numbers can be defined as
+
+\begin{frame}{Example: Calculating the factorials}
+  To define the factorials, we are seeking for a function~$\mathtt{fact}$ satisfying
   \[
-    \pred \defeq \lambda x .\, \ifz (x; \zero; y .\, y)
-    : \nat \to \nat
+    \mathtt{fact}(n) \mapsto
+    \begin{cases}
+      0 & \text{if } n = 1 \\
+      n \times \mathtt{fact}(n') & \text{if } n = n' + 1
+    \end{cases}
   \]
-  with the following typing derivation:
-  \begin{prooftree}
-    \AxiomC{}
-    \UnaryInfC{$\Gamma \vdash x : \nat$}
-    \AxiomC{}
-    \UnaryInfC{$\Gamma \vdash \zero : \nat$}
-    \AxiomC{}
-    \UnaryInfC{$\Gamma, y : \nat \vdash y : \nat$}
-    \TrinaryInfC{$\Gamma \vdash \ifz (x; \zero; y .\, y) : \nat$}
-    \UnaryInfC{$\vdash \lambda x .\, \ifz (x; \zero; y .\, y) : \nat\to\nat$}
-  \end{prooftree}
-  where $\Gamma \defeq x : \nat$. 
+  and this can be understood as the fixpoint of the functional~$F$ mapping~$f
+  \colon\mathbb{N} \to \mathbb{N}$ to~$f'\colon\mathbb{N}\to\mathbb{N}$ defined
+  by
+  \[
+    \label{eq:factorial_informal}
+    f'\colon n \mapsto
+    \begin{cases}
+      1 & \text{if } n = 0 \\
+      n \times f(n') & \text{if } n = n' + 1
+    \end{cases}
+  \]
+  where $f'$ does not depend on itself.
 \end{frame}
 
-\begin{frame}{In-class Exercise}
+\begin{frame}
+  Under the context of $\Gamma \defeq f\colon \nat \to \nat$, we
+  define a function depending on $f$:
+  \[
+    \Gamma \vdash \lambda n.\, \ifz(n; \underline{1}; m.\, n \times (f\; m))
+      : \nat \to \nat
+  \]
+  and thus we derive its fixpoint by $\fix$:
+  \[
+    \mathtt{fact} \defeq
+    \fix f.\, \lambda n .\, \ifz(n; \underline{1}; m .\, n\times (f\; m))
+  \]
+  where $\underline{1} \equiv \suc\;\zero$.
+  \begin{block}{Exercise}
+    Assuming that $\times : \nat\to\nat\to\nat$ is in the context $\Gamma$,
+    infer the type of $\mathtt{fact}$ under $\Gamma$ and show that
+    \[
+      \mathtt{fact}\;\underline{0} \leadsto^* \underline{1}
+    \]
+    and 
+    \[
+      \mathtt{fact}\;(\suc\;\underline{n}) \leadsto^* (\suc\:\M) \times
+      (\mathtt{fact}\;\underline{n})
+    \]
+    for a closed value $\underline{n}$. 
+  \end{block}
+\end{frame}
+\begin{frame}{In-class exercise}
   Try to be familiar with $\ifz$.
   \begin{enumerate}
     \item Calculate $\pred\;\M$ for $\M \;\,\val$
@@ -304,8 +382,8 @@
       \]
       For the inductive case $\M \equiv \suc\; \underline{n}$:
       \begin{prooftree}
-        \AxiomC{$\suc\;\underline{n} \;\,\val$}
-        \UnaryInfC{$\pred\;(\suc\;\underline{n}) \leadsto^*\, ?$}
+        \AXC{$\suc\;\underline{n} \;\,\val$}
+        \UIC{$\pred\;(\suc\;\underline{n}) \leadsto^*\, ?$}
       \end{prooftree}
     \item Define $\mathtt{flip}\colon \nat \to \nat$
       such that $\mathtt{flip}\;\zero \leadsto^* \suc\; \zero$
@@ -313,62 +391,138 @@
   \end{enumerate}
 \end{frame}
 
-\begin{frame}{Calculating the triangular numbers}
-  We would like to define $\mathtt{sum}:\nat \to\nat$ such that 
-  $\mathtt{sum}\;\underline{n}$ calculates the sum from $\zero$
-  to $\underline{n}$, i.e.\ informally 
-  \[
-    \mathtt{sum}\; \underline{n} = \sum_{i = 0}^n i 
-  \]
-  Suppose we have $\texttt{add} : \nat \to \nat \to \nat$ for addition. 
-  Intuitively, we can define $\mathtt{sum}$ by
-  \begin{enumerate}
-    \item $\mathtt{sum}\;\zero = \zero$; 
-    \item $\mathtt{sum}\;(\suc\;\M) =
-      \suc\; \M\mathbin{\mathtt{+}}\mathtt{sum}\;\M$
-  \end{enumerate}
-  Wait, $\texttt{sum}\;\M$
- is used in the definition of $\texttt{sum}$, which is being defined. 
+\begin{frame}[fragile]{In-class exercise: \texttt{fold} on natural numbers}
+  \texttt{fold} on natural numbers is defined in Haskell as follows:
+  \begin{verbatim}
+    fold :: (a -> a) -> a -> Integer -> a
+    fold f e 0 = e
+    fold f e n = f (fold f e (n - 1))
+  \end{verbatim}
+  By modifying the definition of $\mathtt{fact}$, give the corresponding
+  term of $\mathtt{fold}$ in \PCF{}. 
+\end{frame}
+
+
+\begin{frame}{Big-step semantics (call-by-name)}
+  Instead of the small-step reduction relation~$\leadsto$, we can define a
+  \textbf{big-step} reduction relation~$\Downarrow$
+  between closed terms~$\M$ as follows.
+
+  \begin{columns}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{($\Downarrow$-var)}
+      \UIC{$x \Downarrow x$}
+    \end{prooftree}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{$\M[\fix x.\, \M/ x] \Downarrow \V$}
+      \RightLabel{($\Downarrow$-fix)}
+      \UIC{$\fix x.\, \M \Downarrow \V$}
+    \end{prooftree}
+  \end{columns}
+    \begin{columns}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{($\Downarrow$-zero)}
+      \UIC{$\zero \Downarrow \zero$}
+    \end{prooftree}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{$\M \Downarrow \underline{n}$}
+      \RightLabel{($\Downarrow$-suc)}
+      \UIC{$\suc\;\M \Downarrow \suc\;\underline{n}$}
+    \end{prooftree}
+  \end{columns}
+  \begin{columns}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{($\Downarrow$-lam)}
+      \UIC{$\lambda x.\, \M \Downarrow \lambda x.\, \M$}
+    \end{prooftree}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{$\M\Downarrow \lambda x.\, \mathsf{E}$}
+      \AXC{$\mathsf{E}[\N/x] \Downarrow \V$}
+      \RightLabel{($\Downarrow$-app)}
+      \BIC{$\M\;\N \Downarrow \V$}
+    \end{prooftree}
+  \end{columns}
+\begin{columns}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{$\M\Downarrow \zero$}
+      \AXC{$\M_0\Downarrow \V$}
+      \RightLabel{($\Downarrow$-$\ifz_0$)}
+      \BIC{$\ifz(\M; \M_0; x.\, \M_1) \Downarrow \V$}
+    \end{prooftree}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{$\M\Downarrow \suc\;\underline{n}$}
+      \AXC{$\M_1[\underline{n}/x] \Downarrow \V$}
+      \RightLabel{($\Downarrow$-$\ifz_1$)}
+      \BIC{$\ifz(\M; \M_0; x.\, \M_1) \Downarrow \V$}
+    \end{prooftree}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Big-step semantics and small-step semantics}
+  \begin{theorem}
+    For every term $\M$, $\M \Downarrow \V$ if and only if $ \M \leadsto^* \V$
+    and $\V$ has no further reduction.\footnote{
+      A term $\V$ has \emph{no further reduction} if $\V \leadsto \V'$ is
+      not possible for any term $\V'$.}
+  \end{theorem}
+  \begin{block}{Proof Sketch.}
+    \begin{enumerate}
+      \item First we show that if $\M\Downarrow \V$ then $\M \leadsto^* \V$
+        by induction on~$\Downarrow$ and~$\leadsto^*$. 
+      \item Then if $\M\leadsto\N$ then for each term $\V$ without any further
+        reduction, $\N\Downarrow \V$ implies $\M\Downarrow\V$. Again, this
+        direction is proved by induction on~$\leadsto$. 
+      \item Finally, by induction on~$\leadsto^*$ we have that if $\M\leadsto^*
+        \N$ then $\N\Downarrow \V$ implies $\M \Downarrow \V$. In particular, 
+        for every $\M \leadsto^* \V$ with $\V$ has no further reduction, we always have
+        $\V\Downarrow \V$, so $\M\leadsto^* \V$.
+    \end{enumerate}
+  \end{block}
 \end{frame}
 
 \begin{frame}
-  \begin{equation}
-    \label{eq:triangular_num}
-    \fix f.\, \lambda n .\, \ifz(n; \zero; m .\, \mathtt{add}\; n\; (f\; m))
-  \end{equation}
-\end{frame}
+\begin{proof}
+  \begin{enumerate}
+    \item We show the case ($\Downarrow$-fix), which is similar to other
+      cases:
+      \begin{prooftree}
+        \AXC{}
+        \UIC{$\fix x.\, \M \leadsto \M[\fix x.\, \M/x]$}
+        \AXC{}
+        \UIC{$M[\fix x.\, \M / x] \leadsto^* \V$}
+        \BIC{$\fix x.\, \M \leadsto* \V$}
+      \end{prooftree}
+      and by assumption $V$ has no further reduction. 
+    \item We show the case ($\leadsto$-fix), which is similar to other cases.
+      By hypothesis, we have $\fix x.\, \M \leadsto \M[\fix x.\, \M/x]$.
+      If $\M[\fix x.\, \M/ x] \Downarrow \V$ (with $V$ having no further
+      reduction), then by ($\Downarrow$-fix) it follows that $\fix
+      x.\,\M\Downarrow\V$. 
+    \item Easy. 
+  \end{enumerate}
+\end{proof}
 
-\begin{frame}{\texttt{fold} over natural numbers}
 \end{frame}
-
 \begin{frame}{Determinacy}
   \begin{theorem}
-    Suppose that
-    $\M \leadsto \N_1$ and $\M \leadsto \N_2$. Then $\N_1$ and $\N_2$
-    are $\alpha$-equivalent. 
+    Suppose that $\M \leadsto \N_1$ and $\M \leadsto \N_2$. Then $\N_1$ and
+    $\N_2$ are $\alpha$-equivalent. Likewise, if $\M \Downarrow \V_1$ and $\M
+    \Downarrow \V_2$ then $\V_1$ and $\V_2$ are $\alpha$-equivalent. 
   \end{theorem}
   \begin{proof}
-    Prove it by structural induction on $\M$. 
+    Prove it by induction on $\leadsto$ and $\Downarrow$.  
   \end{proof}
-\end{frame}
-
-\begin{frame}{Big-step semantics}
-  Instead of the small-step reduction relation~$\leadsto$, we can define a
-  \textbf{big-step} reduction relation~$\Downarrow$
-  between terms and \alert{closed values} as follows: 
-\end{frame}
-
-\begin{frame}{Big-step semantics coincides with small-step semantics}
-  \begin{theorem}
-    For every closed term $\M$ and closed value~$\mathsf{V}$, 
-    \[
-      \M \Downarrow \V
-      \qquad
-      \text{if and only if}
-      \qquad
-      \M \leadsto^* \V. 
-    \]
-  \end{theorem}
 \end{frame}
 
 \section{Type safety}
@@ -376,19 +530,23 @@
 \begin{frame}{Inversion and substitution}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Preservation Theorem}
+  The big-step (as well as small-step) evaluation preserves types. This
+  property is also called \textbf{Subject Reduction}.
+  \begin{theorem}
+    If ${}\vdash \M : \tau$ and $\M \Downarrow \V$ then ${}\vdash \V : \tau$. 
+  \end{theorem}
 \end{frame}
 
 \begin{frame}{Progress Theorem}
+  \begin{theorem}
+    If ${} \vdash \M : \tau$ then either $\M$ is a closed value or
+    there exists $\M'$ such that $\M \leadsto \M'$. 
+  \end{theorem}
+
 \end{frame}
 
-\begin{frame}{Preservation Theorem}
-\end{frame}
 
-\section{Equivalences}
-
-\begin{frame}{Observational Equivalence}
-\end{frame}
 \section*{Exercises}
 
 \begin{frame}<0>{Basic}
@@ -416,7 +574,7 @@
       \end{columns}
       \begin{enumerate}
         \item Provide the typing rule for
-          the \textbf{if-then-else} construct:
+          the conditional construct $\mathtt{if}$:
           \begin{prooftree}
             \AXC{?}
             \UIC{$\Gamma \vdash \mathtt{if}(\M_0; \M_1; \M_2):\tau$}
@@ -438,9 +596,9 @@
       \begin{align*}
         & \mathtt{rec}\;e_0\; f\; \zero && \leadsto^* e_0 \\
         & \mathtt{rec}\;e_0\; f\; (\suc\;\M) && \leadsto^*
-        f\;\underline{n}\;(\mathtt{rec}\;e_0\; f\; \underline{n})
+        f\;\M \;(\mathtt{rec}\;e_0\; f\; \M)
       \end{align*}
-      on $\zero$ and $(\suc\;\M)$ respectively 
+      respectively 
     \item \seti
       Show that $\mathtt{rec}\;e_0\;f\;\underline{n}$ reduces eventually
       to a closed value if $f$ terminating and $\underline{n}$ a closed value.
@@ -457,7 +615,7 @@
   \begin{enumerate}
       \conti
     \item Provide the small-step semantics for $\mathtt{rec}$. 
-    \item Show that every well-typed closed term in \textbf{T} reduces to a closed
+    \item Show that every program in \textbf{T} reduces to a closed
       value eventually. This property is called \emph{totality}.
     \item Show that \textbf{T} has Progress Theorem and Preservation Theorem.
   \end{enumerate}
