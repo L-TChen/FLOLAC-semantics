@@ -13,13 +13,13 @@
 \begin{frame}{The meaning of programs}
   How can we tell if a program is correct? 
   \begin{enumerate}
+    \item The meaning of a program is ideally independent of its actual implementation.
     \item A rigorous specification of language is essential. Everything must be
       defined without any ambiguities. No undefined behaviour. 
     \item A structural approach to semantics. The meaning of a program is
       built from its parts, so verification is possible. 
     \item The precise definitions of notions, such as strict and lazy
       evaluation strategies. 
-    \item The same approach can be applied to different language features.
   \end{enumerate}
 \end{frame}
 
@@ -55,7 +55,7 @@
 \subsection{Syntax and typing rules for PCF}
 
 \begin{frame}{What is PCF?}
-  \PCF{} stands for \textbf{Programming Computable Functionals}, i.e.\ 
+  \PCF{} stands for \textbf{Programming Computable Functionals}, 
   \begin{enumerate}
     \item an extension of simply typed lambda calculus with $\nat$ and
       general recursion; 
@@ -149,7 +149,7 @@
       \begin{prooftree}
         \AXC{$\Gamma, x : \sigma \vdash \M : \sigma$}
         \RightLabel{(Y)}
-        \UIC{$\Gamma\vdash \fix .\, \M : \sigma$}
+        \UIC{$\Gamma\vdash \fix x .\, \M : \sigma$}
       \end{prooftree}
      \normalsize
   \end{itemize}
@@ -190,9 +190,9 @@
 
 \subsection{Operational semantics}
 
-\begin{frame}{Small-step reduction relation}
+\begin{frame}{One-step reduction}
   \begin{definition}
-    A \textbf{closed value}, denoted $\val$, in \PCF{} is one of the following:
+    A \textbf{closed value} denoted $\val$ is one of the following:
     \begin{columns}
       \column{.3\textwidth}
       \begin{prooftree}
@@ -201,8 +201,8 @@
       \end{prooftree}
       \column{.3\textwidth}
       \begin{prooftree}
-        \AXC{$\underline{n} \;\,\val$}
-        \UIC{$\suc\; \underline{n} \;\,\val$}
+        \AXC{$\M \;\,\val$}
+        \UIC{$\suc\; \M \;\,\val$}
       \end{prooftree}
       \column{.3\textwidth}
       \begin{prooftree}
@@ -211,6 +211,10 @@
       \end{prooftree}
     \end{columns}
   \end{definition}
+  A value is meant to be the final result of computation. For example, 
+  natural numbers $\zero, \suc\; \zero$ and lambda functions $\lambda x.\, x$
+  etc. This formulation also includes ill-typed terms such as $\suc\; (\lambda
+  x.\, \M)$.
   \begin{block}{Notation}
     The notation $\leadsto$ is a relation between terms, denoted
     \[
@@ -218,13 +222,33 @@
     \]
     which means that the term~$\M$ reduces to~$\M'$ in \emph{one step}.
   \end{block}
-  For example, for the \emph{eager} evaluation
-  $\suc\;\M$ reduces to $\suc\;\M'$ if $\M$ reduces to $\M'$
+\end{frame}
+
+\begin{frame}{Reduction of general recursion and natural numbers}
+  For general recursion, each occurrence of $\fix.\,\M$ reduces to an substitution
+  of~$x$ in~$\M$ by itself:
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{($\leadsto$-fix)}
+      \UIC{$\fix x .\,\M \leadsto \M[\fix x .\, M/x]$}
+    \end{prooftree}
+
+  For the \emph{eager evaluation},  $\suc\;\M$ reduces to $\suc\;\M'$ if $\M$
+  reduces to $\M'$
     \begin{prooftree}
       \AXC{$\M \leadsto \M'$}
       \RightLabel{($\leadsto$-$\suc$)}
       \UIC{$\suc\;\M \leadsto \suc\;\M'$}
     \end{prooftree}
+  On the other hand, it is possible to defer the evaluation of natural numbers,
+  and this evaluation is known as the \emph{lazy evaluation}. 
+  To do so, we simply remove this reduction rule $\leadsto$-$\suc$
+  and modify the definition of closed values for $\suc$ to
+  \begin{prooftree}
+    \AXC{}
+    \UIC{$\suc \M\;\,\val$}
+  \end{prooftree}
+  without any assumptions. 
 \end{frame}
 
 \begin{frame}{Reduction of $\ifz$ and $\fix$}
@@ -242,19 +266,11 @@
       \UIC{$\ifz(\zero; \M_0; x .\, \M_1) \leadsto \M_0$}
     \end{prooftree}
     \begin{prooftree}
-      \AXC{$\suc\;\underline{n} \;\, \val$}
+      \AXC{$\suc\;\M \;\, \val$}
       \RightLabel{($\leadsto$-$\ifz_1$)}
-      \UIC{$\ifz(\suc\;\underline{n}; \M_0; x .\, \M_1) \leadsto
-        \M_1[\underline{n}/x]$}
+      \UIC{$\ifz(\suc\;\M; \M_0; x .\, \M_1) \leadsto
+        \M_1[\M/x]$}
     \end{prooftree}
-  For general recursion, each occurrence of $\fix.\,\M$ reduces to an substitution
-  of~$x$ in~$\M$ by itself:
-    \begin{prooftree}
-      \AXC{}
-      \RightLabel{($\leadsto$-fix)}
-      \UIC{$\fix x .\,\M \leadsto \M[\fix x .\, M/x]$}
-    \end{prooftree}
-  Where is recursion? Try to evaluate $\fix x.\, \suc x$. 
 \end{frame}
 
 \begin{frame}{Reduction for application: call-by-name and call-by-value}
@@ -273,7 +289,8 @@
         \M[\N/x] $}
     \end{prooftree}
   In call-by-value evaluation, each argument is evaluated
-  before application. It is a \alert{strict} evaluation strategy, as
+  before application, so we replace ($\leadsto$-by-name) by the following two
+  rules. It is a \alert{strict} evaluation strategy, as
   non-terminating arguments always lead to non-terminating terms. 
     \begin{prooftree}
       \AXC{$\M \;\,\val$}
@@ -287,13 +304,12 @@
       \UIC{$(\lambda x .\, \M)\; \N \leadsto
         \M[\N/x] $}
     \end{prooftree}
-  In the following context, we adopt the call-by-name interpretation. 
+  In the following context, we adopt the \emph{call-by-name} interpretation. 
 \end{frame}
 
-\begin{frame}{Transitive reflexive closure of $\leadsto$}
+\begin{frame}{Many-step reduction}
   \begin{definition}
-    The relation $\leadsto^*$ between terms is defined inductively:\footnote{
-      In short, $\leadsto^*$ is the transitive reflexive closure of $\leadsto$.}
+    The relation $\leadsto^*$ between terms is defined inductively:
     \begin{columns}
       \column{.5\textwidth}
         \begin{prooftree}
@@ -302,34 +318,35 @@
         \end{prooftree}
       \column{.5\textwidth}
         \begin{prooftree}
-          \AXC{$\M \leadsto \M'$}
-          \AXC{$\M' \leadsto^* \M''$}
+          \AXC{$\M_1 \leadsto \M_2$}
+          \AXC{$\M_2 \leadsto^* \M_3$}
           \insertBetweenHyps{\hskip .5em}
-          \BIC{$\M \leadsto^* \M''$}
+          \BIC{$\M_1 \leadsto^* \M_3$}
         \end{prooftree}
     \end{columns}
   \end{definition}
-  We say that a term $\M$ \emph{reduces to $\M'$ eventually} if $\M \leadsto^* \M'$. 
+  Note that $M \leadsto^* \M'$ if $\M'$ is reachable from $\M$ after finitely
+  many steps of reduction, i.e.\ $\M = \M_0 \leadsto \M_1 \leadsto \cdots \M_k
+  = \M'$. 
   \begin{proposition}
-    For any two terms $\M$ and $\M'$, 
-    $\M \leadsto^* \M'$ if and only if there exists a finite sequence 
-    \[
-      \M \equiv \M_1 \leadsto \M_2 \leadsto \cdots \leadsto \M_k \equiv \M'. 
-    \]
+    The relation $\leadsto^*$ is reflexive and transitive. 
   \end{proposition}
+  \begin{proof}
+    Easy exercise. 
+  \end{proof}
 \end{frame}
 
 
 \begin{frame}{Example: Calculating the factorials}
   To define the factorials, we are seeking for a function~$\mathtt{fact}$ satisfying
   \[
-    \mathtt{fact}(n) \mapsto
+    \mathtt{fact}\colon n \mapsto
     \begin{cases}
       0 & \text{if } n = 1 \\
       n \times \mathtt{fact}(n') & \text{if } n = n' + 1
     \end{cases}
   \]
-  and this can be understood as the fixpoint of the functional~$F$ mapping~$f
+  and this can be understood as a fixpoint of the functional~$F$ mapping~$f
   \colon\mathbb{N} \to \mathbb{N}$ to~$f'\colon\mathbb{N}\to\mathbb{N}$ defined
   by
   \[
@@ -345,30 +362,38 @@
 
 \begin{frame}
   Under the context of $\Gamma \defeq f\colon \nat \to \nat$, we
-  define a function depending on $f$:
+  define a function depending on $f$ as follows:
   \[
-    \Gamma \vdash \lambda n.\, \ifz(n; \underline{1}; m.\, n \times (f\; m))
+    \Gamma \vdash \lambda n.\, \ifz(n; \suc\;\zero; m.\, n \times (f\; m))
       : \nat \to \nat
   \]
   and thus we derive its fixpoint by $\fix$:
   \[
     \mathtt{fact} \defeq
-    \fix f.\, \lambda n .\, \ifz(n; \underline{1}; m .\, n\times (f\; m))
+    \fix f.\, \lambda n .\, \ifz(n; \suc\;\zero; m .\, n\times (f\; m))
   \]
-  where $\underline{1} \equiv \suc\;\zero$.
-  \begin{block}{Exercise}
-    Assuming that $\times : \nat\to\nat\to\nat$ is in the context $\Gamma$,
-    infer the type of $\mathtt{fact}$ under $\Gamma$ and show that
-    \[
-      \mathtt{fact}\;\underline{0} \leadsto^* \underline{1}
-    \]
-    and 
-    \[
-      \mathtt{fact}\;(\suc\;\underline{n}) \leadsto^* (\suc\:\M) \times
-      (\mathtt{fact}\;\underline{n})
-    \]
-    for a closed value $\underline{n}$. 
-  \end{block}
+  where the term $\suc\;\zero$ represents the natural number $1$. 
+  \begin{example}
+    Let $\underline{0} \defeq \zero$ and $\underline{n+1} \defeq
+    \suc\;\underline{n}$. 
+    We calculate $\mathtt{fact}\;\underline{2}$:
+
+    \begin{align*}
+      \mathtt{fact}\;\underline{2} & \leadsto 
+      (\lambda n.\, \ifz(n; \underline{1}; m .\, n \times (\mathtt{fact}\; m)))\;
+      \underline{2} \\
+      & \leadsto \ifz(\underline{2}; \underline{1}; m .\, \underline{2}
+      \times (\mathtt{fact}\; m))
+      \\
+      & \leadsto \underline{2} \times (\mathtt{fact}\; \underline{1}) \\
+      & \leadsto \underline{2} \times (\lambda n.\, \ifz(n; \underline{1}; m.\,
+      n \times (\mathtt{fact}\; m))\; \underline{1}) \\
+      & \leadsto \cdots \leadsto \underline{2}
+      \times (\underline{1} \times \underline{1}) \leadsto^* \underline{2}
+    \end{align*}
+    where the definition of $\times : \nat \to \nat \to nat$ is left as an
+    exercise. 
+  \end{example}
 \end{frame}
 \begin{frame}{In-class exercise}
   Try to be familiar with $\ifz$.
@@ -380,10 +405,10 @@
       \[
         \pred\;\zero \leadsto^*\, ?
       \]
-      For the inductive case $\M \equiv \suc\; \underline{n}$:
+      For the inductive case $\M = \suc\; \N$:
       \begin{prooftree}
-        \AXC{$\suc\;\underline{n} \;\,\val$}
-        \UIC{$\pred\;(\suc\;\underline{n}) \leadsto^*\, ?$}
+        \AXC{$\suc\;\N \;\,\val$}
+        \UIC{$\pred\;(\suc\;\N) \leadsto^*\, ?$}
       \end{prooftree}
     \item Define $\mathtt{flip}\colon \nat \to \nat$
       such that $\mathtt{flip}\;\zero \leadsto^* \suc\; \zero$
@@ -403,25 +428,95 @@
 \end{frame}
 
 
-\begin{frame}{Big-step semantics (call-by-name)}
-  Instead of the small-step reduction relation~$\leadsto$, we can define a
-  \textbf{big-step} reduction relation~$\Downarrow$
-  between closed terms~$\M$ as follows.
+\section{Type safety}
 
-  \begin{columns}
-    \column{.5\textwidth}
+\begin{frame}{Progress Theorem}
+  Every well-typed is either a closed value or a reducible term. 
+  \begin{theorem}
+    If ${} \vdash \M : \tau$ then either $\M$ is a closed value or
+    there exists $\M'$ such that $\M \leadsto \M'$. 
+  \end{theorem}
+  \begin{proof}
+    By induction on the derivation of ${}\vdash \M:\tau$. For the case that
+    \begin{prooftree}
+      \AXC{$\M : \nat$}
+      \UIC{$\vdash \suc\; \M : \nat$}
+    \end{prooftree}
+    $\M$ is either a closed value or a reducible term by induction hypothesis:
+    \begin{enumerate}
+      \item If $\M$ is a closed value, then $\suc\; \M$ is also a closed value
+        by definition. 
+      \item Suppose that $\M \leadsto \M'$ for some $\M'$. Then, by the rule
+        ($\leadsto$-$\suc$), we also have $\suc\;\M \leadsto \suc\;\M'$. 
+    \end{enumerate}
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Proofs are programs}
+  \begin{remark}
+    Note that given a program $\M : \tau$, the previous proof produces either a
+    closed value or a \PCF{} term $\M'$ with a proof that $\M$ reduces to $\M'$.
+    Forgetting the proof, the proof itself is indeed a program
+    which asks a \PCF{} term, preforms a single reduction and return a term
+    tagged either \texttt{done} or \texttt{not yet}. 
+  \end{remark}
+\end{frame}
+\begin{frame}{Substitution Lemma}
+  If a variable~$x : \tau$ in a term~$\M$ is substituted by another term~$\N$
+  of the same type, then the type of the resulting term remains. 
+  \begin{lemma}
+    If $\Gamma, x : \sigma \vdash \M : \tau$ and $\Gamma \vdash \N : \sigma$,
+    then $\Gamma \vdash \M[\N/x] : \tau$. 
+  \end{lemma}
+  \begin{proof}
+    Induction on the derivation of $\Gamma, x : \sigma \vdash \M : \tau$.
+    Suppose that $\Gamma, x : \sigma \vdash \M : \tau$ is derived from
     \begin{prooftree}
       \AXC{}
-      \RightLabel{($\Downarrow$-var)}
-      \UIC{$x \Downarrow x$}
+      \RightLabel{(var)}
+      \UIC{$\Delta, y : \tau, x : \sigma \vdash y : \tau$}
     \end{prooftree}
-    \column{.5\textwidth}
+    that is, $\Gamma = \Delta, y : \tau$ and $\M = y$ for some variable $y$.
+    Then, we need to show that $\Delta, y : \tau \vdash y[\N/x] : \tau$.
+    \begin{enumerate}
+      \item If $x = y$, then $y[\N/x] = \N : \sigma$ and $\sigma = \tau$.
+      \item Otherwise, $x \neq y$, then $y[\N/x] = y : \tau$. 
+    \end{enumerate}
+    Other cases follow similarly.
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Preservation Theorem}
+  The one-step evaluation preserves types. This
+  property is also called \textbf{Subject Reduction}.
+  \begin{theorem}
+    If ${}\vdash \M : \tau$ and $\M \leadsto \N$ then ${}\vdash \N : \tau$. 
+  \end{theorem}
+  \begin{proof}
+    We prove it by induction on the derivation of ${}\vdash \M : \tau$ and $\M
+    \leadsto \M'$.
+    For the case that
     \begin{prooftree}
-      \AXC{$\M[\fix x.\, \M/ x] \Downarrow \V$}
-      \RightLabel{($\Downarrow$-fix)}
-      \UIC{$\fix x.\, \M \Downarrow \V$}
+      \AXC{$ x : \sigma \vdash \M : \sigma$}
+      \UIC{$\vdash \fix x.\, \M : \sigma$}
     \end{prooftree}
-  \end{columns}
+    we do induction on $\leadsto$, but there is exactly one rule applicable:
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{($\leadsto$-fix)}
+      \UIC{$\fix x.\,\M \leadsto \M[\fix x.\,\M/x]$}
+    \end{prooftree}
+    By Substitution Lemma, it follows that $\vdash M[\fix x.\, M/x] : \sigma$,
+    and other cases follow similarly. 
+  \end{proof}
+\end{frame}
+
+\section{Big-step semantics}
+
+\begin{frame}{Call-by-name big-step semantics}
+  Instead of the one-step reduction relation~$\leadsto$, we turn to the
+  \textbf{big-step} reduction relation~$\Downarrow$, formulating
+  the notion that a term $\M$ reduce to its final value~$\V$. 
     \begin{columns}
     \column{.5\textwidth}
     \begin{prooftree}
@@ -436,6 +531,7 @@
       \UIC{$\suc\;\M \Downarrow \suc\;\underline{n}$}
     \end{prooftree}
   \end{columns}
+
   \begin{columns}
     \column{.5\textwidth}
     \begin{prooftree}
@@ -451,6 +547,7 @@
       \BIC{$\M\;\N \Downarrow \V$}
     \end{prooftree}
   \end{columns}
+
 \begin{columns}
     \column{.5\textwidth}
     \begin{prooftree}
@@ -466,28 +563,63 @@
       \RightLabel{($\Downarrow$-$\ifz_1$)}
       \BIC{$\ifz(\M; \M_0; x.\, \M_1) \Downarrow \V$}
     \end{prooftree}
-  \end{columns}
+\end{columns}
+
+    \begin{prooftree}
+      \AXC{$\M[\fix x.\, \M/ x] \Downarrow \V$}
+      \RightLabel{($\Downarrow$-fix)}
+      \UIC{$\fix x.\, \M \Downarrow \V$}
+    \end{prooftree}
 \end{frame}
 
-\begin{frame}{Big-step semantics and small-step semantics}
+\begin{frame}{Closed values}
+  We shell justify the intended meaning: whenever $\M \Downarrow \V$, the term $\V$
+  is always a closed value:
+  \begin{lemma}
+    For every terms $\M$ and $\V$, the term $\V$ is a closed value if $\M
+    \Downarrow \V$. 
+  \end{lemma}
+  \begin{proof}
+    By induction on the formulation of $\M \Downarrow \V$. 
+  \end{proof}
+  Moreover, a closed value reduces to itself:
+  \begin{lemma}
+    If $\V$ is a closed value, then $\V\Downarrow\V$. 
+  \end{lemma}
+  \begin{proof}
+    By structural induction on $\V\;\,\val$. That is, it is sufficient to check
+    that $\zero \Downarrow \zero$, $\lambda x.\, \M \Downarrow \lambda x.\,
+    \M$; $\suc\;\M \Downarrow \suc\;\M$ if $\M \Downarrow \M$ by induction
+   hypothesis.  
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Agreement of big-step and one-step semantics}
+  Indeed, the big-step reduction can be characterised with respect to the
+  one-step step reduction as follows:
   \begin{theorem}
-    For every term $\M$, $\M \Downarrow \V$ if and only if $ \M \leadsto^* \V$
-    and $\V$ has no further reduction.\footnote{
-      A term $\V$ has \emph{no further reduction} if $\V \leadsto \V'$ is
-      not possible for any term $\V'$.}
+    For every term $\M$ and $\V$, $\M \Downarrow \V$ if and only if $ \M \leadsto^* \V$
+    with $\V \;\, \val$. 
   \end{theorem}
+
   \begin{block}{Proof Sketch.}
     \begin{enumerate}
       \item First we show that if $\M\Downarrow \V$ then $\M \leadsto^* \V$
         by induction on~$\Downarrow$ and~$\leadsto^*$. 
-      \item Then if $\M\leadsto\N$ then for each term $\V$ without any further
-        reduction, $\N\Downarrow \V$ implies $\M\Downarrow\V$. Again, this
-        direction is proved by induction on~$\leadsto$. 
-      \item Finally, by induction on~$\leadsto^*$ we have that if $\M\leadsto^*
-        \N$ then $\N\Downarrow \V$ implies $\M \Downarrow \V$. In particular, 
-        for every $\M \leadsto^* \V$ with $\V$ has no further reduction, we always have
-        $\V\Downarrow \V$, so $\M\leadsto^* \V$.
+      \item Second, by induction on~$\leadsto$ and $\Downarrow$  we show that
+        \begin{prooftree}
+          \AXC{$\M \leadsto \N \Downarrow \V$}
+          \UIC{$\M\Downarrow \V$}
+        \end{prooftree}
+      \item Finally,  by induction on~$\leadsto^*$ we show that
+        \begin{prooftree}
+          \AXC{$\M \leadsto^*   \N \Downarrow \V$}
+          \UIC{$\M\Downarrow \V$}
+        \end{prooftree}
+        
     \end{enumerate}
+    In particular, for every $\M \leadsto^* \V$ with $\V\;\,\val$,
+    we always have $\V\Downarrow \V$, so it follows $\M\Downarrow \V$.
   \end{block}
 \end{frame}
 
@@ -506,59 +638,32 @@
       and by assumption $V$ has no further reduction. 
     \item We show the case ($\leadsto$-fix), which is similar to other cases.
       By hypothesis, we have $\fix x.\, \M \leadsto \M[\fix x.\, \M/x]$.
-      If $\M[\fix x.\, \M/ x] \Downarrow \V$ (with $V$ having no further
-      reduction), then by ($\Downarrow$-fix) it follows that $\fix
+      If $\M[\fix x.\, \M/ x] \Downarrow \V$,
+      then by ($\Downarrow$-fix) it follows that $\fix
       x.\,\M\Downarrow\V$. 
-    \item Easy. 
+    \item Induction on $\leadsto^*$. 
   \end{enumerate}
 \end{proof}
-
+By the agreement of big-step and one-step semantics, we easily conclude
+that the Subject Reduction also holds for big-step semantics:
+\begin{corollary}
+  If ${}\vdash \M : \tau$ and $\M \Downarrow \V$ then ${}\vdash \V : \tau$.
+\end{corollary}
 \end{frame}
-\begin{frame}{Determinacy}
-  \begin{theorem}
-    Suppose that $\M \leadsto \N_1$ and $\M \leadsto \N_2$. Then $\N_1$ and
-    $\N_2$ are $\alpha$-equivalent. Likewise, if $\M \Downarrow \V_1$ and $\M
-    \Downarrow \V_2$ then $\V_1$ and $\V_2$ are $\alpha$-equivalent. 
-  \end{theorem}
-  \begin{proof}
-    Prove it by induction on $\leadsto$ and $\Downarrow$.  
-  \end{proof}
-\end{frame}
-
-\section{Type safety}
-
-\begin{frame}{Inversion and substitution}
-\end{frame}
-
-\begin{frame}{Preservation Theorem}
-  The big-step (as well as small-step) evaluation preserves types. This
-  property is also called \textbf{Subject Reduction}.
-  \begin{theorem}
-    If ${}\vdash \M : \tau$ and $\M \Downarrow \V$ then ${}\vdash \V : \tau$. 
-  \end{theorem}
-\end{frame}
-
-\begin{frame}{Progress Theorem}
-  \begin{theorem}
-    If ${} \vdash \M : \tau$ then either $\M$ is a closed value or
-    there exists $\M'$ such that $\M \leadsto \M'$. 
-  \end{theorem}
-
-\end{frame}
-
 
 \section*{Exercises}
 
 \begin{frame}<0>{Basic}
   \begin{enumerate}
-    \item Define the following programs in \PCF{}:
+    \item Define the following programs in \PCF{}.
       \begin{enumerate}
-        \item addition, subtraction, and multiplication. 
-        \item factorials
-        \item anything interesting? 
+        \item Multiplication of natural numbers
+          \emph{Hint.} Define addition first;
+        \item Fibonacci numbers; 
+        \item Parity test, i.e.\ a function determines whether the given
+          argument is an odd or even number. Return $\zero$ if every,
+          $\suc\;\zero$ otherwise. 
       \end{enumerate}
-    \item Infer the type of \eqref{eq:triangular_num}
-      with derivation. 
     \item \seti Let $\bool$ be a type with two constructors:
       \begin{columns}
         \column{.5\textwidth}
@@ -579,7 +684,7 @@
             \AXC{?}
             \UIC{$\Gamma \vdash \mathtt{if}(\M_0; \M_1; \M_2):\tau$}
           \end{prooftree}
-        \item Provide its small-step semantics.
+        \item Provide its one-step semantics.
       \end{enumerate}
   \end{enumerate}
 \end{frame}
@@ -600,8 +705,8 @@
       \end{align*}
       respectively 
     \item \seti
-      Show that $\mathtt{rec}\;e_0\;f\;\underline{n}$ reduces eventually
-      to a closed value if $f$ terminating and $\underline{n}$ a closed value.
+      Show that $\mathtt{rec}\;e_0\;f\;\underline{n} \Downarrow \V$ 
+      for a closed value $\V$ if $f$ terminating and $\underline{n}$ a closed value.
   \end{enumerate}
     Consider G\"odel's \textbf{T}, simply typed lambda calculus with
     natural numbers and \emph{primitive recursion}:
@@ -614,10 +719,11 @@
     \end{prooftree}
   \begin{enumerate}
       \conti
-    \item Provide the small-step semantics for $\mathtt{rec}$. 
-    \item Show that every program in \textbf{T} reduces to a closed
-      value eventually. This property is called \emph{totality}.
-    \item Show that \textbf{T} has Progress Theorem and Preservation Theorem.
+    \item Provide the one-step and big-step reductions for $\mathtt{rec}$. 
+    \item Show that for every program $\M$ in \textbf{T}, there is a closed
+      value $\V$ with $\M \Downarrow \V$. This property is called \emph{totality}.
+      \emph{Hint.} Use the structural induction principle on the typing rules
+      for \textbf{T}.
   \end{enumerate}
 \end{frame}
 \subsection*{Reference}
