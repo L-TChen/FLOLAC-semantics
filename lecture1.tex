@@ -526,9 +526,9 @@
     \end{prooftree}
     \column{.5\textwidth}
     \begin{prooftree}
-      \AXC{$\M \Downarrow \underline{n}$}
+      \AXC{$\M \Downarrow \V$}
       \RightLabel{($\Downarrow$-suc)}
-      \UIC{$\suc\;\M \Downarrow \suc\;\underline{n}$}
+      \UIC{$\suc\;\M \Downarrow \suc\;\V$}
     \end{prooftree}
   \end{columns}
 
@@ -558,8 +558,8 @@
     \end{prooftree}
     \column{.5\textwidth}
     \begin{prooftree}
-      \AXC{$\M\Downarrow \suc\;\underline{n}$}
-      \AXC{$\M_1[\underline{n}/x] \Downarrow \V$}
+      \AXC{$\M\Downarrow \suc\;\N$}
+      \AXC{$\M_1[\N/x] \Downarrow \V$}
       \RightLabel{($\Downarrow$-$\ifz_1$)}
       \BIC{$\ifz(\M; \M_0; x.\, \M_1) \Downarrow \V$}
     \end{prooftree}
@@ -633,7 +633,7 @@
         \UIC{$\fix x.\, \M \leadsto \M[\fix x.\, \M/x]$}
         \AXC{}
         \UIC{$M[\fix x.\, \M / x] \leadsto^* \V$}
-        \BIC{$\fix x.\, \M \leadsto* \V$}
+        \BIC{$\fix x.\, \M \leadsto^* \V$}
       \end{prooftree}
       and by assumption $V$ has no further reduction. 
     \item We show the case ($\leadsto$-fix), which is similar to other cases.
@@ -720,10 +720,6 @@ that the Subject Reduction also holds for big-step semantics:
   \begin{enumerate}
       \conti
     \item Provide the one-step and big-step reductions for $\mathtt{rec}$. 
-    \item Show that for every program $\M$ in \textbf{T}, there is a closed
-      value $\V$ with $\M \Downarrow \V$. This property is called \emph{totality}.
-      \emph{Hint.} Use the structural induction principle on the typing rules
-      for \textbf{T}.
   \end{enumerate}
 \end{frame}
 \subsection*{Reference}
