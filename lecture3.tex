@@ -5,8 +5,108 @@
 \institute[IIS, Sinica]{Institute of Information Science, Academia Sinica}
 \begin{document}
 \frame{\maketitle}
-\section{Introduction}  
-\begin{frame}
-  Once upon a time \dots 
+\section{Scott domain model of PCF}  
+\begin{frame}{Interpretation of types and contexts}
+  \begin{definition}
+  Every type $\sigma$ in \PCF{} associates with a domain~$D_\sigma$ as
+  follows:
+
+    \begin{enumerate}
+      \item $\sem{\nat} \defeq \mathbb{N}_\bot$, and
+      \item $\sem{\tau \to \sigma} \defeq \sem{\sigma}^{\sem{\tau}}$.
+    \end{enumerate}
+  \end{definition}
+  \begin{definition}
+    For each context $\Gamma = x_1 : \sigma_1, x_2 : \sigma_2,
+    \dots, x_n : \sigma_n$, the associated domain is defined as
+    \[
+      \sem{\Gamma} \defeq \sem{\sigma_1} \times \sem{\sigma_2}
+      \times \dots \times \sem{\sigma_n}
+    \]
+    and the associated domain of the empty context is $1 = \{\bot\}$. 
+  \end{definition}
+  Every judgement of this form $\Gamma \vdash \M : \tau$ will be interpreted as
+  a function
+  \[
+    \sem{\Gamma \vdash \M : \tau} : \sem{\Gamma} \to \sem{\tau}.
+  \]
 \end{frame}
+
+\begin{frame}{Interpretation of simply type lambda calculus
+  and natural numbers}
+  \[
+    \sem{ x_1 : \sigma_1, \dots, x_n : \sigma_n \vdash
+      x_i : \sigma_i } \defeq \pi_i
+    \quad\text{for $i = 1 \dots n$}
+  \]
+  \[ 
+    \sem{\Gamma \vdash \lambda x.\, \M : \sigma \to \tau} \defeq
+    \Lambda\sem{\Gamma, x : \sigma \vdash \M : \tau}
+  \]
+  \[
+    \sem{\Gamma \vdash \M\;\N : \tau} = \mathit{ev}
+    \circ \<\sem{\Gamma \vdash
+      \M : \sigma \to \tau}, \sem{\Gamma \vdash \N : \sigma}\>
+  \]
+  \[
+    \sem{\Gamma \vdash \zero : \nat}(\vec{d}) \defeq 0
+  \]
+  \[
+    \sem{\Gamma \vdash \suc\;\M : \nat} \defeq S \circ \sem{\Gamma
+      \vdash \M : \nat}
+  \]
+\end{frame}
+
+\begin{frame}{Interpretation of general recursion and if-zero test}
+  \[
+    \sem{\Gamma \vdash \fix x.\, \M : \sigma} \defeq
+    \mu \circ \Lambda\sem{\Gamma, x : \sigma \vdash \M : \sigma}
+  \]
+  \begin{align*}
+    & \sem{\Gamma \vdash \ifz(\M; \M_0; \M_1) : \tau} \\
+    \defeq{} & \mathit{ifz}_\tau \circ \<\,
+    \sem{\Gamma \vdash \M  : \nat},
+    \sem{\Gamma \vdash \M_0 : \tau},
+    \Lambda\sem{\Gamma, x : \nat \vdash \M_1 : \tau}\,\>
+  \end{align*}
+  where $S$ and $\mathit{ifz}_\tau$ are defined by
+  \begin{columns}
+    \column{.5\textwidth}
+      \[
+        S(n) \defeq
+        \begin{cases}
+          \bot & \text{if $d = \bot$} \\
+          n + 1 & \text{otherwise.}
+        \end{cases}
+      \]
+    \column{.5\textwidth}
+      \[
+        \mathit{ifz}_\tau(n, x, f) \defeq
+        \begin{cases}
+          \bot & \text{if $n = \bot$,} \\
+          x   & \text{if $n = 0$,} \\
+          f(m) & \text{if $n = m +1$.} \\
+        \end{cases}
+      \]
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  In particular, every program~$\M:\tau$ associates with a function from~$1$
+  to~$\sem{\tau}$, and thus determines a unique element~$\sem{\M}(*)$
+  of~$\sem{\tau}$. 
+  \begin{block}{Convention}
+    For brevity, we write $\sem{\M}$ instead of~$\sem{{}\vdash\M : \tau}$ for
+    every program~$\M$ of type~$\tau$
+  \end{block}
+  \begin{theorem}
+    For every judgement~$\Gamma \vdash \M:\tau$, 
+    the associated function
+    \[
+      \sem{\Gamma \vdash \M : \tau} \colon \sem{\Gamma} \to \sem{\tau}
+    \]
+    is Scott continuous. 
+  \end{theorem}
+\end{frame}
+
 \end{document}
