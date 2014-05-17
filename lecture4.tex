@@ -1,12 +1,165 @@
 \title{Semantics of Functional Programming}
-\subtitle{Lecture IV: Computational Adequacy}
+\subtitle{Lecture IV: Computational Adequacy and Further Topics}
 \author[L.-T. Chen]{Chen, Liang-Ting\\
   \href{mailto:lxc@iis.sinica.edu.tw}{\texttt{lxc@iis.sinica.edu.tw}}}
 \institute[IIS, Sinica]{Institute of Information Science, Academia Sinica}
 \begin{document}
 \frame{\maketitle}
-\section{Introduction}  
+
 \begin{frame}
-  Once upon a time \dots 
+  So far we have given two kinds of semantics for \PCF{}. For a program~$\M$ of
+  type~$\sigma$,
+  \begin{itemize}
+    \item one gives how the program~$\M$ is evaluated to a closed value~$\V$
+      via the reduction relation~$\M \Downarrow\V$;
+    \item the other defines what the denotation~$\sem{\M}$ of~$\M$ is.
+    \end{itemize}
+  In this lecture, we will compare these two approaches and discuss some issues
+  arising from them:
+  \begin{description}[Computational Adequacy]
+    \item[Correctness]
+    \item[Completeness]
+    \item[Computational adequacy]
+    \item[Full abstraction]
+  \end{description}
+
 \end{frame}
+\section{Computational Adequacy}  
+\begin{frame}{Closed values of $\nat$ do not diverge}
+  The bottom element~$\bot$ in a domain models the divergence of computation,
+  and a closed value~$\V$ of~$\nat$ is meant to be some natural
+  number. Let's justify this idea.
+  \begin{lemma}
+    For every closed value~$\V$ of type~$\nat$, the denotation~$\sem{\V}$ is an
+    element of~$\mathbb{N}$. In particular, $\sem{\V} \neq \bot$.
+  \end{lemma}
+  \begin{proof}
+    By structural induction on closed values. 
+    For the following cases
+    \begin{columns}[b]
+      \column{.3\textwidth}
+        \begin{prooftree}
+          \AXC{}
+          \UIC{$\zero\;\,\val$}
+        \end{prooftree}
+      \column{.3\textwidth}
+        \begin{prooftree}
+          \AXC{$\M\;\,\val$}
+          \UIC{$\suc\;\M\;\,\val$}
+        \end{prooftree}
+      \column{.3\textwidth}
+        \begin{prooftree}
+          \AXC{}
+          \UIC{$\lambda x.\, \M\;\,\val$}
+        \end{prooftree}
+      \end{columns}
+    it is easy to see that $\sem{\zero}$ and $\sem{\suc\;\M}$, if $\sem{\M} \in
+    \mathbb{N}$, are elements of~$\mathbb{N}$ by the definition
+    of~$\sem{-}$. On the other hand, $\lambda x.\, \M$ cannot be of
+    type~$\nat$, so this case holds vacuously.
+  \end{proof}
+  By inspection of the above proof, we conclude that $\sem{\underline{n}} = n$
+  --- what a numeral~$\underline{n}$ of~$n$ should mean. 
+\end{frame}
+\begin{frame}{Correctness}
+  Now we show that denotational semantics is correct with respect to
+  denotational semantics:
+  \begin{theorem}
+    For every two programs~$\M$ and~$\V$, $\M \Downarrow \V$ implies
+    $\sem{\M} = \sem{\V}$. 
+  \end{theorem}
+
+  A sanity check: By Preservation Theorem, it is known that $\sem{{}\vdash \M :
+    \tau}$ and $\sem{{}\vdash \V : \sigma}$ are of the same type if $\M
+  \Downarrow \V$, so their range~$\sem{\tau}$ and $\sem{\sigma}$ are the same.
+
+  \begin{proof}[Proof Sketch]
+    Prove $\sem{\M} = \sem{\V} \in \sem{\tau}$ by structural induction on the
+    derivation of~$\M\Downarrow\V$. 
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Proof of correctness}
+    We show the case ($\Downarrow$-suc) first and the cases
+    ($\Downarrow$-zero) and ($\Downarrow$-lam) are similar and easy. 
+    \begin{itemize}
+      \item For ($\Downarrow$-suc), we show that $\sem{\suc\;\M}
+        =\sem{\suc\;\V}$ if $\sem{\M} = \sem{\V}$. By definition, we simply
+        calculate its denotation directly:
+        \[
+          \sem{\suc\;\M} = S(\sem{\M}) = S(\sem{\V}) = \sem{\suc\;\V}
+        \]
+        where the middle equality follows from the induction hypothesis. 
+    \end{itemize}
+    Try to do the cases ($\Downarrow$-zero), ($\Downarrow$-lam), and
+    ($\Downarrow$-$\ifz_0$).
+\end{frame}
+
+\begin{frame}
+  The case ($\Downarrow$-app) is slightly complicated, as we have to address
+  the binding structure using Substitution Lemma.  
+  \begin{itemize}
+      \item For ($\Downarrow$-app), we show that $\sem{\M\;\N} = \sem{V}$
+        if $\sem{\M} = \sem{\lambda x.\, \mathsf{E}}$ and $\sem{E[\N/x]} =
+        \sem{V}$. We calculate the denotation as follows
+        \begin{align*}
+          \sem{\M\;\N} & = \mathit{ev}(\sem{\M}, \sem{\N}) \\
+          & = \mathit{ev}(\sem{\lambda x.\, \mathsf{E}}, 
+          \sem{\N}) \\
+          & = \mathit{ev}(\sem{x : \sigma \vdash \mathsf{E} : \tau},
+          \sem{\N}) \\
+          & = \sem{x : \sigma \vdash \mathsf{E} : \tau}(\sem{\N})
+          = \sem{\mathsf{E}[\N/x]} = \sem{\V}
+        \end{align*}
+        where the last but one equation follows from Substitution Lemma.
+      \item Complete the remaining two (interesting) cases
+        ($\Downarrow$-$\ifz_1$) and ($\Downarrow$-fix).
+        \emph{Hint.} Consider Substitution Lemma and
+        the properties of the fixpoint operator~$\mu$.
+    \end{itemize}
+\end{frame}
+
+\note{
+\begin{itemize}
+  \item For ($\Downarrow$-$\ifz_0$), assuming $\sem{\M}=\sem{\zero} = 0$
+    and $\sem{\M_0} = \sem{V}$ we show that
+    $\sem{\ifz(\M; \M_0; x.\, \M_1)} = \sem{\V}$. We calculate the
+    denotation as follows
+    \begin{align*}
+      \sem{\ifz(\M;\M_0;x.\,\M_1)}
+        & = \mathit{ifz}(\sem{\M}, \sem{\M_0}, \sem{\M_1}) \\
+        & = \mathit{ifz}(0, \sem{V}, \sem{\M_1}) \\
+        & = \sem{V}
+    \end{align*}
+    where the last equation follows from the definition of~$\mathit{ifz}$. 
+  \item For ($\Downarrow$-$\ifz_1$), we show that $\sem{\ifz(\M;\M_0;
+      x.\,\M_1)}$ = \sem{V} if $\sem{\M} = \sem{\suc\;\N} = S \circ \sem{\N}$
+    and $\sem{\M_1[\N/x]} = \sem{\V}$.
+  
+  We know that~$\V$ is a closed value for every~$\M\Downarrow\V$ and $\sem{\V}
+  = n$ for some natural number~$n \in \mathbb{N}$, so $\sem{\M}$ is a natural
+  number $n + 1$. It follows that 
+  \begin{align*}
+    \sem{\ifz(\M; \M_0; x.\,\M_1)}
+    & = \mathit{ifz}(\sem{\M}, \sem{\M_0}, \sem{x : \nat\vdash \M_1 :
+      \tau}) \\
+    & = \sem{x : \nat \vdash \M_1}(n) \\
+    & = \sem{x : \nat \vdash \M_1}(\sem{N}) \\
+    & = \sem{\M_1[\N/x]} = \sem{\V}
+  \end{align*}
+  where the last but one equation follows from Substitution Lemma.
+
+  \item For ($\Downarrow$-fix), we show that $\sem{\fix x.\,\M} = \sem{\V}$ if
+    $\sem{\M[\fix x.\,\M/x]} = \sem{\V}$.  Let $f \defeq \sem{x : \sigma \vdash
+      \M : \sigma}$.  We
+    calculate the denotation as follows
+    \begin{align*}
+      \sem{\fix x.\,\M}
+      & = \mu f = f(\mu f) \\
+      & = \sem{x : \sigma \vdash \M : \sigma}(\sem{\fix x.\, \M}) \\
+      & = \sem{\M[\fix x.\, \M/x]} = \sem{V}
+    \end{align*}
+    where the last but one equality follows from Substitution Lemma.
+\end{itemize}
+}
 \end{document}
