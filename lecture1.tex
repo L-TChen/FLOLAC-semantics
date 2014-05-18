@@ -653,7 +653,7 @@ that the Subject Reduction also holds for big-step semantics:
 
 \section*{Exercises}
 
-\begin{frame}<0>{Basic}
+\begin{frame}<0>
   \begin{enumerate}
     \item Define the following programs in \PCF{}.
       \begin{enumerate}
@@ -689,25 +689,23 @@ that the Subject Reduction also holds for big-step semantics:
   \end{enumerate}
 \end{frame}
 
-\begin{frame}<0>{Advanced}
+\begin{frame}<0>
   \begin{enumerate}
     \conti
     \item 
+      \seti
       Define primitive recursion in \PCF{}
       \[
         \mathtt{rec} : \tau\to(\nat\to\tau\to\tau)\to\nat\to\tau
       \]
-      such that it reduces to 
+      such that
       \begin{align*}
         & \mathtt{rec}\;e_0\; f\; \zero && \leadsto^* e_0 \\
         & \mathtt{rec}\;e_0\; f\; (\suc\;\M) && \leadsto^*
         f\;\M \;(\mathtt{rec}\;e_0\; f\; \M)
       \end{align*}
       respectively 
-    \item \seti
-      Show that $\mathtt{rec}\;e_0\;f\;\underline{n} \Downarrow \V$ 
-      for a closed value $\V$ if $f$ terminating and $\underline{n}$ a closed value.
-  \end{enumerate}
+\end{enumerate}
     Consider G\"odel's \textbf{T}, simply typed lambda calculus with
     natural numbers and \emph{primitive recursion}:
     \begin{prooftree}
