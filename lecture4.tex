@@ -6,29 +6,32 @@
 \begin{document}
 \frame{\maketitle}
 
-\begin{frame}
+\begin{frame}{Overview}
   So far we have given two kinds of semantics for \PCF{}. For a program~$\M$ of
   type~$\sigma$,
   \begin{itemize}
     \item one gives how the program~$\M$ is evaluated to a closed value~$\V$
       via the reduction relation~$\M \Downarrow\V$;
-    \item the other defines what the denotation~$\sem{\M}$ of~$\M$ is.
+    \item the other defines what the denotation~$\sem{\M}$ of~$\M$ is in a
+      domain~$D_\sigma$. 
     \end{itemize}
   In this lecture, we will compare these two approaches and discuss some issues
   arising from them:
   \begin{description}[Computational Adequacy]
-    \item[Correctness]
-    \item[Completeness]
+    \item[Correctness] $\M \Downarrow \V$ implies $\sem{\M} = \sem{\V}$.
+    \item[Completeness] $\sem{\M} = n$ implies $\M \Downarrow \underline{n}$
     \item[Computational adequacy]
-    \item[Full abstraction]
+      Both of correctness and completeness hold. 
   \end{description}
 
 \end{frame}
+
 \section{Computational Adequacy}  
+
 \begin{frame}{Closed values of $\nat$ do not diverge}
-  The bottom element~$\bot$ in a domain models the divergence of computation,
-  and a closed value~$\V$ of~$\nat$ is meant to be some natural
-  number. Let's justify this idea.
+  The bottom element~$\bot$ models the divergence of computation.  A closed
+  value of~$\nat$ is meant to be some natural number, so it shouldn't
+  diverge. 
   \begin{lemma}
     For every closed value~$\V$ of type~$\nat$, the denotation~$\sem{\V}$ is an
     element of~$\mathbb{N}$. In particular, $\sem{\V} \neq \bot$.
@@ -61,7 +64,10 @@
   By inspection of the above proof, we conclude that $\sem{\underline{n}} = n$
   --- what a numeral~$\underline{n}$ of~$n$ should mean. 
 \end{frame}
-\begin{frame}{Correctness}
+
+\subsection{Correctness}
+
+\begin{frame}
   Now we show that denotational semantics is correct with respect to
   denotational semantics:
   \begin{theorem}
@@ -73,7 +79,7 @@
     \tau}$ and $\sem{{}\vdash \V : \sigma}$ are of the same type if $\M
   \Downarrow \V$, so their range~$\sem{\tau}$ and $\sem{\sigma}$ are the same.
 
-  \begin{proof}[Proof Sketch]
+  \begin{proof}[Proof sketch.]
     Prove $\sem{\M} = \sem{\V} \in \sem{\tau}$ by structural induction on the
     derivation of~$\M\Downarrow\V$. 
   \end{proof}
@@ -162,4 +168,413 @@
     where the last but one equality follows from Substitution Lemma.
 \end{itemize}
 }
+
+\subsection{Equational reasoning}
+
+\begin{frame}{Logical equivalence}
+  Before we proceed with the other direction, we explain why it matters.  It is
+  natural to define an ``equality'' between programs according to its
+  computation outcome:
+  \begin{definition}[Applicative approximation]
+    For each type~$\sigma$, define a relation~$\precsim_\sigma$ between
+    programs of~$\sigma$:
+    \begin{enumerate}
+      \item For the type $\nat$, define
+        \[
+          \M \precsim_{\alert{\nat}} \N
+        \]
+        if for all $n \in \mathbb{N}$, 
+          $\M \Downarrow \underline{n}$ implies $\N \Downarrow \underline{n}$
+      \item For every type~$\sigma \to \tau$, define
+        \[
+          \M \precsim_{\alert{\sigma \to\tau}} \N
+        \]
+          if for all program~$P$,
+            $\M\;P \precsim_{\tau} \N\;P$.
+    \end{enumerate}
+  \end{definition}
+    Two programs $\M$ and $\N$ of the same type~$\sigma$ are \textbf{logically
+      equivalent} denoted~$\M\simeq_\sigma\N$ if $\M \precsim_\sigma \N$ and
+    $\M \succsim_\sigma \N$. 
+
+\end{frame}
+
+\begin{frame}
+  The relation $\precsim_\sigma$ is a preorder, so
+  $\simeq_\sigma$ is indeed an equivalence.   \begin{proposition}
+    The logical equivalence~$\simeq_\sigma$ is a reflexive, symmetry, and transitive
+    relation, i.e.\ an equivalence relation.
+  \end{proposition}
+  A program~$\M$ can be replaced by another program~$\N$ without changing
+  results if $\M \simeq_\sigma \N$ and it is desirable for efficiency.
+    \begin{example}
+      The following two programs are logically equivalent:
+      \[
+        \lambda x.\, x
+        \quad\text{and}\quad
+        \lambda x.\, \mathtt{pred}\; (\mathtt{suc}\; x)
+      \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Reduction respects logical equivalence}
+  We know that with $\M \leadsto^* \M'$ and $\M' \Downarrow \V$ it follows that
+  $\M \Downarrow \V$ in the agreement between one-step reduction, so $\leadsto$
+  and big-step reduction $\Downarrow$. It is a strightforward to show the
+  following:
+  \begin{proposition}
+    Let $\M$ and $\M'$ be programs of type~$\sigma$. 
+    If $\M \leadsto^* \M'$, then $\M \succsim_\sigma \M'$. 
+  \end{proposition}
+  The other direction follows from the determinacy and closed values cannot be
+  reduced further:
+  \begin{proposition}
+    Let $\V$ be a closed value, and $\M$ and $\N$ terms. 
+    Suppose that $\M \leadsto^* \V$ and $\M \leadsto^* \M'$. Then it follows that
+    $\M' \leadsto^* \V$. 
+  \end{proposition}
+  Then, it is similar to show that $\M \leadsto^* \M'$ implies $\M
+  \precsim_\sigma \M'$.
+  \begin{corollary}[Reduction entails logical equivalence]
+    If $\M \leadsto^* \M'$, then $\M \simeq_\sigma \M'$. 
+  \end{corollary}
+\end{frame}
+\note{
+  \begin{proof}
+    We prove it by induction on~$\sigma$. 
+    \begin{description}
+      \item[$\nat$] If $\M' \Downarrow \underline{n}$,
+        then as we have shown in the agreement between~$\leadsto$
+        and~$\Downarrow$ from $\M \leadsto \M'$ it follows $\M \Downarrow
+        \underline{n}$.  Therefore, $\M \succsim_\nat \M'$. 
+      \item[$\sigma\to\tau$]
+        By assumption that~$\M \leadsto \M'$ and ($\leadsto$-lapp), it follows
+        that $\M\; P \leadsto \M'\; P$ for every term.  By induction
+        hypothesis, it follows that $\M\;P \succsim_\tau\M'\;P$ for every program of
+        type~$\sigma$, so $\M \succsim_{\sigma\to\tau} \M'$.
+    \end{description}
+  \end{proof}
+}
+\begin{frame}
+  However, logical equivalence goes beyond reduction.  
+  Consider the following two programs of type~$\nat\to\nat\to\nat$:
+    \[
+      \lambda x.\, \lambda y.\, x + \alert{y}
+    \]
+    and 
+    \[
+      \lambda x.\, \lambda y.\, \alert{y} + x
+    \]
+    Surely the addition of natural numbers are commutative, but \emph{why?}
+    By definition they are already closed values, so they cannot be reduced to
+    each other. 
+    \begin{remark}
+      It is possible to show directly that these two programs are logically
+      equivalent internally in dependent type theory. Yet, we will present
+      an external approach using denotational semantics in the absense of dependent
+      types. 
+    \end{remark}
+\end{frame}
+%
+%\begin{frame}{Observational equivalence}
+%  To avoid the universal quantifier, one may expect that $\sem{\M} = \sem{\N}$
+%  implies $\M \Downarrow \N$ for all~$\M$, $\N$, but it is 
+%  impossible because of ($\Downarrow$-lam). E.g.
+%    \[
+%      \sem{\lambda x.\, x}(n) = n  
+%       = (n + 1) - 1 = 
+%      \sem{\lambda x.\, \mathtt{pred}\;(\suc\;x)}(n)
+%    \]
+%  We can, however, observe programs on~$\nat$.
+%  \begin{definition}[Observational approximation]
+%    For every type~$\sigma$, define a relation $\lesssim_\sigma$ for
+%    programs of type~$\sigma$ as 
+%    \[
+%      \M \lesssim_\sigma \N \quad\text{if}\quad 
+%      P\; \M \precsim_\nat P\;\N.
+%    \]
+%    for every program~$P$ of type~$\sigma\to\nat$. 
+%    Two programs~$\M$ and~$\N$ are \textbf{observationally equivalent}
+%    if $\M \lesssim \N$ and $\N \lesssim \M$.
+%  \end{definition}
+%\end{frame}
+%
+%\begin{frame}{Equivalences}
+%  We have introduced three different equivalences between programs:
+%  \begin{enumerate}
+%    \item Denotational equivalence $\sem{\M} = \sem{\N}$
+%    \item Logical equivalence $\M \simeq \N$
+%    \item Observational equivalence $\M \lesssim \N$ and $\N \lesssim \M$. 
+%  \end{enumerate}
+%  In the following, we will show that these three equivalences
+%  are actually the same, using \emph{computational adequacy}. Therefore, we can
+%  avoid the universal quantifier and ensure the correctness of programs by
+%  calculating their denotations. 
+%\end{frame}
+\subsection{Completeness}
+\begin{frame}
+  In the following, we will show that for every program~$\M$ of type~$\nat$ if
+  $\sem{\M} = n$ then $\M$ reduces to the numeral~$\underline{n}$, i.e.\ $\M
+  \Downarrow \underline{n}$. 
+  \begin{itemize}
+    \item Define a relation~$R_\sigma$ for each type~$\sigma$ between the
+      domain~$\sem{\sigma} = D_\sigma$ for~$\sigma$ and the collection of
+      programs of type~$\sigma$, that is
+      \[
+        R_\sigma \subseteq D_\sigma \times \mathsf{Prg}_\sigma
+      \]
+      for every type~$\sigma$ where $\mathsf{Prg}_\sigma = \set{ \M }{{}\vdash
+        \M : \sigma}$.
+    \item Then we prove that $\sem{\M}\mathrel{R_\sigma} \M$ for every
+      program~$\M$ of type~$\sigma$, and, by the construction of~$R_\sigma$
+      introduced later, $\sem{\M} \mathrel{R_\nat} \M$ is equivalent to that
+      $\sem{M} = n$ implies $\M \Downarrow \underline{n}$. 
+  \end{itemize}
+  With this property, we can conclude that denotational equivalence entails
+  logical equivalence.\footnote{
+    But, the converse may fail! 
+  }
+\end{frame}
+\begin{frame}{Logical relation between semantics and syntax}
+\begin{definition}[Logical relation]
+  For every type~$\sigma$, define a relation~$\alert{R_\sigma} \subseteq
+  D_\sigma \times \mathsf{Prg}_\sigma$ inductively as follows:
+  \begin{itemize}
+    \item $d \alert{\mathrel{R_\nat}}\M$
+      if $\M$ reduces to~$\underline{n}$
+      whenever $d$ is some natural number~$n$:
+      \[
+        d \alert{\mathrel{R_\nat}} \M
+        \quad\text{if}\quad \forall n \in \mathbb{N}.\,
+        d = n \implies \M \Downarrow \underline{n}
+      \]
+    \item for every function type $f \alert{\mathrel{R_{\sigma\to\tau}}} \M$,
+      if the outcome is always related whenever the input is related:
+      \[
+        f \alert{\mathrel{R_{\sigma\to\tau}}} \M
+        \quad\text{if}
+      \]
+      \[
+        \forall d, 
+        \N.\, 
+        d \alert{\mathrel{R}_\sigma} \N \implies f(d) \alert{\mathrel{R_\tau}} \M\;\N
+      \]
+  \end{itemize}
+\end{definition}
+For example, $0 \alert{\mathrel{R_\nat}} \zero$, and
+$n + 1 \alert{\mathrel{R_\nat}}
+\suc\;\M$ wherever $n \alert{\mathrel{R_\nat}} \M$ for~$n \in \mathbb{N}$. 
+
+\end{frame}
+\begin{frame}{Properties of~$R_\sigma$}
+\begin{lemma}
+  \label{lem:property_logical_relation}
+  For every type~$\sigma$, the following statements are true:
+  \begin{enumerate}
+    \item If $d' \sqsubseteq d$ and $d\alert{\mathrel{R_\sigma}}\M$, then
+      $d' \alert{\mathrel{R_\sigma}} \M$; 
+    \item For every $\M \in \mathsf{Prg}_\sigma$, the set
+      \[
+        R_\sigma \M \defeq \set{ d \in D_\sigma}{ d \alert{\mathrel{R_\sigma}}
+          \M}
+      \]
+      contains~$\bot$ and is closed under directed sups;\footnote{
+        Let $S$ be an arbitrary directed subset of~$D_\sigma$, 
+        if $d \alert{\mathrel{R_\sigma}} \M$ for every~$d \in S$, then 
+        $\bigsqcup S \alert{\mathrel{R_\sigma}} \M$. 
+      }
+    \item If $d \alert{\mathrel{R_\sigma}} \M$ and $M \precsim_\sigma \M'$, then
+      $d \alert{\mathrel{R_\sigma}} \M'$. 
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  By induction on~$\sigma$.
+\end{proof}
+\end{frame}
+
+\begin{frame}
+  \begin{lemma}[General recursion]
+    If we have $f \alert{\mathrel{R_{\sigma\to\sigma}}} (\lambda x.\, \M)$, then
+    $\mu(f) \alert{\mathrel{R_\sigma}} (\fix x.\, \M)$. 
+  \end{lemma}
+\begin{proof}[Proof sketch.]
+  By definition~$\mu(f)$ is the directed supremum  of
+  the following directed sequence 
+  \[
+    \bot \sqsubseteq f(\bot) \sqsubseteq f^2(\bot)
+    \sqsubseteq \cdots \sqsubseteq f^i(\bot) \sqsubseteq
+    \cdots, 
+  \]
+  so it suffices to show that
+  \[
+    f^i(\bot) \alert{\mathrel{R_\sigma}} (\fix x.\, \M)
+  \]
+  for every $i \in \mathbb{N}$, because $R_\sigma(\fix x.\M)$ is closed under
+  directed sups. We prove it by induction on~$i$ and properties of~$R_\sigma$.
+\end{proof}
+\end{frame}
+
+\begin{frame}
+  The complete proof is listed below.
+  \begin{description}
+    \item[For $i = 0$:] By definition $f^0(\bot) = \bot$, so
+      $\bot \alert{\mathrel{R_\sigma}} (\fix x.\, \M)$ follows.
+    \item[For $i = n + 1$:]
+      By the assumption~$f\alert{\mathrel{R_{\sigma\to\sigma}}}(\lambda x.\M)$, it
+      follows that
+      \[
+        f^{n+1}(\bot)
+        \alert{\mathrel{R_\sigma}} (\lambda x.\,\M)\; (\fix x.\,\M)
+      \]
+      by the induction hypothesis
+      $f^n(\bot) \alert{\mathrel{R_\sigma}} (\fix x.\, \M)$. 
+
+      The RHS reduces to~$\M[\fix x.\M /x]$ and $\fix x.\M \leadsto
+      \M[\fix x.\M / x]$, so the RHS is logically equivalent to~$\fix x.\M$.
+      Hence, it follows that
+      \[
+        f^{n+1}(\bot) \alert{\mathrel{R_\sigma}} (\fix x.\,\M).
+      \]
+  \end{description}
+  Therefore, it follows that $\bigsqcup_{i \in \mathbb{N}} f^{i}(\bot)
+  \alert{\mathrel{R_\sigma}} (\fix x.\, \M)$. 
+\end{frame}
+\begin{frame}{The Main Lemma -- Substitution}
+  \begin{lemma}[Substitution]
+    Let $\Gamma = x_1:\sigma, \dots, x_k:\sigma_k$ be a context, $\Gamma \vdash
+    \M:\tau$ a judgement and $d_i \alert{\mathrel{R_{\sigma_i}}} \N_i$
+    for $i = 1, \dots, n$. Then the following holds
+    \[
+      \sem{\, \Gamma \vdash \M : \tau\,}(\vec{d})
+      \alert{\mathrel{R_\tau}}
+      \M[\vec{N}/\vec{x}]
+    \]
+  \end{lemma}
+  \begin{theorem}[Completeness]
+    For every program~$\M$ of type~$\nat$,
+    we have $\M \Downarrow \underline{n}$ whenever~$\sem{\M} = n$. 
+  \end{theorem}
+  \begin{proof}
+    Consider ${}\vdash \M : \tau$, by the above lemma we have
+    \[
+      \sem{{}\vdash \M:\tau}(*) \alert{\mathrel{R_\sigma}} \M
+    \]
+    where the LHS is~$\sem{\M}$. Hence for
+    every~$n \in \mathbb{N}$, if $\sem{M} = n$ then $\M \Downarrow
+    \underline{n}$ by
+    construction.
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Proof of the Main Lemma}
+  To prove the lemma, do induction on the typing rules for~\PCF{}. 
+  We only detail some complicated cases, and others are left as in-class
+  exercises for you. For convenience, we write
+  \[
+    \vec{d} \alert{\mathrel{R}} \vec{\N}
+    \quad\text{for}\quad
+    d_i \alert{\mathrel{R_{\sigma_i}}} \N_i
+    \quad\text{indexed by~$i = 1, \dots, n$}
+  \]
+  where $\vec{d}$ stands for $(d_1, \dots, d_n)$
+  and $\vec{\N}$ stands for $(\N_1, \dots, \N_n)$.
+  \begin{description}
+    \item[(z), (s)] These two cases follow from
+      $0\alert{\mathrel{R}_\nat}\zero$ and $n+1 \alert{\mathrel{R_\nat}}
+      \suc\;\M$ whenever $n \alert{\mathrel{R_\nat}} \M$. 
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \begin{description}
+    \item[(var)] To show that
+      \[
+        \sem{\dots, x_i : \sigma_i, \dots \vdash x_i : \sigma_i}
+        \alert{\mathrel{R_{\sigma_i}}}
+        x_i[\vec{\N}/\vec{x}]
+      \]
+      we check both sides separately.
+      By definition, we have
+      \[
+        \sem{\dots, x_i : \sigma_i, \dots \vdash x_i : \sigma_i}(\vec{d})
+        = d_i
+        \quad\text{and}\quad
+        [\vec{\N}/\vec{x}] = \N_i.  
+      \]
+      Therefore, from the assumption it follows
+      that $d_i \alert{\mathrel{R_{\sigma}}} \N_i$ for every~$i$.
+  \end{description}
+\end{frame}
+\begin{frame}
+  \begin{description}
+    \item[(abs)] We need to show that
+      \begin{equation}
+        \label{eq:subst_abs}
+        \sem{\Gamma\vdash\lambda x.\,\M : \tau} (\vec{d})
+        \alert{\mathrel{R_{\sigma\to\tau}}}
+          (\lambda x.\, \M)[\vec{\N}/\vec{x}]
+      \end{equation}
+      under the induction hypothesis
+      \[\sem{\Gamma, x : \sigma \vdash \M : \tau} (\vec{d}, d)
+        \alert{\mathrel{R_{\tau}}}
+          \M[\,\vec{\N}, \N\mathrel{/}\vec{x}, x\,].
+      \]
+      \begin{itemize}
+        \item For the LHS, we have by definition
+          \begin{align*}
+            & \sem{\Gamma \vdash \lambda x.\M : \tau}(\vec{d})(d) \\
+            ={}& \sem{\Gamma, x : \sigma \vdash \M : \tau}(\vec{d}, d).
+          \end{align*}
+        \item For the RHS, we have
+          \begin{align*}
+            & (\lambda x.\,\M)[\vec{\N}/\vec{x}]\;\N \\
+            \leadsto{} & (\lambda x.\,\M)[\vec{\N}/\vec{x}][\N/x] \\
+            ={} & (\lambda x.\,\M)[\, \vec{\N}, \N \mathrel{/} \vec{x}, x\,]
+          \end{align*}
+          and it follows that these two terms are logically equivalent. 
+          Thus, \eqref{eq:subst_abs} follows by
+          the definition of~$\mathrel{R_{\sigma\to\tau}}$.
+      \end{itemize}
+  \end{description}
+
+\end{frame}
+
+\begin{frame}
+  \begin{description}
+    \item[(Y)] We show that
+      $\sem{\Gamma \vdash \fix x.\, \M : \sigma}(\vec{d})
+        \alert{\mathrel{R_\sigma}}
+        (\fix x.\,\M)[\vec{\N}/\vec{x}]$
+      under the assumption that
+      \begin{equation}
+        \label{eq:subst_fix}
+        \sem{\Gamma, x : \sigma \vdash \M : \sigma}(\vec{d}, d)
+        \alert{\mathrel{R_\sigma}}
+        \M[\,\vec{\N}, \N/\vec{x}, x\,]
+      \end{equation}
+      Recall the lemma for general recursion. It suffices to show
+      $\Lambda\sem{\Gamma, x : \sigma \vdash \M : \sigma}(\vec{d})
+      \alert{\mathrel{R_{\sigma\to\sigma}}}
+        \lambda x.\, \M[\vec{\N}/ \vec{x}] $
+      or, equivalently, the following
+      \begin{equation}
+        \label{eq:subst_fix2}
+        \sem{\Gamma, x : \sigma \vdash \M : \sigma}(\vec{d}, d)
+        \alert{\mathrel{R_{\sigma}}}
+        (\lambda x.\, \M[\vec{\N}/\vec{x}])\;\N
+      \end{equation}
+      holds for every $d \mathrel{R}_\sigma \N$.
+      The RHS can be reduced to
+      \[
+        \M[\vec{\N}/\vec{x}][\N/x]
+        = \M[\,\vec{\N}, \N\mathrel{/}\vec{x}, x\,],
+      \]
+      so \eqref{eq:subst_fix} implies 
+      \eqref{eq:subst_fix2} by logical equivalence.
+    \item[(app), (ifz)] In-class Exercises. 
+  \end{description}
+\end{frame}
+
+\begin{frame}{Applicaitons of adequacy}
+\end{frame}
 \end{document}
