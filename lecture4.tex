@@ -219,8 +219,8 @@
 
 \begin{frame}{Reduction respects logical equivalence}
   We know that with $\M \leadsto^* \M'$ and $\M' \Downarrow \V$ it follows that
-  $\M \Downarrow \V$ in the agreement between one-step reduction, so $\leadsto$
-  and big-step reduction $\Downarrow$. It is a strightforward to show the
+  $\M \Downarrow \V$ in the agreement between $\leadsto$
+  and $\Downarrow$. It is a strightforward to show the
   following:
   \begin{proposition}
     Let $\M$ and $\M'$ be programs of type~$\sigma$. 
@@ -269,11 +269,28 @@
     By definition they are already closed values, so they cannot be reduced to
     each other. 
     \begin{remark}
-      It is possible to show directly that these two programs are logically
-      equivalent internally in dependent type theory. Yet, we will present
-      an external approach using denotational semantics in the absense of dependent
-      types. 
+      We can show directly that these two programs are logically
+      equivalent in dependent type theory. Yet, we will present an external
+      approach using denotational semantics in the absense of
+      the identity type. 
     \end{remark}
+\end{frame}
+
+\begin{frame}{Observational equivalence}
+  Another proposal of equivalence between programs is given by
+  \emph{observations} or say, \emph{measurements}:
+  \begin{definition}[Observational approximation]
+    Define a relation~$\lesssim_\sigma$ for each type~$\sigma$ by
+    \[
+      \M \lesssim_\sigma \N
+      \quad\text{if}\quad
+      \forall P \in \mathsf{Prg}_{\sigma\to\nat}.\, 
+      P\;\M \mathrel{\precsim_\nat} P\;\N
+    \]
+   Two programs~$\M$ and $\N$ of type~$\sigma$ are \textbf{observationally
+     equivalent} if $\M \lesssim_\sigma \N$ and $\N \lesssim_\sigma \M$. 
+  \end{definition}
+
 \end{frame}
 %
 %\begin{frame}{Observational equivalence}
@@ -314,26 +331,23 @@
 \subsection{Completeness}
 \begin{frame}
   In the following, we will show that for every program~$\M$ of type~$\nat$ if
-  $\sem{\M} = n$ then $\M$ reduces to the numeral~$\underline{n}$, i.e.\ $\M
-  \Downarrow \underline{n}$. 
+  $\sem{\M} = n$ then $\M$ reduces to the numeral~$\underline{n}$.
   \begin{itemize}
     \item Define a relation~$R_\sigma$ for each type~$\sigma$ between the
-      domain~$\sem{\sigma} = D_\sigma$ for~$\sigma$ and the collection of
-      programs of type~$\sigma$, that is
+      domain~$\sem{\sigma} = D_\sigma$ and the collection of
+      programs of type~$\sigma$:
       \[
         R_\sigma \subseteq D_\sigma \times \mathsf{Prg}_\sigma
       \]
       for every type~$\sigma$ where $\mathsf{Prg}_\sigma = \set{ \M }{{}\vdash
         \M : \sigma}$.
-    \item Then we prove that $\sem{\M}\mathrel{R_\sigma} \M$ for every
-      program~$\M$ of type~$\sigma$, and, by the construction of~$R_\sigma$
-      introduced later, $\sem{\M} \mathrel{R_\nat} \M$ is equivalent to that
+    \item Then prove that $\sem{\M}\mathrel{R_\sigma} \M$ for every
+      program~$\M$ of type~$\sigma$, and, by construction
+      $\sem{\M} \mathrel{R_\nat} \M$ is equivalent to that
       $\sem{M} = n$ implies $\M \Downarrow \underline{n}$. 
   \end{itemize}
   With this property, we can conclude that denotational equivalence entails
-  logical equivalence.\footnote{
-    But, the converse may fail! 
-  }
+  logical equivalence.
 \end{frame}
 \begin{frame}{Logical relation between semantics and syntax}
 \begin{definition}[Logical relation]
@@ -455,7 +469,7 @@ $n + 1 \alert{\mathrel{R_\nat}}
     we have $\M \Downarrow \underline{n}$ whenever~$\sem{\M} = n$. 
   \end{theorem}
   \begin{proof}
-    Consider ${}\vdash \M : \tau$, by the above lemma we have
+    By the above lemma we have
     \[
       \sem{{}\vdash \M:\tau}(*) \alert{\mathrel{R_\sigma}} \M
     \]
@@ -556,14 +570,14 @@ $n + 1 \alert{\mathrel{R_\nat}}
       $\Lambda\sem{\Gamma, x : \sigma \vdash \M : \sigma}(\vec{d})
       \alert{\mathrel{R_{\sigma\to\sigma}}}
         \lambda x.\, \M[\vec{\N}/ \vec{x}] $
-      or, equivalently, the following
+      or, equivalently 
       \begin{equation}
         \label{eq:subst_fix2}
         \sem{\Gamma, x : \sigma \vdash \M : \sigma}(\vec{d}, d)
         \alert{\mathrel{R_{\sigma}}}
         (\lambda x.\, \M[\vec{\N}/\vec{x}])\;\N
       \end{equation}
-      holds for every $d \mathrel{R}_\sigma \N$.
+      for every $d \mathrel{R}_\sigma \N$.
       The RHS can be reduced to
       \[
         \M[\vec{\N}/\vec{x}][\N/x]
