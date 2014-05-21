@@ -23,7 +23,7 @@
       \sem{\Gamma} \defeq \sem{\sigma_1} \times \sem{\sigma_2}
       \times \dots \times \sem{\sigma_n}
     \]
-    and the associated domain of the empty context is $1 = \{\bot\}$. 
+    and the associated domain of the empty context is $1 = \{*\}$. 
   \end{definition}
   Every judgement of this form $\Gamma \vdash \M : \tau$ will be interpreted as
   a function
@@ -96,7 +96,7 @@
   to~$\sem{\tau}$, and thus determines a unique element~$\sem{\M}(*)$
   of~$\sem{\tau}$. 
   \begin{block}{Convention}
-    For brevity, we write $\sem{\M}$ instead of~$\sem{{}\vdash\M : \tau}$ for
+    For brevity, we write $\sem{\M}$ instead of~$\sem{{}\vdash\M : \tau}(*)$ for
     every program~$\M$ of type~$\tau$
   \end{block}
   \begin{theorem}
