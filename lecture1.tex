@@ -18,8 +18,6 @@
       defined without any ambiguities. No undefined behaviour. 
     \item A structural approach to semantics. The meaning of a program is
       built from its parts, so verification is possible. 
-    \item The precise definitions of notions, such as strict and lazy
-      evaluation strategies. 
   \end{enumerate}
 \end{frame}
 
@@ -167,7 +165,7 @@
   or $\suc\; (\lambda x .\, \suc\; x)$ are not.
 \end{frame}
 
-\begin{frame}{Example: Predecessor}
+\begin{frame}{Example: predecessor}
   The predecessor of natural numbers can be defined as
   \[
     \pred \defeq \lambda x .\, \ifz (x; \zero; y .\, y)
@@ -307,6 +305,21 @@
   In the following context, we adopt the \emph{call-by-name} interpretation. 
 \end{frame}
 
+\begin{frame}{Divergence}
+  In contrast to dependent type theory, there are divergent \PCF{} terms, e.g.
+  \[
+    \fix x.\, x
+  \]
+  for any variable~$x : \sigma$. 
+  If we try to evaluate it by one-step reduction, then we will find that
+  this sequence
+  \[
+    \fix x.\, x \leadsto x[\fix x.\, x] = \fix x.\, x \leadsto \fix x.\, x
+    \leadsto \cdots 
+  \]
+  never reaches a closed value. 
+\end{frame}
+
 \begin{frame}{Many-step reduction}
   \begin{definition}
     The relation $\leadsto^*$ between terms is defined inductively:
@@ -361,13 +374,13 @@
 \end{frame}
 
 \begin{frame}
-  Under the context of $\Gamma \defeq f\colon \nat \to \nat$, we
-  define a function depending on $f$ as follows:
+  Given $\Gamma \defeq f\colon \nat \to \nat$, we 
+  rewrite the definition in \PCF{}:
   \[
     \Gamma \vdash \lambda n.\, \ifz(n; \suc\;\zero; m.\, n \times (f\; m))
       : \nat \to \nat
   \]
-  and thus we derive its fixpoint by $\fix$:
+  and we derive its fixpoint by $\fix$:
   \[
     \mathtt{fact} \defeq
     \fix f.\, \lambda n .\, \ifz(n; \suc\;\zero; m .\, n\times (f\; m))
@@ -436,6 +449,14 @@
     If ${} \vdash \M : \tau$ then either $\M$ is a closed value or
     there exists $\M'$ such that $\M \leadsto \M'$. 
   \end{theorem}
+    Note that given a program $\M : \tau$, its proof produces either a
+    closed value or a \PCF{} term $\M'$ with a proof that $\M$ reduces to $\M'$.
+    Forgetting the proof, the proof itself is indeed a program
+    which asks a \PCF{} term, preforms a single reduction and return a term
+    tagged either \texttt{done} or \texttt{not yet}. 
+\end{frame}
+
+\begin{frame}
   \begin{proof}
     By induction on the derivation of ${}\vdash \M:\tau$. For the case that
     \begin{prooftree}
@@ -449,17 +470,8 @@
       \item Suppose that $\M \leadsto \M'$ for some $\M'$. Then, by the rule
         ($\leadsto$-$\suc$), we also have $\suc\;\M \leadsto \suc\;\M'$. 
     \end{enumerate}
+    Other cases follow similarly.
   \end{proof}
-\end{frame}
-
-\begin{frame}{Proofs are programs}
-  \begin{remark}
-    Note that given a program $\M : \tau$, the previous proof produces either a
-    closed value or a \PCF{} term $\M'$ with a proof that $\M$ reduces to $\M'$.
-    Forgetting the proof, the proof itself is indeed a program
-    which asks a \PCF{} term, preforms a single reduction and return a term
-    tagged either \texttt{done} or \texttt{not yet}. 
-  \end{remark}
 \end{frame}
 \begin{frame}{Substitution Lemma}
   If a variable~$x : \tau$ in a term~$\M$ is substituted by another term~$\N$
@@ -595,8 +607,7 @@
 \end{frame}
 
 \begin{frame}{Agreement of big-step and one-step semantics}
-  Indeed, the big-step reduction can be characterised with respect to the
-  one-step step reduction as follows:
+  The big-step reduction can be characterised by~$\leadsto$:
   \begin{theorem}
     For every term $\M$ and $\V$, $\M \Downarrow \V$ if and only if $ \M \leadsto^* \V$
     with $\V \;\, \val$. 
@@ -604,22 +615,21 @@
 
   \begin{block}{Proof sketch.}
     \begin{enumerate}
-      \item First we show that if $\M\Downarrow \V$ then $\M \leadsto^* \V$
+      \item Show that if $\M\Downarrow \V$ then $\M \leadsto^* \V$
         by induction on~$\Downarrow$ and~$\leadsto^*$. 
-      \item Second, by induction on~$\leadsto$ and $\Downarrow$  we show that
+      \item By induction on~$\leadsto$ and $\Downarrow$, show that
         \begin{prooftree}
           \AXC{$\M \leadsto \N \Downarrow \V$}
           \UIC{$\M\Downarrow \V$}
         \end{prooftree}
-      \item Finally,  by induction on~$\leadsto^*$ we show that
+      \item By induction on~$\leadsto^*$, show that
         \begin{prooftree}
           \AXC{$\M \leadsto^*   \N \Downarrow \V$}
           \UIC{$\M\Downarrow \V$}
         \end{prooftree}
-        
     \end{enumerate}
-    In particular, for every $\M \leadsto^* \V$ with $\V\;\,\val$,
-    we always have $\V\Downarrow \V$, so it follows $\M\Downarrow \V$.
+    In particular, every $\M \leadsto^* \V$ with $\V\;\,\val$,
+    has $\V\Downarrow \V$, so it follows that $\M\Downarrow \V$.
   \end{block}
 \end{frame}
 
@@ -646,7 +656,7 @@
 \end{proof}
 By the agreement of big-step and one-step semantics, we easily conclude
 that the Subject Reduction also holds for big-step semantics:
-\begin{corollary}
+\begin{corollary}[Subject Reduction for~$\Downarrow$]
   If ${}\vdash \M : \tau$ and $\M \Downarrow \V$ then ${}\vdash \V : \tau$.
 \end{corollary}
 \end{frame}

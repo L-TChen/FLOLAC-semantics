@@ -1,5 +1,5 @@
 \title{Semantics of Functional Programming}
-\subtitle{Lecture IV: Computational Adequacy and Further Topics}
+\subtitle{Lecture IV: Computational Adequacy}
 \author[L.-T. Chen]{Chen, Liang-Ting\\
   \href{mailto:lxc@iis.sinica.edu.tw}{\texttt{lxc@iis.sinica.edu.tw}}}
 \institute[IIS, Sinica]{Institute of Information Science, Academia Sinica}
@@ -26,7 +26,7 @@
 
 \end{frame}
 
-\section{Computational Adequacy}  
+\section{Correctness}
 
 \begin{frame}{Closed values of $\nat$ do not diverge}
   The bottom element~$\bot$ models the divergence of computation.  A closed
@@ -61,11 +61,7 @@
     of~$\sem{-}$. On the other hand, $\lambda x.\, \M$ cannot be of
     type~$\nat$, so this case holds vacuously.
   \end{proof}
-  By inspection of the above proof, we conclude that $\sem{\underline{n}} = n$
-  --- what a numeral~$\underline{n}$ of~$n$ should mean. 
 \end{frame}
-
-\subsection{Correctness}
 
 \begin{frame}
   Now we show that denotational semantics is correct with respect to
@@ -169,11 +165,10 @@
 \end{itemize}
 }
 
-\subsection{Equational reasoning}
+\section{Equational reasoning}
 
 \begin{frame}{Logical equivalence}
-  Before we proceed with the other direction, we explain why it matters.  It is
-  natural to define an ``equality'' between programs according to its
+  It is natural to define an ``equality'' between programs according to its
   computation outcome:
   \begin{definition}[Applicative approximation]
     For each type~$\sigma$, define a relation~$\precsim_\sigma$ between
@@ -218,10 +213,9 @@
 \end{frame}
 
 \begin{frame}{Reduction respects logical equivalence}
-  We know that with $\M \leadsto^* \M'$ and $\M' \Downarrow \V$ it follows that
-  $\M \Downarrow \V$ in the agreement between $\leadsto$
-  and $\Downarrow$. It is a strightforward to show the
-  following:
+  Recall that from $\M \leadsto^* \M'$ and $\M' \Downarrow \V$
+  it follows that $\M \Downarrow \V$ in the agreement between $\leadsto$ and
+  $\Downarrow$. 
   \begin{proposition}
     Let $\M$ and $\M'$ be programs of type~$\sigma$. 
     If $\M \leadsto^* \M'$, then $\M \succsim_\sigma \M'$. 
@@ -233,8 +227,6 @@
     Suppose that $\M \leadsto^* \V$ and $\M \leadsto^* \M'$. Then it follows that
     $\M' \leadsto^* \V$. 
   \end{proposition}
-  Then, it is similar to show that $\M \leadsto^* \M'$ implies $\M
-  \precsim_\sigma \M'$.
   \begin{corollary}[Reduction entails logical equivalence]
     If $\M \leadsto^* \M'$, then $\M \simeq_\sigma \M'$. 
   \end{corollary}
@@ -276,22 +268,22 @@
     \end{remark}
 \end{frame}
 
-\begin{frame}{Observational equivalence}
-  Another proposal of equivalence between programs is given by
-  \emph{observations} or say, \emph{measurements}:
-  \begin{definition}[Observational approximation]
-    Define a relation~$\lesssim_\sigma$ for each type~$\sigma$ by
-    \[
-      \M \lesssim_\sigma \N
-      \quad\text{if}\quad
-      \forall P \in \mathsf{Prg}_{\sigma\to\nat}.\, 
-      P\;\M \mathrel{\precsim_\nat} P\;\N
-    \]
-   Two programs~$\M$ and $\N$ of type~$\sigma$ are \textbf{observationally
-     equivalent} if $\M \lesssim_\sigma \N$ and $\N \lesssim_\sigma \M$. 
-  \end{definition}
-
-\end{frame}
+%\begin{frame}{Observational equivalence}
+%  Another proposal of equivalence between programs is given by
+%  \emph{observations} or say, \emph{measurements}:
+%  \begin{definition}[Observational approximation]
+%    Define a relation~$\lesssim_\sigma$ for each type~$\sigma$ by
+%    \[
+%      \M \lesssim_\sigma \N
+%      \quad\text{if}\quad
+%      \forall P \in \mathsf{Prg}_{\sigma\to\nat}.\, 
+%      P\;\M \mathrel{\precsim_\nat} P\;\N
+%    \]
+%   Two programs~$\M$ and $\N$ of type~$\sigma$ are \textbf{observationally
+%     equivalent} if $\M \lesssim_\sigma \N$ and $\N \lesssim_\sigma \M$. 
+%  \end{definition}
+%
+%\end{frame}
 %
 %\begin{frame}{Observational equivalence}
 %  To avoid the universal quantifier, one may expect that $\sem{\M} = \sem{\N}$
@@ -328,7 +320,7 @@
 %  avoid the universal quantifier and ensure the correctness of programs by
 %  calculating their denotations. 
 %\end{frame}
-\subsection{Completeness}
+\section{Computational Adequacy}
 \begin{frame}
   In the following, we will show that for every program~$\M$ of type~$\nat$ if
   $\sem{\M} = n$ then $\M$ reduces to the numeral~$\underline{n}$.
@@ -347,7 +339,9 @@
       $\sem{M} = n$ implies $\M \Downarrow \underline{n}$. 
   \end{itemize}
   With this property, we can conclude that denotational equivalence entails
-  logical equivalence.
+  logical equivalence.\footnote{
+    But, the converse may fail. 
+  }
 \end{frame}
 \begin{frame}{Logical relation between semantics and syntax}
 \begin{definition}[Logical relation]
@@ -356,13 +350,13 @@
   \begin{itemize}
     \item $d \alert{\mathrel{R_\nat}}\M$
       if $\M$ reduces to~$\underline{n}$
-      whenever $d$ is some natural number~$n$:
+      whenever $d$ is a natural number:
       \[
         d \alert{\mathrel{R_\nat}} \M
         \quad\text{if}\quad \forall n \in \mathbb{N}.\,
         d = n \implies \M \Downarrow \underline{n}
       \]
-    \item for every function type $f \alert{\mathrel{R_{\sigma\to\tau}}} \M$,
+    \item for every function type, $f \alert{\mathrel{R_{\sigma\to\tau}}} \M$
       if the outcome is always related whenever the input is related:
       \[
         f \alert{\mathrel{R_{\sigma\to\tau}}} \M
@@ -455,9 +449,9 @@ $n + 1 \alert{\mathrel{R_\nat}}
 \end{frame}
 \begin{frame}{The Main Lemma -- Substitution}
   \begin{lemma}[Substitution]
-    Let $\Gamma = x_1:\sigma, \dots, x_k:\sigma_k$ be a context, $\Gamma \vdash
-    \M:\tau$ a judgement and $d_i \alert{\mathrel{R_{\sigma_i}}} \N_i$
-    for $i = 1, \dots, n$. Then the following holds
+    Let $\Gamma = x_1:\sigma_1, \dots, x_k:\sigma_k$ be a context and $d_i
+    \alert{\mathrel{R_{\sigma_i}}} \N_i$ for $i = 1, \dots, n$.
+    For every well-typed term~$\M$ we have
     \[
       \sem{\, \Gamma \vdash \M : \tau\,}(\vec{d})
       \alert{\mathrel{R_\tau}}
@@ -466,24 +460,20 @@ $n + 1 \alert{\mathrel{R_\nat}}
   \end{lemma}
   \begin{theorem}[Completeness]
     For every program~$\M$ of type~$\nat$,
-    we have $\M \Downarrow \underline{n}$ whenever~$\sem{\M} = n$. 
+    we have $\M \Downarrow \underline{n}$ if~$\sem{\M} = n$. 
   \end{theorem}
   \begin{proof}
-    By the above lemma we have
+    A special case of the previous lemma:
     \[
       \sem{{}\vdash \M:\tau}(*) \alert{\mathrel{R_\sigma}} \M
     \]
-    where the LHS is~$\sem{\M}$. Hence for
-    every~$n \in \mathbb{N}$, if $\sem{M} = n$ then $\M \Downarrow
-    \underline{n}$ by
-    construction.
+    where the LHS is~$\sem{\M}$.
   \end{proof}
 \end{frame}
 
 \begin{frame}{Proof of the Main Lemma}
   To prove the lemma, do induction on the typing rules for~\PCF{}. 
-  We only detail some complicated cases, and others are left as in-class
-  exercises for you. For convenience, we write
+  For convenience, we write
   \[
     \vec{d} \alert{\mathrel{R}} \vec{\N}
     \quad\text{for}\quad
@@ -589,6 +579,153 @@ $n + 1 \alert{\mathrel{R_\nat}}
   \end{description}
 \end{frame}
 
-\begin{frame}{Applicaitons of adequacy}
+\subsection{Applications of adequacy}
+
+\begin{frame}{Applicative approximation coincides with logical relation}
+  \begin{lemma}
+    For every program~$\M$ and $\N$ of type~$\sigma$,
+    \[
+      \M \precsim_\sigma \N
+      \quad\text{if and only if}\quad
+      \sem{\M} \alert{\mathrel{R_\sigma}} \N.
+    \]
+  \end{lemma}
+  \begin{proof}
+    \begin{description}
+      \item[$\M \precsim_\sigma \N$.] By adequacy, we have
+        $\sem{\M} \alert{\mathrel{R_\sigma}} \M$, so $\sem{\M}
+        \alert{\mathrel{R_\sigma}} \N$. 
+      \item[$\sem{M}\alert{\mathrel{R_\sigma}} \N$.]
+        Prove it by induction on~$\sigma$.
+        \begin{description}[xxxxx]
+          \item[$\nat$:] If $\sem{\M} \alert{\mathrel{R_\nat}} \N$, then $\N
+            \Downarrow \underline{n}$ whenever $\sem{\M} = n$.
+          \item[$\sigma\to\tau$:] For $\sigma\to\tau$, by adequacy, we have
+            $\sem{P}\alert{\mathrel{R_\sigma}} P$ for every~$P$, so by
+            assumption and $\sem{\M\;P} = \sem{\M}(\sem{P})
+            \alert{\mathrel{R_\tau}} \N\;P$.  By induction hypothesis, $\M\;P
+            \precsim_\tau \N\;P$ for every~$P$, so $\M
+            \precsim_{\sigma\to\tau} \N$ by definition.
+        \end{description}
+    \end{description}
+  \end{proof}
+\end{frame}
+
+\begin{frame}
+  \begin{corollary}
+    Given two programs~$\M$ and~$\N$ of type~$\sigma$, 
+    if $\sem{\M} = \sem{\N}$, then $\M$ and~$\N$ are logically equivalent. 
+  \end{corollary}
+  \begin{proof}
+    \begin{enumerate}
+      \item By adequacy $\sem{\M} \alert{\mathrel{R}} \M$ and by assumption
+        $\sem{\N} = \sem{\M} \alert{\mathrel{R}} \M$, it follows that $\N
+        \precsim \M$.  \item Similarly, 
+        $\sem{\M} \alert{\mathrel{R}} \N$, so $\M \precsim \N$. 
+    \end{enumerate}
+    Hence, $\M$ and $\N$ are logically equivalent.
+  \end{proof}
+  From this property, techniques and results in denotational semantics can be
+  used to argue logical equivalence and reductions. 
+\end{frame}
+
+\begin{frame}{Compactness}
+  Recall that the semantics of general recursion is the least upper bound of
+  its finite unfoldings 
+  \[
+    \sem{\,\fix x.\, \M\,}
+    = \bigsqcup_{i \in \mathbb{N}} \sem{\,\fix^i x.\, \M\,}
+  \]
+  where $\fix^i x.\, \M$ is defined inductively by
+  \begin{enumerate}
+    \item $\fix^0 x.\, \M \defeq \fix x.\, x$ and
+    \item $\fix^{n+1} x.\, \M \defeq \M[\fix^{n} x.\, \M /x]$
+  \end{enumerate}
+  and $\sem{\fix^i x.\,\M} = \sem{\lambda x.\, \M}^i(\bot)$.
+  \begin{theorem}
+    Suppose that $x \neq y$, 
+    \[
+      y : \sigma \vdash E : \nat
+      \quad\text{and}\quad
+      \vdash \fix x.\, \M : \sigma.
+    \]
+    If $E[ \fix x.\, \M / y] \Downarrow \underline{n}$ then
+    $E[ \fix^m x.\, \M / y] \Downarrow \underline{n}$ for some~$m$.
+  \end{theorem}
+\end{frame}
+
+\begin{frame}
+  \begin{proof}
+    By the Substitution Lemma, we have
+    \[
+      \sem{E[\fix x.\, \M / y]} = \sem{y : \sigma \vdash E : \nat}(\sem{\fix
+        x.\, \M}).
+    \]
+    Let $g \defeq \sem{y : \sigma \vdash E : \nat}$
+    and $f \defeq \sem{x : \sigma \vdash \M : \sigma}$. 
+    \begin{align*}
+      \sem{y : \sigma \vdash E : \nat}(\sem{\fix x.\,\M}) & = g(\mu f) \\
+      & = g(\bigsqcup_{i \in \mathbb{N}} f^i (\bot)) \\ 
+      & = \bigsqcup_{i \in \mathbb{N}} (g \circ f^i)(\bot) = n
+    \end{align*}
+    Therefore there exists some~$m \in \mathbb{N}$ such that $(g \circ
+    f^m)(\bot) = n$. By adequacy, it follows that $E[\fix^m x.\, \M/ y]
+    \Downarrow \underline{n}$.
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Finite unfoldings approximate general recursion} 
+  \begin{lemma}
+    Suppose that~$x : \sigma \vdash \M : \sigma$. Then for every~$i \in
+    \mathbb{N}$, we have
+    \[
+      \fix^i x.\,\M \precsim_\sigma \fix x.\,\M. 
+    \]
+  \end{lemma}
+  The proof is left as an exercise. 
+  \begin{theorem}[Fixed Point Induction]
+    Suppose that $x : \sigma \vdash \M : \sigma$, $x : \sigma \vdash \N
+    :\sigma$ and 
+    \[
+      \fix^i x.\,\M \simeq_\sigma \fix^i x.\,\N
+    \]
+    for every~$i \in \mathbb{N}$.
+    Then, we also have
+    \[
+      \fix x.\,\M
+      \mathrel{\simeq_\sigma}
+      \fix x.\, \N
+    \]
+  \end{theorem}
+\end{frame}
+
+\begin{frame}
+  \begin{proof}
+    We show that $\fix x.\, \M \precsim_\sigma \fix x.\, \N$, or
+    equivalently~$\sem{\fix x.\, \M} \alert{\mathrel{R_\sigma}} \fix x.\, \N$, and
+    the other direction follows similarly. 
+    
+    Let $f \defeq \sem{x : \sigma \vdash \M : \sigma}$ and $g \defeq \sem{x :
+      \sigma \vdash \N : \sigma}$. Since the set
+    \[
+      R_\sigma(\fix x.\,\N)
+      = \set{ d \in D_\sigma}{ d \alert{\mathrel{R_\sigma}} \fix x.\,\N}
+    \]
+    is closed under directed supremum, it suffices to show that
+    \[
+      \sem{\fix^i x.\,\M} \alert{\mathrel{R_\sigma}} \fix x.\,\N
+    \]
+    for every~$i$. By assumption, we
+    have $\sem{\fix^i x.\,\M}\alert{\mathrel{R_\sigma}} \fix^i x.\,\N$, so
+    it suffices to show that $\fix^i x.\,\N \precsim_\sigma \fix x.\,\N$. By the
+    previous lemma the statement follows. 
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Exercises}
+  Show that the following pairs of programs are logically equivalent.
+  \begin{enumerate}
+    \item 
+  \end{enumerate}
 \end{frame}
 \end{document}
