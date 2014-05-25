@@ -8,64 +8,404 @@
 \setcounter{framenumber}{-1}
 
 \frame{\maketitle}
-\section{Introduction}
+%\section{Introduction}
+%
+%\begin{frame}{The meaning of programs}
+%  How can we tell if a program is correct? 
+%  \begin{enumerate}
+%    \item The meaning of a program is ideally independent of its actual implementation.
+%    \item A rigorous specification of language is essential. Everything must be
+%      defined without any ambiguities. No undefined behaviour. 
+%    \item A structural approach to semantics. The meaning of a program is
+%      built from its parts, so verification is possible. 
+%  \end{enumerate}
+%\end{frame}
+%
+%\begin{frame}{Two approaches to be taught}
+%  \begin{enumerate}
+%    \item \textbf{Operational approach}: How values and functions are computed?
+%      E.g., for $\mathtt{add}:\nat \to \nat \to\nat$ and numerals
+%      $\underline{2}$, $\underline{4}$
+%      \begin{align*}
+%        & \mathtt{add}\;\underline{2}\;\underline{4}
+%        \leadsto \suc\;(\mathtt{add}\; \underline{1}\;\underline{4}) \\
+%        \leadsto{} & \suc\;\suc(\mathtt{add}\; \underline{0}\;\underline{4})
+%        \leadsto \suc\;\suc\;\underline{4} \equiv
+%        \underline{6}
+%      \end{align*}
+%    \item \textbf{Denotational approach}: What the values and functions are?
+%      The set $\mathbb{N}_\bot$ of natural numbers with
+%      \emph{divergence}~$\bot$ is the denotation of the type $\nat$, e.g., 
+%      \begin{align*}
+%        \sem{\mathtt{add}\;\underline{2}\;\underline{4}} 
+%        & = \sem{\mathtt{add}\;\underline{2}}\;\sem{\underline{4}} 
+%        = (\sem{\mathtt{add}}\;\sem{\underline{2}}) \;4  \\
+%        & = (x \mapsto 2 + x)\;4 
+%        = 2 + 4 = 6
+%      \end{align*}
+%      where $\sem{\mathtt{add}}\colon \mathbb{N}_\bot \to (\mathbb{N}_\bot \to
+%      \mathbb{N}_\bot)$. 
+%  \end{enumerate}
+%\end{frame}
 
-\begin{frame}{The meaning of programs}
-  How can we tell if a program is correct? 
-  \begin{enumerate}
-    \item The meaning of a program is ideally independent of its actual implementation.
-    \item A rigorous specification of language is essential. Everything must be
-      defined without any ambiguities. No undefined behaviour. 
-    \item A structural approach to semantics. The meaning of a program is
-      built from its parts, so verification is possible. 
-  \end{enumerate}
+
+\begin{frame}{Overview}
+  In this lecture, we will present simply typed lambda calculus 
+  in a different manner, where terms and typing rules are introduced
+  separately. In this approach, terms might not be well-typed at all.
+  \\~\\
+
+  Then, we discuss its computational meaning by \textbf{one-step reduction} and
+  define many-step reduction.  Later we introduce the concept of
+  \textbf{type safety}. 
+  \\~\\
+
+  Finally, we extend simply typed lambda calculus with natural numbers
+  and general recursion. This extension is called \PCF{}, \emph{Programming
+    Computable Functional}. We formalise new features
+  by what we have learnt later.
 \end{frame}
 
-\begin{frame}{Two approaches to be taught}
-  \begin{enumerate}
-    \item \textbf{Operational approach}: How values and functions are computed?
-      E.g., for $\mathtt{add}:\nat \to \nat \to\nat$ and numerals
-      $\underline{2}$, $\underline{4}$
-      \begin{align*}
-        & \mathtt{add}\;\underline{2}\;\underline{4}
-        \leadsto \suc\;(\mathtt{add}\; \underline{1}\;\underline{4}) \\
-        \leadsto{} & \suc\;\suc(\mathtt{add}\; \underline{0}\;\underline{4})
-        \leadsto \suc\;\suc\;\underline{4} \equiv
-        \underline{6}
-      \end{align*}
-    \item \textbf{Denotational approach}: What the values and functions are?
-      The set $\mathbb{N}_\bot$ of natural numbers with
-      \emph{divergence}~$\bot$ is the denotation of the type $\nat$, e.g., 
-      \begin{align*}
-        \sem{\mathtt{add}\;\underline{2}\;\underline{4}} 
-        & = \sem{\mathtt{add}\;\underline{2}}\;\sem{\underline{4}} 
-        = (\sem{\mathtt{add}}\;\sem{\underline{2}}) \;4  \\
-        & = (x \mapsto 2 + x)\;4 
-        = 2 + 4 = 6
-      \end{align*}
-      where $\sem{\mathtt{add}}\colon \mathbb{N}_\bot \to (\mathbb{N}_\bot \to
-      \mathbb{N}_\bot)$. 
-  \end{enumerate}
+\section{Simply typed lambda calculus {\`{a} la} Curry}
+\begin{frame}{The approach \emph{\`{a} la} Curry}
+  We introduce a different approach to simply lambda calculus where
+  terms and typing rules are introduced separately.
+  \\~\\
+    
+  \begin{columns}
+    \column{.5\textwidth}
+    \begin{prooftree}
+    \AXC{$x\;\,\var$} \UIC{$x\;\,\term$}
+    \end{prooftree}
+
+    \column{.5\textwidth}
+    \begin{prooftree}
+    \AXC{} \RightLabel{(var)} \UIC{$\Gamma, x :
+      \sigma, \Delta \vdash x : \sigma$}
+    \end{prooftree}
+  \end{columns}
+  \begin{columns}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{$x \;\,\var$} \AXC{$\M \;\, \term$}
+      \BIC{$\lambda \alert{x.\, \M} \;\,\term$}  
+    \end{prooftree}
+
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{$\Gamma, x : \sigma \vdash \M : \tau$} \RightLabel{(abs)}
+      \UIC{$\Gamma \vdash \lambda x .\, \M : \sigma \to \tau$} 
+    \end{prooftree}
+  \end{columns}
+
+  \begin{columns}
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{$\M\;\,\term$} \AXC{$\N\;\,\term$} \BIC{$\M\;\N\;\,\term$} 
+    \end{prooftree}
+
+    \column{.5\textwidth}
+    \begin{prooftree}
+      \AXC{$\Gamma \vdash \M : \sigma \to \tau$} \AXC{$\Gamma \vdash \N :
+      \sigma$} \RightLabel{(app)} \BIC{$\Gamma \vdash \M\; \N : \tau$}
+    \end{prooftree}
+  \end{columns}
 \end{frame}
 
-\section{Programming in PCF}
-
-\subsection{Syntax and typing rules for PCF}
-
-\begin{frame}{What is PCF?}
-  \PCF{} stands for \textbf{Programming Computable Functionals}, 
-  \begin{enumerate}
-    \item an extension of simply typed lambda calculus with $\nat$ and
-      general recursion; 
-    \item extremely simple compared to modern programming languages;
-    \item Turing complete, i.e.\ every computable function on natural numbers
-      can be defined in \PCF.
-  \end{enumerate}
+\begin{frame}{The existence of ill-typed terms}
+  In contrast the approach \emph{\'{a} la} Church where every term is
+  introduced with a type, there are ill-typed terms in the approach
+  \emph{\`{a} la} Curry:
+  \\~\\
+      \begin{example}
+        $(\lambda x.\,x)\;(\lambda x.\,x)$ is a term if~$x$ is a variable,
+        because
+        \begin{prooftree}
+          \AXC{$x\;\,\var$}
+          \AXC{$x\;\,\var$}
+          \UIC{$x\;\,\term$}
+          \BIC{$\lambda x.\, x\;\,\term$}
+          \AXC{$x\;\,\var$}
+          \AXC{$x\;\,\var$}
+          \UIC{$x\;\,\term$}
+          \BIC{$\lambda x.\, x\;\,\term$}
+          \BIC{$(\lambda x.\, x)\;(\lambda x.\, x)\;\,\term$}
+        \end{prooftree}
+      \end{example}
+      ~\\
+   However, $(\lambda x.\, x)\;(\lambda x.\, x)$ cannot be assigned a type
+   unless $\sigma \to \sigma = \sigma$.
 \end{frame}
 
-\begin{frame}{Syntax of PCF}
+\begin{frame}{Reduction}
+  \textbf{One-step reduction} relation~$\leadsto$ between
+  terms is introduced to describe the flow of computation from a term to
+  another term in a single step, regardless of types.
+  \\~\\
+    \begin{prooftree}
+      \AXC{$\M \leadsto \M'$}
+      \RightLabel{($\leadsto$-lapp)}
+      \UIC{$\M\;\N \leadsto \M'\;\N$}
+    \end{prooftree}
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{($\leadsto$-app)}
+      \UIC{$(\lambda x .\, \M)\; \N \leadsto
+        \M[\N/x] $}
+    \end{prooftree}
+    ~\\
+  \begin{example}
+  $ (\lambda x.\, \lambda y.\,x)\;\M\;\N$ can be reduced to~$\M$
+  by the following derivation
+  \begin{prooftree}
+    \AXC{}
+    \RightLabel{($\leadsto$-app)}
+    \UIC{$(\lambda x.\, \lambda y.\, x)\;\M \leadsto
+      (\lambda y.\,\M)$}
+    \RightLabel{($\leadsto$-lapp)}
+    \UIC{$((\lambda x.\, \lambda y.\, x)\;\M)\;\N
+      \leadsto (\lambda y.\,\M)\; \N$}
+  \end{prooftree}
+\end{example}
+\end{frame}
+
+\begin{frame}{Many-step reduction}
+  As we will mostly discuss a sequence of reductions, it is convenient to
+  define another relation~$\leadsto^*$ so that $\M \leadsto^* \N$ means $\M$
+  reduces to~$\N$ in finitely many steps. 
+  \\~\\
   \begin{definition}
-    Types in \PCF{} are defined by the inference rules
+    The many-step reduction relation~$\leadsto^*$ is defined inductively by 
+    \begin{center}
+    \begin{tabular}[c]{c c}
+      \AXC{}
+      \UIC{$\M \leadsto^* \M$}
+      \DP & 
+      \AXC{$\M_1 \leadsto \M_2$}
+      \AXC{$\M_2 \leadsto^* \M_3$}
+      \insertBetweenHyps{\hskip .5em}
+      \BIC{$\M_1 \leadsto^* \M_3$}
+      \DP
+    \end{tabular}
+  \end{center}
+  \end{definition}
+  ~\\
+  \begin{proposition}[Reflexivity of $\leadsto^*$]
+    For every term $\M$, $\M \leadsto^* \M$. 
+  \end{proposition}
+\end{frame}
+
+\begin{frame}
+  For example, one has
+  \[
+    (\lambda x.\, \lambda y.\, x)\; \M\;\N \leadsto^*
+    (\lambda y.\, \M)\; \N
+  \]
+  by the derivation 
+  \small
+  \begin{prooftree}
+    \AXC{}
+    \UIC{$(\lambda x.\, \lambda y.\, x)\;\M \leadsto (\lambda y.\, \M)$}
+    \UIC{$((\lambda x.\, \lambda y.\, x)\;\M)\;\N
+      \leadsto (\lambda y.\,\M)\; \N$}
+    \insertBetweenHyps{\hskip -2pt}
+    \AXC{$(\lambda y.\,\M)\;\N \leadsto^* (\lambda y.\,\M)\;\N$}
+    \BIC{$(\lambda x.\, y.\, x)\;\M\;\N \leadsto^* (\lambda y.\,\M)\;\N$}
+  \end{prooftree}
+  \normalsize
+  ~\\
+  
+  \textbf{Exercise}. Evaluate the following terms (formally or
+  informally). 
+  \begin{enumerate}
+    \item $(\lambda x.\, x)\;y$
+    \item $(\lambda x.\, x\;x)\;(\lambda x.\, x\;x)$
+    \item $(\lambda x.\,\lambda y.\,\lambda z.\, y)\;\M_0\;\M_1\;\M_2$
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Induction on derivation}
+  Every instance of $\M \leadsto^* \N$ must be constructed by one of cases, so
+  we can analyse its structure case by case. 
+  \\~\\
+  \begin{proposition}[Transitivity of $\leadsto^*$]
+    For every three terms $\M_0$, $\M_1$, and $\M_2$, if $\M_1 \leadsto^* \M_2$
+    and $\M_2 \leadsto^* \M_3$, then $\M_1 \leadsto^* \M_3$.
+  \end{proposition}
+  ~\\
+  Given derivations of $\M_1 \leadsto^* \M_2$ and $\M_2 \leadsto^* \M_3$,
+  we do case analysis on the derivation of $\M_1 \leadsto^* \M_2$. 
+  Also, we can assume that the premise satisfy this property, that is, the
+  induction hypothesis. 
+\end{frame}
+
+\begin{frame}
+  \begin{proof}
+    \begin{enumerate}
+      \item For \AXC{} \UIC{$\M_1 \leadsto^* \M_1$} \DP, it unifies
+        $\M_2$ to~$\M_1$, so the given derivation $\M_2 \leadsto^* \M_3$
+        is just the goal derivation as $\M_1 = \M_2$. 
+        ~\\
+      \item For \AXC{$\M_1 \leadsto \M$}\AXC{$\M \leadsto^* \M_2$}
+        \BIC{$\M_1 \leadsto^* \M_2$}\DP, 
+        we infer that $\M \leadsto^* \M_3$ by induction hypothesis, so we
+        derive the goal
+        \begin{prooftree}
+          \AXC{$\M_1 \leadsto \M$}
+          \AXC{$\M \leadsto^* \M_3$}
+          \BIC{$\M_1 \leadsto^* \M_3$}
+        \end{prooftree}
+    \end{enumerate}
+  \end{proof}
+  ~\\
+
+  Similarly, we can do induction on the formulation of terms, typing rules,
+  and any other inductive definitions. 
+  \\~\\
+
+  \textbf{Exercise.} Show that if $\M \leadsto^* \M'$ then
+  $\M\;\N \leadsto^* \M'\;\N$ for any term~$\N$ by induction on
+  the derivation of~$\M \leadsto^* \M'$. 
+\end{frame}
+
+\begin{frame}{Reductions on ill-typed terms}
+  Reductions can be applied to ill-typed terms
+  and sometimes it reduces to a well-typed closed term! 
+  \[
+        (\lambda x.\,x)\;(\lambda x.\,x)
+        \leadsto^* (\lambda x.\, x)
+  \]
+  ~\\
+
+  On the other hand, 
+  the reduction of ill-typed terms may not stop at all.
+  \begin{align*}
+    (\lambda x.\, x\; x)\;(\lambda x.\, x\; x)
+    & \leadsto (x\; x)[(\lambda x.\, x\; x)/ x] \\
+    & = (\lambda x.\, x\; x)\;(\lambda x.\, x\; x) 
+    \leadsto \cdots
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Type safety}
+  In contrast to ill-typed terms, well-typed closed terms have some nice
+  properties.  First, every well-typed closed term can be reduced further or it
+  is a
+  \alert{value}.
+  \\~\\
+  \begin{theorem}[Progress Theorem]
+    If ${}\vdash \M:\tau$, then either $\M \leadsto \M'$ for some~$\M'$
+    or $\M = \lambda x.\, \M'$. 
+  \end{theorem}
+  ~\\
+  To show this property, we do the structural induction on the derivation
+  of~${}\vdash \M : \tau$ and either produce a derivation of~$\M \leadsto \M'$
+  or show that $\M = \lambda x.\, \M'$.
+\end{frame}
+
+\begin{frame}
+  \begin{proof}
+    \begin{enumerate}
+      \item ${}\vdash \M : \tau$ cannot be given by
+        \AXC{}\UIC{$\Gamma, x : \sigma, \Delta \vdash x : \sigma$}\DP, 
+        since the context is empty. 
+      \item For that case \AXC{$x : \sigma\vdash \M : \tau$}
+        \RightLabel{(abs)}
+        \UIC{${}\vdash \lambda x.\, \M : \sigma \to \tau$}\DP, 
+         $(\lambda x.\, \M') \leadsto^* (\lambda x.\, \M)$
+         we have already given a term in this form $\lambda x.\, \M$. 
+         \\~\\
+       \item For \AXC{${}\vdash \M : \sigma\to\tau$}\AXC{${}\vdash \N :
+           \sigma$}\RightLabel{(app)}\BIC{${}\vdash \M\;\N : \tau$}\DP, 
+         by introduction hypothesis either $\M \leadsto \M'$ for some~$\M'$
+         or $\M = \lambda x.\, \M'$. For the former case, we apply
+         ($\leadsto$-lapp):
+         \begin{prooftree}
+           \AXC{$\M \leadsto \M'$}
+           \UIC{$\M\;\N\leadsto \M'\;\N$}
+         \end{prooftree}
+         ~\\
+         For the later case, we apply ($\leadsto$-app)
+         \begin{prooftree}
+           \AXC{}
+           \UIC{$(\lambda x. \, \M')\;\N \leadsto \M'[\N/x]$}
+         \end{prooftree}
+    \end{enumerate}
+  \end{proof}
+\end{frame}
+
+\begin{frame}
+  Moreover, the type of a well-typed closed term is always preserved by reductions:
+  \\~\\
+  \begin{theorem}[Preservation Theorem]
+    If ${}\vdash \M:\tau$ and $\M \leadsto \M'$, then ${}\vdash \M':\tau$.  
+  \end{theorem}
+  ~\\
+  However, to show this property, we need the following lemma saying that
+  types are preserved by substitution.
+  \\~\\
+  \begin{lemma}[Substitution Lemma]
+    If $\Gamma, x : \sigma \vdash \alert{\M : \tau}$
+    and $\Gamma \vdash \N : \sigma$,
+    then $\Gamma \vdash \alert{\M[\N/x] : \tau}$.
+  \end{lemma}
+\end{frame}
+
+\begin{frame}
+  By the introduction on the derivation of ${}\vdash \M : \tau$
+  and $\M \leadsto \M'$ at the same time. 
+  \\~\\
+  \begin{proof}[Proof of Preservation Theorem]
+    \begin{enumerate}
+      \item ${}\vdash \M : \tau$ cannot be constructed by $(var)$, since the
+        context is empty. 
+        \\~\\
+      \item For \AXC{$x : \sigma \vdash \M : \tau$}
+        \UIC{${}\vdash \lambda x.\, \M : \sigma \to \tau$}\DP, there is no
+        reduction rule for~$\lambda x.\, \M$, so a derivation~$(\lambda x.\,\M)
+        \leadsto \M'$ cannot exist. 
+        \\~\\
+      \item For \AXC{${}\vdash \M : \sigma \to \tau$}
+        \AXC{${}\vdash \N : \sigma$}\BIC{${}\vdash \M\;\N : \tau$}\DP, 
+        we do induction on the derivation of $\M\;\N \leadsto \M'$. 
+    \end{enumerate}
+  \end{proof}
+\end{frame}
+\begin{frame}{Summary}
+  A functional programming language consists of 
+  \begin{enumerate}
+    \item type formulation rules, 
+    \item term formulation rules,
+    \item typing rules, and
+    \item one-step reduction rules.
+  \end{enumerate}
+  ~\\
+  In particular, well-typed closed terms share type safety:
+  \\~\\
+  \begin{description}[Preservation Theorem]
+    \item[Progress Theorem] for every well-typed closed term, it either can be
+      reduced further or is a value;
+    \item[Preservation Theorem] 
+      for every well-typed closed term, its type is preserved by reduction. 
+  \end{description}
+  ~\\
+
+  Next, we add some features to simply typed lambda calculus
+  and type safety remains. 
+\end{frame}
+\section{Programming with typed recursion}
+\begin{frame}{Introduction to \PCF}
+  \PCF{}, which stands for \textbf{Programming Computable Functionals}, is a
+  functional programming language and it consists of
+  \begin{enumerate}
+    \item simply typed lambda calculus,
+    \item natural numbers, and
+    \item general recursion (to be explained). 
+  \end{enumerate}
+  We will introduce the later two features step by step.
+  \\~\\
+
+  It has two rules of type formulation:
     \begin{columns}[t]
       \column{.5\textwidth}
       \begin{prooftree}
@@ -79,62 +419,97 @@
         \BIC{$\tau_1 \to \tau_2 \;\,\type$}
       \end{prooftree}
     \end{columns}
-    or equivalently by the grammar $\tau \defeq \nat \mid \tau \to
-    \tau$.
-  \end{definition}
-  \begin{definition}
-    The collection of terms in \PCF{} is defined inductively:
-    \begin{align*}
-      \M \defeq{} & x \mid \lambda x .\, \M  \mid \M\;\N \mid \zero \mid \suc\;\M \\
-     \mid{} & \ifz(\M; \M; x .\,\M) \mid \fix x .\,\M
-    \end{align*}
-    where $x$ is a variable. 
-  \end{definition}
-  The operator $\fix$ is called the \textbf{fixpoint operator}, or
-  \textbf{general recursion}.
+    ~\\
+
+    Still, `set' is a synonyms of `type'. 
+\end{frame}
+%    \begin{align*}
+%      \M \defeq{} & x \mid \lambda x .\, \M  \mid \M\;\N \mid \zero \mid \suc\;\M \\
+%     \mid{} & \ifz(\M; \M; x .\,\M) \mid \fix x .\,\M
+%    \end{align*}
+%    where $x$ is a variable. 
+%  The operator $\fix$ is called the \textbf{fixpoint operator}, or
+%  \textbf{general recursion}.
+%\end{frame}
+
+\begin{frame}{Term formulation, typing, and reduction for natural numbers}
+  Every natural number is either $\zero$ or a successor of some natural number. 
+      \begin{columns}
+        \column{.5\textwidth}
+          \begin{prooftree}
+            \AXC{}
+            \UIC{$\zero\;\,\term$}
+          \end{prooftree}
+          \begin{prooftree}
+            \AXC{$\M\;\,\term$}
+            \UIC{$\suc\;\M\;\,\term$}
+          \end{prooftree}
+        \column{.5\textwidth}
+          \begin{prooftree}
+            \AXC{}
+            \RightLabel{(z)}
+            \UIC{$\Gamma \vdash \zero : \nat$}
+          \end{prooftree}
+          \begin{prooftree}
+            \AXC{$\Gamma \vdash \M : \nat$}
+            \RightLabel{(s)}
+            \UIC{$\Gamma \vdash \suc\; \M : \nat$}
+          \end{prooftree}
+        \end{columns}
+    ~\\
+
+    The reduction of $(\suc\;\M)$ is given by its subterm~$\M$:
+    \\~\\
+    \begin{prooftree}
+      \AXC{$\M \leadsto \M'$}
+      \RightLabel{($\leadsto$-$\suc$)}
+      \UIC{$\suc\;\M \leadsto \suc\;\M'$}
+    \end{prooftree}
 \end{frame}
 
-\begin{frame}{Typing Rules for PCF}
-  A \textbf{judgement} $\Gamma \vdash \M : \tau$ denotes that $\M$ has type
-  $\tau$ under the context~$\Gamma$.  \PCF{} consists of
-  \begin{itemize}
-    \item simply typed lambda calculus (with $\to$ only):
-    \begin{prooftree}
-      \AXC{}
-      \RightLabel{(var)}
-      \UIC{$\Gamma, x : \sigma, \Delta \vdash x : \sigma$}
-    \end{prooftree}
-    \begin{prooftree}
-      \AXC{$\Gamma, x : \sigma \vdash \M : \tau$}
-      \RightLabel{(abs)}
-      \UIC{$\Gamma \vdash \lambda x .\, \M : \sigma \to
-        \tau$}
-    \end{prooftree}
-    \begin{prooftree}
-      \AXC{$\Gamma \vdash \M : \sigma \to \tau$}
-      \AXC{$\Gamma \vdash \N : \sigma$}
-      \RightLabel{(app)}
-      \BIC{$\Gamma \vdash \M\; \N : \tau$}
-    \end{prooftree}
-  \item the type of natural numbers:
-    \begin{prooftree}
-      \AXC{}
-      \RightLabel{(z)}
-      \UIC{$\Gamma \vdash \zero : \nat$}
-    \end{prooftree}
-    \begin{prooftree}
-      \AXC{$\Gamma \vdash \M : \nat$}
-      \RightLabel{(s)}
-      \UIC{$\Gamma \vdash \suc\; \M : \nat$}
-    \end{prooftree}
-  \end{itemize}
+\begin{frame}{Values: canonical elements}
+  Value are basic forms of term of each kind of types and they are defined
+  independent of their types in the approach \emph{\`{a} la} Curry.
+  \\~\\
+  \begin{definition}
+    A \textbf{value} is a term of the following form:
+    \begin{center}
+      \begin{tabular}{c c c}
+          \AXC{}
+          \UIC{$\zero\;\,\val$}
+          \DP
+        &
+          \AXC{$\M \;\,\val$}
+          \UIC{$\suc\; \M \;\,\val$}
+          \DP
+        &
+          \AXC{$\M\;\,\term$}
+          \UIC{$\lambda x .\,\M \;\, \val$}
+          \DP
+          \\
+      \end{tabular}
+  \end{center}
+  \end{definition}
+  Define \textbf{numerals} $\underline{0}$ for $\zero$ and
+  $\underline{n+1}$ for $\suc\;\underline{n}$ inductively. 
+  \\~\\
+  \begin{example}
+    By this formulation, we have well-typed values $\suc\; (\suc\; \zero)$, 
+    $\lambda x.\, \suc\; x$, and $\lambda x.\, x$, and also ill-typed values
+    $\suc\; \lambda x.\, x$, $\lambda y.\, y\; y$.
+  \end{example}
 \end{frame}
 
 \begin{frame}
-  \begin{itemize}
-    \item \textbf{if zero} test: it is meant to be the \emph{case analysis}
-      on natural numbers:
-      \small
+  Moreover, we can do branching according to the argument is zero or not. 
+        \small
+        \begin{prooftree}
+          \AXC{$\M \;\,\term$}
+          \AXC{$\M_0\;\,\term$}
+          \AXC{$x \;\,\var$}
+          \AXC{$\M_1\;\,\term$}
+          \QuaternaryInfC{$\ifz(\M; \M_0; \alert{x.\,\M_1})\;\,\term$}
+        \end{prooftree}
       \begin{prooftree}
         \AXC{$\Gamma \vdash \M : \nat$}
         \AXC{$\Gamma \vdash \M_0 : \tau$}
@@ -143,121 +518,15 @@
         \insertBetweenHyps{\hskip .1em}
         \TIC{$\Gamma \vdash \ifz(\M; \M_0; x .\, \M_1) : \tau$}
       \end{prooftree}
-    \item \textbf{general recursion} (to be explained):
-      \begin{prooftree}
-        \AXC{$\Gamma, x : \sigma \vdash \M : \sigma$}
-        \RightLabel{(Y)}
-        \UIC{$\Gamma\vdash \fix x .\, \M : \sigma$}
-      \end{prooftree}
-     \normalsize
-  \end{itemize}
-  \begin{definition}
-    A term~$\M$ of type $\tau$ is called a \textbf{program}
-    of type $\tau$ in \PCF{} if it is derivable under an empty context, i.e.\ 
-    the judgement
-    \[
-      () \vdash \M : \tau
-    \] 
-    is derivable where $()$ denotes the empty context for emphasis. 
-  \end{definition}
-  E.g.\ $\fix x .\, \suc\; x$ and $\ifz(\zero; \lambda
-  x.\,\zero; y.\, \lambda z.\, y)$ are programs, but~$\lambda y.\, x\; y$
-  or $\suc\; (\lambda x .\, \suc\; x)$ are not.
-\end{frame}
-
-\begin{frame}{Example: predecessor}
-  The predecessor of natural numbers can be defined as
-  \[
-    \pred \defeq \lambda x .\, \ifz (x; \zero; y .\, y)
-    : \nat \to \nat
-  \]
-  with the following typing derivation:
   \begin{prooftree}
-    \AXC{}
-    \UIC{$\Gamma \vdash x : \nat$}
-    \AXC{}
-    \UIC{$\Gamma \vdash \zero : \nat$}
-    \AXC{}
-    \UIC{$\Gamma, y : \nat \vdash y : \nat$}
-    \insertBetweenHyps{\hskip .5em}
-    \TIC{$\Gamma \vdash \ifz (x; \zero; y .\, y) : \nat$}
-    \UIC{$\vdash \lambda x .\, \ifz (x; \zero; y .\, y) : \nat\to\nat$}
-  \end{prooftree}
-  where $\Gamma \defeq x : \nat$. 
-\end{frame}
-
-\subsection{Operational semantics}
-
-\begin{frame}{One-step reduction}
-  \begin{definition}
-    A \textbf{closed value} denoted $\val$ is one of the following:
-    \begin{columns}
-      \column{.3\textwidth}
-      \begin{prooftree}
-        \AXC{}
-        \UIC{$\zero\;\,\val$}
-      \end{prooftree}
-      \column{.3\textwidth}
-      \begin{prooftree}
-        \AXC{$\M \;\,\val$}
-        \UIC{$\suc\; \M \;\,\val$}
-      \end{prooftree}
-      \column{.3\textwidth}
-      \begin{prooftree}
-        \AXC{}
-        \UIC{$\lambda x .\,\M \;\, \val$}
-      \end{prooftree}
-    \end{columns}
-  \end{definition}
-  A value is meant to be the final result of computation. For example, 
-  natural numbers $\zero, \suc\; \zero$ and lambda functions $\lambda x.\, x$
-  etc. This formulation also includes ill-typed terms such as $\suc\; (\lambda
-  x.\, \M)$.
-  \begin{block}{Notation}
-    The notation $\leadsto$ is a relation between terms, denoted
-    \[
-      \M \leadsto \M'
-    \]
-    which means that the term~$\M$ reduces to~$\M'$ in \emph{one step}.
-  \end{block}
-\end{frame}
-
-\begin{frame}{Reduction of general recursion and natural numbers}
-  For general recursion, each occurrence of $\fix.\,\M$ reduces to an substitution
-  of~$x$ in~$\M$ by itself:
-    \begin{prooftree}
-      \AXC{}
-      \RightLabel{($\leadsto$-fix)}
-      \UIC{$\fix x .\,\M \leadsto \M[\fix x .\, M/x]$}
-    \end{prooftree}
-
-  For the \emph{eager evaluation},  $\suc\;\M$ reduces to $\suc\;\M'$ if $\M$
-  reduces to $\M'$
-    \begin{prooftree}
-      \AXC{$\M \leadsto \M'$}
-      \RightLabel{($\leadsto$-$\suc$)}
-      \UIC{$\suc\;\M \leadsto \suc\;\M'$}
-    \end{prooftree}
-  On the other hand, it is possible to defer the evaluation of natural numbers,
-  and this evaluation is known as the \emph{lazy evaluation}. 
-  To do so, we simply remove this reduction rule $\leadsto$-$\suc$
-  and modify the definition of closed values for $\suc$ to
-  \begin{prooftree}
-    \AXC{}
-    \UIC{$\suc\; \M\;\,\val$}
-  \end{prooftree}
-  without any assumptions. 
-\end{frame}
-
-\begin{frame}{Reduction of $\ifz$}
-  For the if-zero test,  the first argument must be reduced to a closed
-  value before branching, but branching can be done before the evaluation
-  on branches:
-    \begin{prooftree}
+    ~\\
+  accompanying with three reductions rules
+  \\~\\
+  \small
       \AXC{$\M \leadsto \M'$}
       \RightLabel{($\leadsto$-$\ifz$)}
       \UIC{$\ifz(\M; \M_0; x .\,\M_1) \leadsto \ifz(\M'; \M_0; x.\,\M_1)$}
-    \end{prooftree}
+  \end{prooftree}
     \begin{prooftree}
       \AXC{}
       \RightLabel{($\leadsto$-$\ifz_0$)}
@@ -268,398 +537,311 @@
       \RightLabel{($\leadsto$-$\ifz_1$)}
       \UIC{$\ifz(\suc\;\M; \M_0; x .\, \M_1) \leadsto
         \M_1[\M/x]$}
+    \normalsize
     \end{prooftree}
 \end{frame}
 
-\begin{frame}{Reduction for application: call-by-name and call-by-value}
-  In call-by-name evaluation, arguments are substituted directly into the
-  function body. It is a \alert{non-strict} evaluation strategy, because
-  application with non-terminating arguments can be terminating.
-    \begin{prooftree}
-      \AXC{$\M \leadsto \M'$}
-      \RightLabel{($\leadsto$-lapp)}
-      \UIC{$\M\;\N \leadsto \M'\;\N$}
-    \end{prooftree}
+
+\begin{frame}{Example: predecessor}
+  The predecessor of natural numbers can be defined as
+  \[
+    \pred \defeq \lambda x .\, \ifz (x; \underline{0}; y .\, y)
+    : \nat \to \nat
+  \]
+  with the following typing derivation:
+  \begin{prooftree}
+    \AXC{}
+    \UIC{$\Gamma \vdash x : \nat$}
+    \AXC{}
+    \UIC{$\Gamma \vdash \underline{0} : \nat$}
+    \AXC{}
+    \UIC{$\Gamma, y : \nat \vdash y : \nat$}
+    \insertBetweenHyps{\hskip .5em}
+    \TIC{$\Gamma \vdash \ifz (x; \underline{0}; y .\, y) : \nat$}
+    \UIC{$\vdash \lambda x .\, \ifz (x; \underline{0}; y .\, y) : \nat\to\nat$}
+  \end{prooftree}
+  where $\Gamma \defeq x : \nat$. 
+  \\~\\
+
+  \textbf{Exercise}.
+  \begin{enumerate}
+    \item Show that $\pred\;\underline{0} \leadsto^* \underline{0}$
+      and $\pred\;\underline{n+1}\leadsto^*\underline{n}$ by induction
+      on~$\underline{0}$.
+    \item Define $\mathtt{flip}\colon \nat \to \nat$ such that
+      $\mathtt{flip}\;\underline{0} \leadsto^* \underline{1}$
+      and $\mathtt{flip}\; \underline{n+1} \leadsto^* \underline{0}$. 
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Term formulation, typing rule, and reduction for general
+    recursion}
+  The $\fix$ operator, used to do general recursion, has the same term
+  formulation as $\lambda$-abstraction and a similar typing rules. 
+      \begin{columns}
+        \column{.5\textwidth}
+        \begin{prooftree}
+          \AXC{$x\;\,\var$}
+          \AXC{$\M\;\,\term$}
+          \BIC{$\fix \alert{x.\, \M}\;\,\term$}
+        \end{prooftree}
+        \column{.5\textwidth}
+        \small
+      \begin{prooftree}
+        \AXC{$\Gamma, x : \sigma \vdash \M : \sigma$}
+        \RightLabel{(Y)}
+        \UIC{$\Gamma\vdash \fix x .\, \M : \sigma$}
+      \end{prooftree}
+     \normalsize
+   \end{columns}
+  ~\\
+
+  Each occurrence of $\fix x.\,\M$ reduces to an substitution of~$x$ in~$\M$ by
+  itself:
     \begin{prooftree}
       \AXC{}
-      \RightLabel{($\leadsto$-by-name)}
-      \UIC{$(\lambda x .\, \M)\; \N \leadsto
-        \M[\N/x] $}
+      \RightLabel{($\leadsto$-fix)}
+      \UIC{$\fix x .\,\M \leadsto \M[\fix x .\, M/x]$}
     \end{prooftree}
-  In call-by-value evaluation, each argument is evaluated
-  before application, so we replace ($\leadsto$-by-name) by the following two
-  rules. It is a \alert{strict} evaluation strategy, as
-  non-terminating arguments always lead to non-terminating terms. 
-    \begin{prooftree}
-      \AXC{$\M \;\,\val$}
-      \AXC{$\N \leadsto \N'$}
-      \RightLabel{($\leadsto$-by-value-$1$)}
-      \BIC{$\M\; \N \leadsto \M'\; \N$}
-    \end{prooftree}
-    \begin{prooftree}
-      \AXC{$\N \;\,\val$}
-      \RightLabel{($\leadsto$-by-value-$2$)}
-      \UIC{$(\lambda x .\, \M)\; \N \leadsto
-        \M[\N/x] $}
-    \end{prooftree}
-  In the following context, we adopt the \emph{call-by-name} interpretation. 
+  \begin{example}[Divergent term]
+    Consider the term $\fix x.\, x$
+    which never reduces to any value
+    \[
+      \fix x.\, x \leadsto x[\fix x.\, x] = \fix x.\, x \leadsto \fix x.\, x
+      \leadsto \cdots 
+    \]
+  \end{example}
 \end{frame}
 
-\begin{frame}{Divergence}
-  In contrast to dependent type theory, there are divergent \PCF{} terms, e.g.
-  \[
-    \fix x.\, x
-  \]
-  for any variable~$x : \sigma$. 
-  If we try to evaluate it by one-step reduction, then we will find that
-  this sequence
-  \[
-    \fix x.\, x \leadsto x[\fix x.\, x] = \fix x.\, x \leadsto \fix x.\, x
-    \leadsto \cdots 
-  \]
-  never reaches a closed value. 
-\end{frame}
-
-\begin{frame}{Many-step reduction}
-  \begin{definition}
-    The relation $\leadsto^*$ between terms is defined inductively:
-    \begin{columns}
-      \column{.5\textwidth}
-        \begin{prooftree}
-          \AXC{}
-          \UIC{$\M \leadsto^* \M$}
-        \end{prooftree}
-      \column{.5\textwidth}
-        \begin{prooftree}
-          \AXC{$\M_1 \leadsto \M_2$}
-          \AXC{$\M_2 \leadsto^* \M_3$}
-          \insertBetweenHyps{\hskip .5em}
-          \BIC{$\M_1 \leadsto^* \M_3$}
-        \end{prooftree}
-    \end{columns}
-  \end{definition}
-  Note that $M \leadsto^* \M'$ if $\M'$ is reachable from $\M$ after finitely
-  many steps of reduction, i.e.\ $\M = \M_0 \leadsto \M_1 \leadsto \cdots \M_k
-  = \M'$. 
-  \begin{proposition}
-    The relation $\leadsto^*$ is reflexive and transitive. 
-  \end{proposition}
-  \begin{proof}
-    Easy exercise. 
-  \end{proof}
-\end{frame}
-
-
-\begin{frame}{Example: Calculating the factorials}
-  To define the factorials, we are seeking for a function~$\mathtt{fact}$ satisfying
+\begin{frame}{Example: calculating the factorials}
+  The factorial of~$n$ is usually defined recursively\\~\\
   \[
     \mathtt{fact}\colon n \mapsto
     \begin{cases}
-      0 & \text{if } n = 1 \\
+      1 & \text{if } n = 0 \\
       n \times \mathtt{fact}(n') & \text{if } n = n' + 1
     \end{cases}
   \]
-  and this can be understood as a fixpoint of the functional~$F$ mapping~$f
-  \colon\mathbb{N} \to \mathbb{N}$ to~$f'\colon\mathbb{N}\to\mathbb{N}$ defined
-  by
+  ~\\
+  This is a \emph{fixpoint} of the higher-order function
+  $F\colon {(\mathbb{N}\to\mathbb{N})} \to {(\mathbb{N}\to\mathbb{N})}$ defined
+  by \\~\\
   \[
     \label{eq:factorial_informal}
-    f'\colon n \mapsto
+    F(f)\colon n \mapsto
     \begin{cases}
       1 & \text{if } n = 0 \\
       n \times f(n') & \text{if } n = n' + 1
     \end{cases}
   \]
-  where $f'$ does not depend on itself.
+  ~\\
+  for any~$f\colon\mathbb{N}\to\mathbb{N}$, satisfying~$F(\mathtt{fact})
+  =\mathtt{fact}$.
 \end{frame}
 
 \begin{frame}
-  Given $\Gamma \defeq f\colon \nat \to \nat$, we 
-  rewrite the definition in \PCF{}:
-  \[
-    \Gamma \vdash \lambda n.\, \ifz(n; \suc\;\zero; m.\, n \times (f\; m))
-      : \nat \to \nat
-  \]
-  and we derive its fixpoint by $\fix$:
-  \[
-    \mathtt{fact} \defeq
-    \fix f.\, \lambda n .\, \ifz(n; \suc\;\zero; m .\, n\times (f\; m))
-  \]
-  where the term $\suc\;\zero$ represents the natural number $1$. 
-  \begin{example}
-    Let $\underline{0} \defeq \zero$ and $\underline{n+1} \defeq
-    \suc\;\underline{n}$. 
-    We calculate $\mathtt{fact}\;\underline{2}$:
+  The higher-order function~$F\colon (\mathbb{N}\to\mathbb{N})
+  \to(\mathbb{N}\to\mathbb{N})$ can be presented in \PCF{} as  
+  \begin{align*}
+    \lambda. f\, F \defeq \lambda f. & \\
+    \lambda & n.\\
+    & \ifz(n; \underline{1}; m.\,n\times (f\; m))
+  \end{align*}
+  with the type $(\nat\to\nat)\to(\nat\to\nat)$.
+  \\~\\
+  A fixpoint of~$\lambda. f\, F$ can be given by~$\fix. f\, F$ as the
+  evaluation of~$(\lambda f.\, F)(\fix f.\, F)$ and $\fix f.\, F$ 
+  \begin{align*}
+    (\lambda f.\, F)(\fix f.\,F)
+    & \leadsto F[(\fix f.\,F)/f] \\
+    \fix f.\, F & \leadsto F[(\fix f.\, F)/ f]
+  \end{align*}
+  shows that they reduce to the same term. 
+  \\~\\
 
-    \begin{align*}
-      \mathtt{fact}\;\underline{2} & \leadsto 
-      (\lambda n.\, \ifz(n; \underline{1}; m .\, n \times (\mathtt{fact}\; m)))\;
-      \underline{2} \\
-      & \leadsto \ifz(\underline{2}; \underline{1}; m .\, \underline{2}
-      \times (\mathtt{fact}\; m))
-      \\
-      & \leadsto \underline{2} \times (\mathtt{fact}\; \underline{1}) \\
-      & \leadsto \underline{2} \times (\lambda n.\, \ifz(n; \underline{1}; m.\,
-      n \times (\mathtt{fact}\; m))\; \underline{1}) \\
-      & \leadsto \cdots \leadsto \underline{2}
-      \times (\underline{1} \times \underline{1}) \leadsto^* \underline{2}
-    \end{align*}
-    where the definition of $\times : \nat \to \nat \to nat$ is left as an
-    exercise. 
-  \end{example}
-\end{frame}
-\begin{frame}{In-class exercise}
-  Try to be familiar with $\ifz$.
-  \begin{enumerate}
-    \item Calculate $\pred\;\M$ for $\M \;\,\val$
-      to closed values with their derivations: \\
-      For the base case
-      $\zero$:
-      \[
-        \pred\;\zero \leadsto^*\, ?
-      \]
-      For the inductive case $\M = \suc\; \N$:
-      \begin{prooftree}
-        \AXC{$\suc\;\N \;\,\val$}
-        \UIC{$\pred\;(\suc\;\N) \leadsto^*\, ?$}
-      \end{prooftree}
-    \item Define $\mathtt{flip}\colon \nat \to \nat$
-      such that $\mathtt{flip}\;\zero \leadsto^* \suc\; \zero$
-      and $\mathtt{flip}\; (\suc \;\M) \leadsto^* \zero$. 
-  \end{enumerate}
+  \textbf{Exercise}. Show that $\mathtt{fact}\;\underline{n}
+  \leadsto^*\underline{n!}$ by induction on~$\underline{n}$. 
 \end{frame}
 
-\begin{frame}[fragile]{In-class exercise: \texttt{fold} on natural numbers}
-  \texttt{fold} on natural numbers is defined in Haskell as follows:
-  \begin{verbatim}
-    fold :: (a -> a) -> a -> Integer -> a
-    fold f e 0 = e
-    fold f e n = f (fold f e (n - 1))
-  \end{verbatim}
-  By modifying the definition of $\mathtt{fact}$, give the corresponding
-  term of $\mathtt{fold}$ in \PCF{}. 
+\begin{frame}{Example: greatest common divisor}
+\begin{example}
+  The Euclidean algorithm for the greatest common divisor of two natural
+  numbers can be defined recursively as follows:
+  where $\mathtt{mod}\;x\;y$ is the reminader of $x / y$. 
+\end{example}
 \end{frame}
 
-
-\section{Type safety}
-
-\begin{frame}{Progress Theorem}
-  Every well-typed is either a closed value or a reducible term. 
-  \begin{theorem}
-    If ${} \vdash \M : \tau$ then either $\M$ is a closed value or
+\begin{frame}{Type safety for \PCF}
+  \begin{theorem}[Progress Theorem]
+    If ${} \vdash \M : \tau$ then either $\M$ is a value or
     there exists $\M'$ such that $\M \leadsto \M'$. 
   \end{theorem}
-    Note that given a program $\M : \tau$, its proof produces either a
-    closed value or a \PCF{} term $\M'$ with a proof that $\M$ reduces to $\M'$.
-    Forgetting the proof, the proof itself is indeed a program
-    which asks a \PCF{} term, preforms a single reduction and return a term
-    tagged either \texttt{done} or \texttt{not yet}. 
-\end{frame}
-
-\begin{frame}
-  \begin{proof}
-    By induction on the derivation of ${}\vdash \M:\tau$. For the case that
-    \begin{prooftree}
-      \AXC{$\M : \nat$}
-      \UIC{$\vdash \suc\; \M : \nat$}
-    \end{prooftree}
-    $\M$ is either a closed value or a reducible term by induction hypothesis:
-    \begin{enumerate}
-      \item If $\M$ is a closed value, then $\suc\; \M$ is also a closed value
-        by definition. 
-      \item Suppose that $\M \leadsto \M'$ for some $\M'$. Then, by the rule
-        ($\leadsto$-$\suc$), we also have $\suc\;\M \leadsto \suc\;\M'$. 
-    \end{enumerate}
-    Other cases follow similarly.
-  \end{proof}
-\end{frame}
-\begin{frame}{Substitution Lemma}
-  If a variable~$x : \tau$ in a term~$\M$ is substituted by another term~$\N$
-  of the same type, then the type of the resulting term remains. 
-  \begin{lemma}
-    If $\Gamma, x : \sigma \vdash \M : \tau$ and $\Gamma \vdash \N : \sigma$,
-    then $\Gamma \vdash \M[\N/x] : \tau$. 
-  \end{lemma}
-  \begin{proof}
-    Induction on the derivation of $\Gamma, x : \sigma \vdash \M : \tau$.
-    Suppose that $\Gamma, x : \sigma \vdash \M : \tau$ is derived from
-    \begin{prooftree}
-      \AXC{}
-      \RightLabel{(var)}
-      \UIC{$\Delta, y : \tau, x : \sigma \vdash y : \tau$}
-    \end{prooftree}
-    that is, $\Gamma = \Delta, y : \tau$ and $\M = y$ for some variable $y$.
-    Then, we need to show that $\Delta, y : \tau \vdash y[\N/x] : \tau$.
-    \begin{enumerate}
-      \item If $x = y$, then $y[\N/x] = \N : \sigma$ and $\sigma = \tau$.
-      \item Otherwise, $x \neq y$, then $y[\N/x] = y : \tau$. 
-    \end{enumerate}
-    Other cases follow similarly.
-  \end{proof}
-\end{frame}
-
-\begin{frame}{Preservation Theorem}
-  The one-step evaluation preserves types. This
-  property is also called \textbf{Subject Reduction}.
-  \begin{theorem}
+  \begin{theorem}[Preservation Theorem]
     If ${}\vdash \M : \tau$ and $\M \leadsto \N$ then ${}\vdash \N : \tau$. 
   \end{theorem}
-  \begin{proof}
-    We prove it by induction on the derivation of ${}\vdash \M : \tau$ and $\M
-    \leadsto \M'$.
-    For the case that
-    \begin{prooftree}
-      \AXC{$ x : \sigma \vdash \M : \sigma$}
-      \UIC{$\vdash \fix x.\, \M : \sigma$}
-    \end{prooftree}
-    we do induction on $\leadsto$, but there is exactly one rule applicable:
-    \begin{prooftree}
-      \AXC{}
-      \RightLabel{($\leadsto$-fix)}
-      \UIC{$\fix x.\,\M \leadsto \M[\fix x.\,\M/x]$}
-    \end{prooftree}
-    By Substitution Lemma, it follows that $\vdash M[\fix x.\, M/x] : \sigma$,
-    and other cases follow similarly. 
-  \end{proof}
+  All follow the same pattern in the situtaiton for simply typed lambda
+  calculus.\footnote{
+    To be proved in \textbf{Agda} formally.
+  }
 \end{frame}
 
 \section{Big-step semantics}
 
-\begin{frame}{Call-by-name big-step semantics}
+\begin{frame}{Another reduction relation}
   Instead of the one-step reduction relation~$\leadsto$, we turn to the
-  \textbf{big-step} reduction relation~$\Downarrow$, formulating
-  the notion that a term $\M$ reduce to its final value~$\V$. 
-    \begin{columns}
-    \column{.5\textwidth}
-    \begin{prooftree}
-      \AXC{}
-      \RightLabel{($\Downarrow$-zero)}
-      \UIC{$\zero \Downarrow \zero$}
-    \end{prooftree}
-    \column{.5\textwidth}
-    \begin{prooftree}
-      \AXC{$\M \Downarrow \V$}
-      \RightLabel{($\Downarrow$-suc)}
-      \UIC{$\suc\;\M \Downarrow \suc\;\V$}
-    \end{prooftree}
-  \end{columns}
-
-  \begin{columns}
-    \column{.5\textwidth}
+  \textbf{big-step} reduction relation~$\Downarrow$ between terms, formulating
+  the notion that a term $\M$ reduce to a value~$\V$ eventually.
+  \\~\\
+  \begin{itemize}
+    \item simply typed lambda calculus 
+  \small
     \begin{prooftree}
       \AXC{}
       \RightLabel{($\Downarrow$-lam)}
       \UIC{$\lambda x.\, \M \Downarrow \lambda x.\, \M$}
     \end{prooftree}
-    \column{.5\textwidth}
     \begin{prooftree}
       \AXC{$\M\Downarrow \lambda x.\, \mathsf{E}$}
       \AXC{$\mathsf{E}[\N/x] \Downarrow \V$}
       \RightLabel{($\Downarrow$-app)}
       \BIC{$\M\;\N \Downarrow \V$}
     \end{prooftree}
-  \end{columns}
-
-\begin{columns}
-    \column{.5\textwidth}
+  \normalsize
+\item natural numbers
+  \small
     \begin{prooftree}
-      \AXC{$\M\Downarrow \zero$}
-      \AXC{$\M_0\Downarrow \V$}
-      \RightLabel{($\Downarrow$-$\ifz_0$)}
-      \BIC{$\ifz(\M; \M_0; x.\, \M_1) \Downarrow \V$}
+      \AXC{}
+      \RightLabel{($\Downarrow$-zero)}
+      \UIC{$\zero \Downarrow \zero$}
     \end{prooftree}
-    \column{.5\textwidth}
     \begin{prooftree}
-      \AXC{$\M\Downarrow \suc\;\N$}
-      \AXC{$\M_1[\N/x] \Downarrow \V$}
-      \RightLabel{($\Downarrow$-$\ifz_1$)}
-      \BIC{$\ifz(\M; \M_0; x.\, \M_1) \Downarrow \V$}
+      \AXC{$\M \Downarrow \V$}
+      \RightLabel{($\Downarrow$-suc)}
+      \UIC{$\suc\;\M \Downarrow \suc\;\V$}
     \end{prooftree}
-\end{columns}
-
+    \normalsize
+\end{itemize}
+\end{frame}
+\begin{frame}[c]
+  \begin{itemize}
+    \item if-zero test
+      \small
+          \begin{prooftree}
+            \AXC{$\M\Downarrow \zero$}
+            \AXC{$\M_0\Downarrow \V$}
+            \RightLabel{($\Downarrow$-$\ifz_0$)}
+            \BIC{$\ifz(\M; \M_0; x.\, \M_1) \Downarrow \V$}
+          \end{prooftree}
+          \begin{prooftree}
+            \AXC{$\M\Downarrow \suc\;\N$}
+            \AXC{$\M_1[\N/x] \Downarrow \V$}
+            \RightLabel{($\Downarrow$-$\ifz_1$)}
+            \BIC{$\ifz(\M; \M_0; x.\, \M_1) \Downarrow \V$}
+          \end{prooftree}
+          \normalsize
+    \item general recursion 
+      \small
     \begin{prooftree}
       \AXC{$\M[\fix x.\, \M/ x] \Downarrow \V$}
       \RightLabel{($\Downarrow$-fix)}
       \UIC{$\fix x.\, \M \Downarrow \V$}
     \end{prooftree}
+          \normalsize
+  \end{itemize}
+\end{frame}
+\begin{frame}
+  \begin{figure}
+    \small
+    \begin{prooftree}
+      \AXC{}
+      \UIC{$\lambda x.\,\ifz(x; \underline{0}; y.\,y) \Downarrow
+        \lambda x.\,\ifz(x; \underline{0}; y.\,y)$}
+      \AXC{$\vdots$}
+      \UIC{$\underline{3} \Downarrow \suc\;\underline{2}$}
+      \AXC{$\vdots$}
+      \UIC{$y[\underline{2}/y] \Downarrow \underline{2}$}
+      \BIC{$\ifz(x; \underline{0}; y.y)[\underline{3}/x] \Downarrow
+        \underline{2}$ }
+      \BIC{$\lambda x.\,\ifz(x; \underline{0}; y.\, y)\;\underline{3}
+        \Downarrow \underline{2}$}
+    \end{prooftree}
+    \caption{Derivation of $\mathtt{pred}\;\underline{3}\Downarrow
+      \underline{2}$}
+    \normalsize
+  \end{figure}
+  \textbf{Exercise}.
+  \begin{enumerate}
+    \item Show that $\mathtt{fact}\;\underline{0}\Downarrow \underline{1}$.
+    \item Show that $\mathtt{flip}\;\underline{0}\Downarrow \underline1$
+    and $\mathtt{flip}\;\underline{n+1}\Downarrow \underline{0}$.
+  \end{enumerate}
 \end{frame}
 
-\begin{frame}{Closed values}
-  We shell justify the intended meaning: whenever $\M \Downarrow \V$, the term $\V$
-  is always a closed value:
+\begin{frame}{Reduction on values}
+  We shell justify the intended meaning. Whenever $\M \Downarrow \V$, the term
+  $\V$ is always a value; every value is in its simplest form. 
+  \\~\\
   \begin{lemma}
-    For every terms $\M$ and $\V$, the term $\V$ is a closed value if $\M
+    For every terms $\M$ and $\V$, the term $\V$ is a value if $\M
     \Downarrow \V$. 
   \end{lemma}
   \begin{proof}
-    By induction on the formulation of $\M \Downarrow \V$. 
+    By induction on the derivation of~$\M \Downarrow \V$. 
   \end{proof}
-  Moreover, a closed value reduces to itself:
   \begin{lemma}
-    If $\V$ is a closed value, then $\V\Downarrow\V$. 
+    If $\V$ is a value, then $\V\Downarrow\V$. 
   \end{lemma}
   \begin{proof}
-    By structural induction on $\V\;\,\val$. That is, it is sufficient to check
-    that $\zero \Downarrow \zero$, $\lambda x.\, \M \Downarrow \lambda x.\,
-    \M$; $\suc\;\M \Downarrow \suc\;\M$ if $\M \Downarrow \M$ by induction
-   hypothesis.  
+    By induction on the derivation of $\V\;\,\val$. 
   \end{proof}
 \end{frame}
 
 \begin{frame}{Agreement of big-step and one-step semantics}
-  The big-step reduction can be characterised by~$\leadsto$:
   \begin{theorem}
     For every term $\M$ and $\V$, $\M \Downarrow \V$ if and only if $ \M \leadsto^* \V$
     with $\V \;\, \val$. 
   \end{theorem}
 
-  \begin{block}{Proof sketch.}
+  \begin{proof}[Proof sketch.]
     \begin{enumerate}
       \item Show that if $\M\Downarrow \V$ then $\M \leadsto^* \V$
         by induction on~$\Downarrow$ and~$\leadsto^*$. 
-      \item By induction on~$\leadsto$ and $\Downarrow$, show that
-        \begin{prooftree}
-          \AXC{$\M \leadsto \N \Downarrow \V$}
-          \UIC{$\M\Downarrow \V$}
-        \end{prooftree}
-      \item By induction on~$\leadsto^*$, show that
-        \begin{prooftree}
-          \AXC{$\M \leadsto^*   \N \Downarrow \V$}
-          \UIC{$\M\Downarrow \V$}
-        \end{prooftree}
+      \item Show that if $\M \leadsto \N \Downarrow \V$ then
+          $\M\Downarrow \V$.
+      \item Show that if $\M \leadsto^*   \N \Downarrow \V$ then $\M\Downarrow
+        \V$.
     \end{enumerate}
     In particular, every $\M \leadsto^* \V$ with $\V\;\,\val$,
     has $\V\Downarrow \V$, so it follows that $\M\Downarrow \V$.
-  \end{block}
+  \end{proof}
+  ~\\
+
+  \begin{corollary}[Preservation Theorem for~$\Downarrow$]
+    If ${}\vdash \M : \tau$ and $\M \Downarrow \V$ then ${}\vdash \V : \tau$.
+  \end{corollary}
 \end{frame}
 
-\begin{frame}
-\begin{proof}
-  \begin{enumerate}
-    \item We show the case ($\Downarrow$-fix), which is similar to other
-      cases:
-      \begin{prooftree}
-        \AXC{}
-        \UIC{$\fix x.\, \M \leadsto \M[\fix x.\, \M/x]$}
-        \AXC{}
-        \UIC{$M[\fix x.\, \M / x] \leadsto^* \V$}
-        \BIC{$\fix x.\, \M \leadsto^* \V$}
-      \end{prooftree}
-      and by assumption $V$ has no further reduction. 
-    \item We show the case ($\leadsto$-fix), which is similar to other cases.
-      By hypothesis, we have $\fix x.\, \M \leadsto \M[\fix x.\, \M/x]$.
-      If $\M[\fix x.\, \M/ x] \Downarrow \V$,
-      then by ($\Downarrow$-fix) it follows that $\fix
-      x.\,\M\Downarrow\V$. 
-    \item Induction on $\leadsto^*$. 
-  \end{enumerate}
-\end{proof}
-By the agreement of big-step and one-step semantics, we easily conclude
-that the Subject Reduction also holds for big-step semantics:
-\begin{corollary}[Subject Reduction for~$\Downarrow$]
-  If ${}\vdash \M : \tau$ and $\M \Downarrow \V$ then ${}\vdash \V : \tau$.
-\end{corollary}
-\end{frame}
+%\begin{frame}
+%\begin{proof}
+%  \begin{enumerate}
+%    \item We show the case ($\Downarrow$-fix), which is similar to other
+%      cases:
+%      \begin{prooftree}
+%        \AXC{}
+%        \UIC{$\fix x.\, \M \leadsto \M[\fix x.\, \M/x]$}
+%        \AXC{}
+%        \UIC{$M[\fix x.\, \M / x] \leadsto^* \V$}
+%        \BIC{$\fix x.\, \M \leadsto^* \V$}
+%      \end{prooftree}
+%      and by assumption $V$ has no further reduction. 
+%    \item We show the case ($\leadsto$-fix), which is similar to other cases.
+%      By hypothesis, we have $\fix x.\, \M \leadsto \M[\fix x.\, \M/x]$.
+%      If $\M[\fix x.\, \M/ x] \Downarrow \V$,
+%      then by ($\Downarrow$-fix) it follows that $\fix
+%      x.\,\M\Downarrow\V$. 
+%    \item Induction on $\leadsto^*$. 
+%  \end{enumerate}
+%\end{proof}
 
 \section*{Exercises}
 
@@ -667,8 +849,7 @@ that the Subject Reduction also holds for big-step semantics:
   \begin{enumerate}
     \item Define the following programs in \PCF{}.
       \begin{enumerate}
-        \item Multiplication of natural numbers
-          \emph{Hint.} Define addition first;
+        \item Addition and multiplication of natural numbers
         \item Fibonacci numbers; 
         \item Parity test, i.e.\ a function determines whether the given
           argument is an odd or even number. Return $\zero$ if even,
@@ -716,19 +897,6 @@ that the Subject Reduction also holds for big-step semantics:
       \end{align*}
       respectively 
 \end{enumerate}
-    Consider G\"odel's \textbf{T}, simply typed lambda calculus with
-    natural numbers and \emph{primitive recursion}:
-    \begin{prooftree}
-      \AXC{$\Gamma \vdash e_0 : \tau$}
-      \AXC{$\Gamma \vdash \M : \nat$}
-      \AXC{$\Gamma, x : \nat, y : \tau \vdash e_1 : \tau$}
-      \insertBetweenHyps{\hskip .2em}
-      \TIC{$\Gamma \vdash \mathtt{rec}(e_0; x.\,y.\, e_1; \M) : \tau$}
-    \end{prooftree}
-  \begin{enumerate}
-      \conti
-    \item Provide the one-step and big-step reductions for $\mathtt{rec}$. 
-  \end{enumerate}
 \end{frame}
 \subsection*{Reference}
 \begin{frame}<0>
