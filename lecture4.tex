@@ -10,7 +10,7 @@
   So far we have given two kinds of semantics for \PCF{}. For a program~$\M$ of
   type~$\sigma$,
   \begin{itemize}
-    \item one gives how the program~$\M$ is evaluated to a closed value~$\V$
+    \item one gives how the program~$\M$ is evaluated to a value~$\V$
       via the reduction relation~$\M \Downarrow\V$;
     \item the other defines what the denotation~$\sem{\M}$ of~$\M$ is in a
       domain~$D_\sigma$. 
@@ -28,17 +28,17 @@
 
 \section{Correctness}
 
-\begin{frame}{Closed values of $\nat$ do not diverge}
-  The bottom element~$\bot$ models the divergence of computation.  A closed
+\begin{frame}{$\nat$ values always converges}
+  The bottom element~$\bot$ models the divergence of computation.  A 
   value of~$\nat$ is meant to be some natural number, so it shouldn't
   diverge. 
+  \\~\\
   \begin{lemma}
-    For every closed value~$\V$ of type~$\nat$, the denotation~$\sem{\V}$ is an
+    For every value~$\V$ of type~$\nat$, the denotation~$\sem{\V}$ is an
     element of~$\mathbb{N}$. In particular, $\sem{\V} \neq \bot$.
   \end{lemma}
   \begin{proof}
-    By structural induction on closed values. 
-    For the following cases
+    By structural induction on values:
     \begin{columns}[b]
       \column{.3\textwidth}
         \begin{prooftree}
@@ -52,38 +52,26 @@
         \end{prooftree}
       \column{.3\textwidth}
         \begin{prooftree}
-          \AXC{}
+          \AXC{$\M\;\,\term$}
           \UIC{$\lambda x.\, \M\;\,\val$}
         \end{prooftree}
       \end{columns}
-    it is easy to see that $\sem{\zero}$ and $\sem{\suc\;\M}$, if $\sem{\M} \in
-    \mathbb{N}$, are elements of~$\mathbb{N}$ by the definition
-    of~$\sem{-}$. On the other hand, $\lambda x.\, \M$ cannot be of
-    type~$\nat$, so this case holds vacuously.
   \end{proof}
 \end{frame}
 
 \begin{frame}
-  Now we show that denotational semantics is correct with respect to
-  denotational semantics:
   \begin{theorem}
     For every two programs~$\M$ and~$\V$, $\M \Downarrow \V$ implies
     $\sem{\M} = \sem{\V}$. 
   \end{theorem}
-
-  A sanity check: By Preservation Theorem, it is known that $\sem{{}\vdash \M :
-    \tau}$ and $\sem{{}\vdash \V : \sigma}$ are of the same type if $\M
-  \Downarrow \V$, so their range~$\sem{\tau}$ and $\sem{\sigma}$ are the same.
-
   \begin{proof}[Proof sketch.]
     Prove $\sem{\M} = \sem{\V} \in \sem{\tau}$ by structural induction on the
     derivation of~$\M\Downarrow\V$. 
   \end{proof}
-\end{frame}
-
-\begin{frame}{Proof of correctness}
+  ~\\
     We show the case ($\Downarrow$-suc) first and the cases
     ($\Downarrow$-zero) and ($\Downarrow$-lam) are similar and easy. 
+    \\~\\
     \begin{itemize}
       \item For ($\Downarrow$-suc), we show that $\sem{\suc\;\M}
         =\sem{\suc\;\V}$ if $\sem{\M} = \sem{\V}$. By definition, we simply
@@ -93,6 +81,7 @@
         \]
         where the middle equality follows from the induction hypothesis. 
     \end{itemize}
+    ~\\
     Try to do the cases ($\Downarrow$-zero), ($\Downarrow$-lam), and
     ($\Downarrow$-$\ifz_0$).
 \end{frame}
@@ -100,6 +89,7 @@
 \begin{frame}
   The case ($\Downarrow$-app) is slightly complicated, as we have to address
   the binding structure using Substitution Lemma.  
+  \\~\\
   \begin{itemize}
       \item For ($\Downarrow$-app), we show that $\sem{\M\;\N} = \sem{V}$
         if $\sem{\M} = \sem{\lambda x.\, \mathsf{E}}$ and $\sem{E[\N/x]} =
@@ -114,6 +104,7 @@
           = \sem{\mathsf{E}[\N/x]} = \sem{\V}
         \end{align*}
         where the last but one equation follows from Substitution Lemma.
+        \\~\\
       \item Complete the remaining two (interesting) cases
         ($\Downarrow$-$\ifz_1$) and ($\Downarrow$-fix).
         \emph{Hint.} Consider Substitution Lemma and
@@ -138,7 +129,7 @@
       x.\,\M_1)}$ = \sem{V} if $\sem{\M} = \sem{\suc\;\N} = S \circ \sem{\N}$
     and $\sem{\M_1[\N/x]} = \sem{\V}$.
   
-  We know that~$\V$ is a closed value for every~$\M\Downarrow\V$ and $\sem{\V}
+  We know that~$\V$ is a value for every~$\M\Downarrow\V$ and $\sem{\V}
   = n$ for some natural number~$n \in \mathbb{N}$, so $\sem{\M}$ is a natural
   number $n + 1$. It follows that 
   \begin{align*}
@@ -168,8 +159,6 @@
 \section{Equational reasoning}
 
 \begin{frame}{Logical equivalence}
-  It is natural to define an ``equality'' between programs according to its
-  computation outcome:
   \begin{definition}[Applicative approximation]
     For each type~$\sigma$, define a relation~$\precsim_\sigma$ between
     programs of~$\sigma$:
@@ -188,6 +177,8 @@
             $\M\;P \precsim_{\tau} \N\;P$.
     \end{enumerate}
   \end{definition}
+  ~\\
+
     Two programs $\M$ and $\N$ of the same type~$\sigma$ are \textbf{logically
       equivalent} denoted~$\M\simeq_\sigma\N$ if $\M \precsim_\sigma \N$ and
     $\M \succsim_\sigma \N$. 
@@ -196,12 +187,17 @@
 
 \begin{frame}
   The relation $\precsim_\sigma$ is a preorder, so
-  $\simeq_\sigma$ is indeed an equivalence.   \begin{proposition}
-    The logical equivalence~$\simeq_\sigma$ is a reflexive, symmetry, and transitive
-    relation, i.e.\ an equivalence relation.
+  $\simeq_\sigma$ is indeed an equivalence.
+  \\~\\
+
+  \begin{proposition}
+    The logical equivalence~$\simeq_\sigma$ is an equivalence relation.
   \end{proposition}
+  ~\\
+
   A program~$\M$ can be replaced by another program~$\N$ without changing
-  results if $\M \simeq_\sigma \N$ and it is desirable for efficiency.
+  results if $\M \simeq_\sigma \N$.
+  \\~\\
     \begin{example}
       The following two programs are logically equivalent:
       \[
@@ -216,16 +212,18 @@
   Recall that from $\M \leadsto^* \M'$ and $\M' \Downarrow \V$
   it follows that $\M \Downarrow \V$ in the agreement between $\leadsto$ and
   $\Downarrow$. 
+  \\~\\
   \begin{proposition}
     Let $\M$ and $\M'$ be programs of type~$\sigma$. 
     If $\M \leadsto^* \M'$, then $\M \succsim_\sigma \M'$. 
   \end{proposition}
-  The other direction follows from the determinacy and closed values cannot be
+  ~\\
+  The other direction follows from the determinacy and values cannot be
   reduced further:
+  \\~\\
   \begin{proposition}
-    Let $\V$ be a closed value, and $\M$ and $\N$ terms. 
-    Suppose that $\M \leadsto^* \V$ and $\M \leadsto^* \M'$. Then it follows that
-    $\M' \leadsto^* \V$. 
+    For every $\M \Downarrow \V$ and $\M \leadsto^* \M'$, 
+    we have $\M' \Downarrow \V$. 
   \end{proposition}
   \begin{corollary}[Reduction entails logical equivalence]
     If $\M \leadsto^* \M'$, then $\M \simeq_\sigma \M'$. 
@@ -258,8 +256,9 @@
       \lambda x.\, \lambda y.\, \alert{y} + x
     \]
     Surely the addition of natural numbers are commutative, but \emph{why?}
-    By definition they are already closed values, so they cannot be reduced to
+    By definition they are already values, so they cannot be reduced to
     each other. 
+    \\~\\
     \begin{remark}
       We can show directly that these two programs are logically
       equivalent in dependent type theory. Yet, we will present an external
@@ -324,6 +323,7 @@
 \begin{frame}
   In the following, we will show that for every program~$\M$ of type~$\nat$ if
   $\sem{\M} = n$ then $\M$ reduces to the numeral~$\underline{n}$.
+  \\~\\
   \begin{itemize}
     \item Define a relation~$R_\sigma$ for each type~$\sigma$ between the
       domain~$\sem{\sigma} = D_\sigma$ and the collection of
@@ -333,11 +333,14 @@
       \]
       for every type~$\sigma$ where $\mathsf{Prg}_\sigma = \set{ \M }{{}\vdash
         \M : \sigma}$.
+      \\~\\
     \item Then prove that $\sem{\M}\mathrel{R_\sigma} \M$ for every
       program~$\M$ of type~$\sigma$, and, by construction
       $\sem{\M} \mathrel{R_\nat} \M$ is equivalent to that
       $\sem{M} = n$ implies $\M \Downarrow \underline{n}$. 
   \end{itemize}
+  ~\\
+
   With this property, we can conclude that denotational equivalence entails
   logical equivalence.\footnote{
     But, the converse may fail. 
@@ -427,6 +430,7 @@ $n + 1 \alert{\mathrel{R_\nat}}
   \begin{description}
     \item[For $i = 0$:] By definition $f^0(\bot) = \bot$, so
       $\bot \alert{\mathrel{R_\sigma}} (\fix x.\, \M)$ follows.
+      \\~\\
     \item[For $i = n + 1$:]
       By the assumption~$f\alert{\mathrel{R_{\sigma\to\sigma}}}(\lambda x.\M)$, it
       follows that
@@ -444,10 +448,11 @@ $n + 1 \alert{\mathrel{R_\nat}}
         f^{n+1}(\bot) \alert{\mathrel{R_\sigma}} (\fix x.\,\M).
       \]
   \end{description}
+  ~\\
   Therefore, it follows that $\bigsqcup_{i \in \mathbb{N}} f^{i}(\bot)
   \alert{\mathrel{R_\sigma}} (\fix x.\, \M)$. 
 \end{frame}
-\begin{frame}{The Main Lemma -- Substitution}
+\begin{frame}{Substitution Lemm and completeness}
   \begin{lemma}[Substitution]
     Let $\Gamma = x_1:\sigma_1, \dots, x_k:\sigma_k$ be a context and $d_i
     \alert{\mathrel{R_{\sigma_i}}} \N_i$ for $i = 1, \dots, n$.
@@ -459,8 +464,8 @@ $n + 1 \alert{\mathrel{R_\nat}}
     \]
   \end{lemma}
   \begin{theorem}[Completeness]
-    For every program~$\M$ of type~$\nat$,
-    we have $\M \Downarrow \underline{n}$ if~$\sem{\M} = n$. 
+    For every~${}\vdash \M:\nat$, we have $\M \Downarrow \underline{n}$
+    if~$\sem{\M} = n$. 
   \end{theorem}
   \begin{proof}
     A special case of the previous lemma:
@@ -471,17 +476,20 @@ $n + 1 \alert{\mathrel{R_\nat}}
   \end{proof}
 \end{frame}
 
-\begin{frame}{Proof of the Main Lemma}
+\begin{frame}{Proof of Substitution Lemma}
   To prove the lemma, do induction on the typing rules for~\PCF{}. 
   For convenience, we write
+  \\~\\
   \[
     \vec{d} \alert{\mathrel{R}} \vec{\N}
     \quad\text{for}\quad
     d_i \alert{\mathrel{R_{\sigma_i}}} \N_i
     \quad\text{indexed by~$i = 1, \dots, n$}
   \]
+  ~\\
   where $\vec{d}$ stands for $(d_1, \dots, d_n)$
   and $\vec{\N}$ stands for $(\N_1, \dots, \N_n)$.
+  \\~\\
   \begin{description}
     \item[(z), (s)] These two cases follow from
       $0\alert{\mathrel{R}_\nat}\zero$ and $n+1 \alert{\mathrel{R_\nat}}
@@ -575,7 +583,7 @@ $n + 1 \alert{\mathrel{R_\nat}}
       \]
       so \eqref{eq:subst_fix} implies 
       \eqref{eq:subst_fix2} by logical equivalence.
-    \item[(app), (ifz)] In-class Exercises. 
+    \item[(app), (ifz)] Exercises. 
   \end{description}
 \end{frame}
 
@@ -583,7 +591,7 @@ $n + 1 \alert{\mathrel{R_\nat}}
 
 \begin{frame}{Applicative approximation coincides with logical relation}
   \begin{lemma}
-    For every program~$\M$ and $\N$ of type~$\sigma$,
+    For every ${}\vdash \M:\sigma$ and ${}\vdash \N : \sigma$,
     \[
       \M \precsim_\sigma \N
       \quad\text{if and only if}\quad
@@ -613,9 +621,11 @@ $n + 1 \alert{\mathrel{R_\nat}}
 
 \begin{frame}
   \begin{corollary}
-    Given two programs~$\M$ and~$\N$ of type~$\sigma$, 
+    Given two ${}\vdash \M: \sigma$ and~${}\vdash \N : \sigma$,
     if $\sem{\M} = \sem{\N}$, then $\M$ and~$\N$ are logically equivalent. 
   \end{corollary}
+  ~\\
+
   \begin{proof}
     \begin{enumerate}
       \item By adequacy $\sem{\M} \alert{\mathrel{R}} \M$ and by assumption
@@ -625,6 +635,7 @@ $n + 1 \alert{\mathrel{R_\nat}}
     \end{enumerate}
     Hence, $\M$ and $\N$ are logically equivalent.
   \end{proof}
+  ~\\
   From this property, techniques and results in denotational semantics can be
   used to argue logical equivalence and reductions. 
 \end{frame}
@@ -702,8 +713,9 @@ $n + 1 \alert{\mathrel{R_\nat}}
 \begin{frame}
   \begin{proof}
     We show that $\fix x.\, \M \precsim_\sigma \fix x.\, \N$, or
-    equivalently~$\sem{\fix x.\, \M} \alert{\mathrel{R_\sigma}} \fix x.\, \N$, and
-    the other direction follows similarly. 
+    equivalently~$\sem{\fix x.\, \M} \alert{\mathrel{R_\sigma}} \fix x.\, \N$,
+    and the other direction follows similarly. 
+    \\~\\
     
     Let $f \defeq \sem{x : \sigma \vdash \M : \sigma}$ and $g \defeq \sem{x :
       \sigma \vdash \N : \sigma}$. Since the set
@@ -715,10 +727,12 @@ $n + 1 \alert{\mathrel{R_\nat}}
     \[
       \sem{\fix^i x.\,\M} \alert{\mathrel{R_\sigma}} \fix x.\,\N
     \]
-    for every~$i$. By assumption, we
-    have $\sem{\fix^i x.\,\M}\alert{\mathrel{R_\sigma}} \fix^i x.\,\N$, so
-    it suffices to show that $\fix^i x.\,\N \precsim_\sigma \fix x.\,\N$. By the
-    previous lemma the statement follows. 
+    for every~$i$.
+    \\~\\
+    
+    By assumption, we have $\sem{\fix^i x.\,\M}\alert{\mathrel{R_\sigma}}
+    \fix^i x.\,\N$, so it suffices to show that $\fix^i x.\,\N \precsim_\sigma
+    \fix x.\,\N$. By the previous lemma the statement follows. 
   \end{proof}
 \end{frame}
 
