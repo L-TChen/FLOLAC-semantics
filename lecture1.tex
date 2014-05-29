@@ -518,10 +518,10 @@
         \insertBetweenHyps{\hskip .1em}
         \TIC{$\Gamma \vdash \ifz(\M; \M_0; x .\, \M_1) : \tau$}
       \end{prooftree}
-  \begin{prooftree}
     ~\\
   accompanying with three reductions rules
   \\~\\
+  \begin{prooftree}
   \small
       \AXC{$\M \leadsto \M'$}
       \RightLabel{($\leadsto$-$\ifz$)}
@@ -750,7 +750,7 @@
   \end{itemize}
 \end{frame}
 \begin{frame}
-  \begin{figure}
+  \begin{figure}[h]
     \small
     \begin{prooftree}
       \AXC{}
@@ -898,6 +898,149 @@
       respectively 
 \end{enumerate}
 \end{frame}
+
+\begin{frame}<0>
+  \begin{figure}
+    \begin{prooftree}
+      \AXC{$x\;\,\var$}
+      \UIC{$x\;\,\term$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$x\;\,\var$}
+      \AXC{$\M\;\,\term$}
+      \BIC{$\lambda x.\, \M\;\,\term$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$\M\;\,\term$}
+      \AXC{$\N\;\,\term$}
+      \BIC{$\M\;\N\;\,\term$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{}
+      \UIC{$\zero \;\term$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$\M\;\,\term$}
+      \UIC{$\suc\;\M\;\,\term$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$\M \;\,\term$}
+      \AXC{$\M_0\;\,\term$}
+      \AXC{$x \;\,\var$}
+      \AXC{$\M_1\;\,\term$}
+      \QuaternaryInfC{$\ifz(\M; \M_0; \alert{x.\,\M_1})\;\,\term$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$x\;\,\var$}
+      \AXC{$\M\;\,\term$}
+      \BIC{$\fix x.\, \M\;\,\term$}
+    \end{prooftree}
+
+    \caption{Term formulation rules for \protect\PCF}
+  \end{figure}
+
+  \begin{figure}
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{(var)}
+      \UIC{$\Gamma, x : \sigma, \Delta\vdash x : \sigma$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$\Gamma, x : \sigma \vdash \M : \tau$}
+      \RightLabel{(abs)}
+      \UIC{$\gamma \vdash \lambda x .\, \M : \sigma\to\tau$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$\Gamma \vdash \M : \sigma\to\tau$}
+      \AXC{$\Gamma \vdash \N : \sigma$}
+      \RightLabel{(app)}
+      \BIC{$\Gamma \vdash \M\;\N : \tau$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{(z)}
+      \UIC{$\Gamma \vdash \zero : \nat$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$\Gamma \vdash \M:\nat$}
+      \RightLabel{(s)}
+      \UIC{$\Gamma \vdash \suc\;\M : \nat$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$\Gamma \vdash \M : \nat$}
+      \AXC{$\Gamma \vdash \M_0 : \tau$}
+      \AXC{$\Gamma, x : \nat \vdash \M_1 : \tau $}
+      \RightLabel{(ifz)}
+      \insertBetweenHyps{\hskip .1em}
+      \TIC{$\Gamma \vdash \ifz(\M; \M_0; x .\, \M_1) : \tau$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$\Gamma, x : \sigma \vdash \M : \sigma$}
+      \RightLabel{(Y)}
+      \UIC{$\Gamma\vdash \fix x .\, \M : \sigma$}
+    \end{prooftree}
+
+    \caption{Typing rules for \protect\PCF}
+  \end{figure}
+
+  \begin{figure}
+    \begin{prooftree}
+      \AXC{$\M \leadsto \M'$}
+      \RightLabel{($\leadsto$-lapp)}
+      \UIC{$\M\;\N \leadsto \M'\;\N$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{($\leadsto$-app)}
+      \UIC{$(\lambda x .\, \M)\; \N \leadsto
+        \M[\N/x] $}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{$\M \leadsto \M'$}
+      \RightLabel{($\leadsto$-$\suc$)}
+      \UIC{$\suc\;\M \leadsto \suc\;\M'$}
+    \end{prooftree}
+
+  \begin{prooftree}
+      \AXC{$\M \leadsto \M'$}
+      \RightLabel{($\leadsto$-$\ifz$)}
+      \UIC{$\ifz(\M; \M_0; x .\,\M_1) \leadsto \ifz(\M'; \M_0; x.\,\M_1)$}
+  \end{prooftree}
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{($\leadsto$-$\ifz_0$)}
+      \UIC{$\ifz(\zero; \M_0; x .\, \M_1) \leadsto \M_0$}
+    \end{prooftree}
+    \begin{prooftree}
+      \AXC{$\suc\;\M \;\, \val$}
+      \RightLabel{($\leadsto$-$\ifz_1$)}
+      \UIC{$\ifz(\suc\;\M; \M_0; x .\, \M_1) \leadsto
+        \M_1[\M/x]$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AXC{}
+      \RightLabel{($\leadsto$-fix)}
+      \UIC{$\fix x .\,\M \leadsto \M[\fix x .\, M/x]$}
+    \end{prooftree}
+    \caption{Reduction rules for \protect\PCF}
+  \end{figure}
+\end{frame}
+
 \subsection*{Reference}
 \begin{frame}<0>
   \emph{Denotational Semantics} and this lecture are based on the following 
