@@ -8,46 +8,44 @@
 \setcounter{framenumber}{-1}
 
 \frame{\maketitle}
-%\section{Introduction}
-%
-%\begin{frame}{The meaning of programs}
-%  How can we tell if a program is correct? 
-%  \begin{enumerate}
-%    \item The meaning of a program is ideally independent of its actual implementation.
-%    \item A rigorous specification of language is essential. Everything must be
-%      defined without any ambiguities. No undefined behaviour. 
-%    \item A structural approach to semantics. The meaning of a program is
-%      built from its parts, so verification is possible. 
-%  \end{enumerate}
-%\end{frame}
-%
-%\begin{frame}{Two approaches to be taught}
-%  \begin{enumerate}
-%    \item \textbf{Operational approach}: How values and functions are computed?
-%      E.g., for $\mathtt{add}:\nat \to \nat \to\nat$ and numerals
-%      $\underline{2}$, $\underline{4}$
-%      \begin{align*}
-%        & \mathtt{add}\;\underline{2}\;\underline{4}
-%        \leadsto \suc\;(\mathtt{add}\; \underline{1}\;\underline{4}) \\
-%        \leadsto{} & \suc\;\suc(\mathtt{add}\; \underline{0}\;\underline{4})
-%        \leadsto \suc\;\suc\;\underline{4} \equiv
-%        \underline{6}
-%      \end{align*}
-%    \item \textbf{Denotational approach}: What the values and functions are?
-%      The set $\mathbb{N}_\bot$ of natural numbers with
-%      \emph{divergence}~$\bot$ is the denotation of the type $\nat$, e.g., 
-%      \begin{align*}
-%        \sem{\mathtt{add}\;\underline{2}\;\underline{4}} 
-%        & = \sem{\mathtt{add}\;\underline{2}}\;\sem{\underline{4}} 
-%        = (\sem{\mathtt{add}}\;\sem{\underline{2}}) \;4  \\
-%        & = (x \mapsto 2 + x)\;4 
-%        = 2 + 4 = 6
-%      \end{align*}
-%      where $\sem{\mathtt{add}}\colon \mathbb{N}_\bot \to (\mathbb{N}_\bot \to
-%      \mathbb{N}_\bot)$. 
-%  \end{enumerate}
-%\end{frame}
 
+\begin{frame}[c]
+  \frametitle{Why semantics?}
+  \begin{quotation}
+    The hitch is that defining a language \emph{a posteriori}, i.e.\ after its
+    design has been frozen by the existence of implementations and uses, can
+    hardly improve it.  To create a good programming language, semantics must
+    be used \emph{a priori}, as a design tool that embodies and extends the
+    intuitive notion of uniformity. \\~\\
+    \hfill --- \textrm{John C.\ Reynolds}
+  \end{quotation}
+\end{frame}
+
+\begin{frame}[c]
+  \frametitle{\protect\textbf{C++}}
+  \begin{itemize}
+      \item Implementation-led design.
+      \item \emph{\textbf{C++} The International Standard},
+        \alert{1338~pp.}, 2012. \\
+        Note that the committee consists of \alert{200+ people}.
+      \item \alert{1900+} language issues!
+  \end{itemize}
+  \begin{center}
+    \only<presentation>{\includegraphics[scale=.5]{C++issues.png}}
+  \end{center}
+\end{frame}
+
+\begin{frame}[c]
+  \frametitle{\protect\textbf{Standard ML}}
+  \begin{itemize}
+    \item Semantics-led design.
+    \item R.\ Milner, M.\ Tofte, and R.\ Harper, \emph{The Definition of
+        \textbf{Standard ML} (Revised)}, \alert{128~pp.}, 1997. \\
+    \item Standard ML is a safe, modular, strict, functional, polymorphic
+      programming language \dots and \alert{a formal definition with a proof of
+        soundness}.
+  \end{itemize}
+\end{frame}
 
 \begin{frame}{Overview}
   In this lecture, we will present simply typed lambda calculus 
@@ -140,8 +138,8 @@
 \begin{frame}{Reduction}
   \textbf{One-step reduction} relation~$\leadsto$ between
   terms is introduced to describe the flow of computation from a term to
-  another term in a single step, regardless of types.
-  \\~\\
+  another term in a single step, regardless of types. We introduce two rules
+  for applications:  \\~\\
     \begin{prooftree}
       \AXC{$\M \leadsto \M'$}
       \RightLabel{($\leadsto$-lapp)}
@@ -154,6 +152,15 @@
         \M[\N/x] $}
     \end{prooftree}
     ~\\
+  \only<article>{
+      These two rules formalise what we call \emph{call-by-name}
+      evaluation strategy, where its arguments are evaluated only if used at
+      least once. This allows us to feed a non-terminating argument and produce
+      a terminating result.
+
+      In most of programming languages such as \textbf{C}, arguments are
+      evaluated to values before applications, and this evaluation strategy is
+      called \emph{call-by-value}.  }
   \begin{example}
   $ (\lambda x.\, \lambda y.\,x)\;\M\;\N$ can be reduced to~$\M$
   by the following derivation
@@ -287,7 +294,7 @@
   \end{align*}
 \end{frame}
 
-\begin{frame}{Type safety}
+\begin{frame}{Type safety: well-typed programs don't go wrong}
   In contrast to ill-typed terms, well-typed closed terms have some nice
   properties.  First, every well-typed closed term can be reduced further or it
   is a
@@ -372,13 +379,11 @@
   \end{proof}
 \end{frame}
 \begin{frame}{Summary}
-  A functional programming language consists of 
-  \begin{enumerate}
-    \item type formulation rules, 
-    \item term formulation rules,
-    \item typing rules, and
-    \item one-step reduction rules.
-  \end{enumerate}
+  To define a language, we specify following sets of rules 
+  \begin{description}[Semantics]
+    \item[Syntax] type, term, and typing rules. 
+    \item[Semantics] reduction rules.
+  \end{description}
   ~\\
   In particular, well-typed closed terms share type safety:
   \\~\\
@@ -658,17 +663,10 @@
   \end{align*}
   shows that they reduce to the same term. 
   \\~\\
-
+  \only<article>{We will explain this in more details in the lectures on
+    denotational semantics.}
   \textbf{Exercise}. Show that $\mathtt{fact}\;\underline{n}
   \leadsto^*\underline{n!}$ by induction on~$\underline{n}$. 
-\end{frame}
-
-\begin{frame}{Example: greatest common divisor}
-\begin{example}
-  The Euclidean algorithm for the greatest common divisor of two natural
-  numbers can be defined recursively as follows:
-  where $\mathtt{mod}\;x\;y$ is the reminader of $x / y$. 
-\end{example}
 \end{frame}
 
 \begin{frame}{Type safety for \PCF}
@@ -778,7 +776,7 @@
 \end{frame}
 
 \begin{frame}{Reduction on values}
-  We shell justify the intended meaning. Whenever $\M \Downarrow \V$, the term
+  We shall justify the intended meaning. Whenever $\M \Downarrow \V$, the term
   $\V$ is always a value; every value is in its simplest form. 
   \\~\\
   \begin{lemma}
@@ -806,10 +804,10 @@
     \begin{enumerate}
       \item Show that if $\M\Downarrow \V$ then $\M \leadsto^* \V$
         by induction on~$\Downarrow$ and~$\leadsto^*$. 
-      \item Show that if $\M \leadsto \N \Downarrow \V$ then
+      \item Show that if $\M \leadsto \N$ and $\N \Downarrow \V$ then
           $\M\Downarrow \V$.
-      \item Show that if $\M \leadsto^*   \N \Downarrow \V$ then $\M\Downarrow
-        \V$.
+      \item Show that if $\M \leadsto^*\N$ and $\N \Downarrow \V$ then
+        $\M\Downarrow \V$.
     \end{enumerate}
     In particular, every $\M \leadsto^* \V$ with $\V\;\,\val$,
     has $\V\Downarrow \V$, so it follows that $\M\Downarrow \V$.
@@ -875,11 +873,14 @@
             \AXC{?}
             \UIC{$\Gamma \vdash \mathtt{if}(\M_0; \M_1; \M_2):\tau$}
           \end{prooftree}
-        \item Provide its one-step semantics.
+        \item Provide its one-step semantics
+          such that $\mathtt{if}(\M_0, \M_1, \M_2)$
+          reduces to $\M_1$ if $\M_0$ is $\true$; or $\M_2$ otherwise. 
+        \item Show that Progress Theorem and Preservation Theorem hold for
+          $\PCF$ with $\bool$.
       \end{enumerate}
   \end{enumerate}
 \end{frame}
-
 \begin{frame}<0>
   \begin{enumerate}
     \conti
@@ -900,7 +901,7 @@
 \end{frame}
 
 \begin{frame}<0>
-  \begin{figure}
+  \begin{figure}[b]
     \begin{prooftree}
       \AXC{$x\;\,\var$}
       \UIC{$x\;\,\term$}
@@ -945,7 +946,7 @@
     \caption{Term formulation rules for \protect\PCF}
   \end{figure}
 
-  \begin{figure}
+  \begin{figure}[b]
     \begin{prooftree}
       \AXC{}
       \RightLabel{(var)}
@@ -995,7 +996,7 @@
     \caption{Typing rules for \protect\PCF}
   \end{figure}
 
-  \begin{figure}
+  \begin{figure}[b]
     \begin{prooftree}
       \AXC{$\M \leadsto \M'$}
       \RightLabel{($\leadsto$-lapp)}
