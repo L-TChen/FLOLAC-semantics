@@ -66,7 +66,7 @@
 
 \section{Simply typed lambda calculus {\`{a} la} Curry}
 \begin{frame}{The approach \emph{\`{a} la} Curry}
-  We introduce a different approach to simply lambda calculus where
+  We introduce a different approach to simply typed lambda calculus where
   terms and typing rules are introduced separately.
   \\~\\
     
@@ -111,27 +111,25 @@
 \end{frame}
 
 \begin{frame}{The existence of ill-typed terms}
-  In contrast the approach \emph{\'{a} la} Church where every term is
+  In contrast the approach \emph{\`{a} la} Church where every term is
   introduced with a type, there are ill-typed terms in the approach
   \emph{\`{a} la} Curry:
   \\~\\
       \begin{example}
-        $(\lambda x.\,x)\;(\lambda x.\,x)$ is a term if~$x$ is a variable,
+        $(\lambda x.\,x\;x)$ is a term if~$x$ is a variable,
         because
         \begin{prooftree}
           \AXC{$x\;\,\var$}
           \AXC{$x\;\,\var$}
           \UIC{$x\;\,\term$}
-          \BIC{$\lambda x.\, x\;\,\term$}
-          \AXC{$x\;\,\var$}
           \AXC{$x\;\,\var$}
           \UIC{$x\;\,\term$}
-          \BIC{$\lambda x.\, x\;\,\term$}
-          \BIC{$(\lambda x.\, x)\;(\lambda x.\, x)\;\,\term$}
+          \BIC{$x\;x\;\,\term$}
+          \BIC{$\lambda x.\, x\;x\;\,\term$}
         \end{prooftree}
       \end{example}
       ~\\
-   However, $(\lambda x.\, x)\;(\lambda x.\, x)$ cannot be assigned a type
+   However, $(\lambda x.\, x\;x)$ cannot be assigned a type
    unless $\sigma \to \sigma = \sigma$.
 \end{frame}
 
@@ -232,7 +230,7 @@
 \end{frame}
 
 \begin{frame}{Induction on derivation}
-  Every instance of $\M \leadsto^* \N$ must be constructed by one of cases, so
+  Every instance of $\M \leadsto^* \N$ must be constructed by one of the cases, so
   we can analyse its structure case by case. 
   \\~\\
   \begin{proposition}[Transitivity of $\leadsto^*$]
@@ -279,7 +277,7 @@
   Reductions can be applied to ill-typed terms
   and sometimes it reduces to a well-typed closed term! 
   \[
-        (\lambda x.\,x)\;(\lambda x.\,x)
+        (\lambda x.\,\lambda y.\,x)\;(\lambda x.\,x)\;(\lambda x.\,x\;x)
         \leadsto^* (\lambda x.\, x)
   \]
   ~\\
@@ -305,7 +303,7 @@
     or $\M = \lambda x.\, \M'$. 
   \end{theorem}
   ~\\
-  To show this property, we do the structural induction on the derivation
+  To show this property, we do structural induction on the derivation
   of~${}\vdash \M : \tau$ and either produce a derivation of~$\M \leadsto \M'$
   or show that $\M = \lambda x.\, \M'$.
 \end{frame}
@@ -332,7 +330,7 @@
            \UIC{$\M\;\N\leadsto \M'\;\N$}
          \end{prooftree}
          ~\\
-         For the later case, we apply ($\leadsto$-app)
+         For the latter case, we apply ($\leadsto$-app)
          \begin{prooftree}
            \AXC{}
            \UIC{$(\lambda x. \, \M')\;\N \leadsto \M'[\N/x]$}
@@ -407,7 +405,7 @@
     \item natural numbers, and
     \item general recursion (to be explained). 
   \end{enumerate}
-  We will introduce the later two features step by step.
+  We will introduce the latter two features step by step.
   \\~\\
 
   It has two rules of type formulation:
@@ -473,7 +471,7 @@
 \end{frame}
 
 \begin{frame}{Values: canonical elements}
-  Value are basic forms of term of each kind of types and they are defined
+  Values are basic forms of terms of each kind of types and they are defined
   independent of their types in the approach \emph{\`{a} la} Curry.
   \\~\\
   \begin{definition}
