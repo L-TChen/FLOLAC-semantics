@@ -7,10 +7,11 @@
 \frame{\maketitle}
 
 \begin{frame}{Overview}
-  So far we have given two kinds of semantics for \PCF{}. For a program~$\M$ of
+  So far we have given two kinds of semantics for \PCF{}. For a well-typed
+  closed terms $\M$ of
   type~$\sigma$,
   \begin{itemize}
-    \item one gives how the program~$\M$ is evaluated to a value~$\V$
+    \item one gives how the well-typed closed term~$\M$ is evaluated to a value~$\V$
       via the reduction relation~$\M \Downarrow\V$;
     \item the other defines what the denotation~$\sem{\M}$ of~$\M$ is in a
       domain~$D_\sigma$. 
@@ -61,8 +62,8 @@
 
 \begin{frame}
   \begin{theorem}
-    For every two programs~$\M$ and~$\V$, $\M \Downarrow \V$ implies
-    $\sem{\M} = \sem{\V}$. 
+    For every two well-typed closed terms~$\M$ and~$\V$, $\M \Downarrow \V$
+    implies $\sem{\M} = \sem{\V}$. 
   \end{theorem}
   \begin{proof}[Proof sketch.]
     Prove $\sem{\M} = \sem{\V} \in \sem{\tau}$ by structural induction on the
@@ -70,7 +71,7 @@
   \end{proof}
   ~\\
     We show the case ($\Downarrow$-suc) first and the cases
-    ($\Downarrow$-zero) and ($\Downarrow$-lam) are similar and easy. 
+    ($\Downarrow$-zero) and ($\Downarrow$-lam) are similar and straightforward. 
     \\~\\
     \begin{itemize}
       \item For ($\Downarrow$-suc), we show that $\sem{\suc\;\M}
@@ -87,8 +88,8 @@
 \end{frame}
 
 \begin{frame}
-  The case ($\Downarrow$-app) is slightly complicated, as we have to address
-  the binding structure using Substitution Lemma.  
+  The case ($\Downarrow$-app) is interesting, because there is
+  the binding structure.
   \\~\\
   \begin{itemize}
       \item For ($\Downarrow$-app), we show that $\sem{\M\;\N} = \sem{V}$
@@ -103,16 +104,16 @@
           & = \sem{x : \sigma \vdash \mathsf{E} : \tau}(\sem{\N})
           = \sem{\mathsf{E}[\N/x]} = \sem{\V}
         \end{align*}
-        where the last but one equation follows from Substitution Lemma.
+        where $\sem{x : \sigma \vdash \mathsf{E} : \tau}(\sem{\N}) =
+        \sem{\mathsf{E}[\N/x]}$ follows from Substitution Lemma.
         \\~\\
-      \item Complete the remaining two (interesting) cases
-        ($\Downarrow$-$\ifz_1$) and ($\Downarrow$-fix).
-        \emph{Hint.} Consider Substitution Lemma and
-        the properties of the fixpoint operator~$\mu$.
+      \item Complete the cases ($\Downarrow$-$\ifz_1$) and ($\Downarrow$-fix).
+        {\small \emph{Hint.} Consider Substitution Lemma and
+        the properties of the fixpoint operator~$\mu$.}
     \end{itemize}
 \end{frame}
 
-\note{
+\begin{frame}<0>
 \begin{itemize}
   \item For ($\Downarrow$-$\ifz_0$), assuming $\sem{\M}=\sem{\zero} = 0$
     and $\sem{\M_0} = \sem{V}$ we show that
@@ -154,40 +155,40 @@
     \end{align*}
     where the last but one equality follows from Substitution Lemma.
 \end{itemize}
-}
+\end{frame}
 
 \section{Equational reasoning}
 
 \begin{frame}{Logical equivalence}
   \begin{definition}[Applicative approximation]
-    For each type~$\sigma$, define a relation~$\precsim_\sigma$ between
-    programs of~$\sigma$:
+    For each type~$\sigma$, we define a relation~$\precsim_\sigma$ between
+    well-typed closed terms $\vdash \M : \sigma$. 
     \begin{enumerate}
-      \item For the type $\nat$, define
+      \item For $\nat$, define
         \[
           \M \precsim_{\alert{\nat}} \N
         \]
         if for all $n \in \mathbb{N}$, 
           $\M \Downarrow \underline{n}$ implies $\N \Downarrow \underline{n}$
-      \item For every type~$\sigma \to \tau$, define
+      \item For $\sigma \to \tau$, define
         \[
           \M \precsim_{\alert{\sigma \to\tau}} \N
         \]
-          if for all program~$P$,
-            $\M\;P \precsim_{\tau} \N\;P$.
+          if $\M\;P \precsim_{\tau} \N\;P$, 
+          for every well-typed closed term~$P$.
     \end{enumerate}
   \end{definition}
   ~\\
 
-    Two programs $\M$ and $\N$ of the same type~$\sigma$ are \textbf{logically
-      equivalent} denoted~$\M\simeq_\sigma\N$ if $\M \precsim_\sigma \N$ and
-    $\M \succsim_\sigma \N$. 
-
+  Two well-typed closed terms $\M$ and $\N$ of the same type~$\sigma$ are
+  \textbf{logically equivalent} denoted~$\M\simeq_\sigma\N$ if $\M
+  \precsim_\sigma \N$ and
+  $\M \succsim_\sigma \N$. 
 \end{frame}
 
 \begin{frame}
   The relation $\precsim_\sigma$ is a preorder, so
-  $\simeq_\sigma$ is indeed an equivalence.
+  $\simeq_\sigma$ is indeed an equivalence. (Why? Prove it.)
   \\~\\
 
   \begin{proposition}
@@ -195,11 +196,12 @@
   \end{proposition}
   ~\\
 
-  A program~$\M$ can be replaced by another program~$\N$ without changing
-  results if $\M \simeq_\sigma \N$.
+  A well-typed closed term $\M$ can be replaced by another well-typed closed
+  term $\N$ without changing
+  its result if $\M \simeq_\sigma \N$.
   \\~\\
     \begin{example}
-      The following two programs are logically equivalent:
+      The following two well-typed closed terms are logically equivalent:
       \[
         \lambda x.\, x
         \quad\text{and}\quad
@@ -214,7 +216,7 @@
   $\Downarrow$. 
   \\~\\
   \begin{proposition}
-    Let $\M$ and $\M'$ be programs of type~$\sigma$. 
+    Let $\M$ and $\M'$ be well-typed closed terms of type~$\sigma$. 
     If $\M \leadsto^* \M'$, then $\M \succsim_\sigma \M'$. 
   \end{proposition}
   ~\\
@@ -225,9 +227,7 @@
     For every $\M \Downarrow \V$ and $\M \leadsto^* \M'$, 
     we have $\M' \Downarrow \V$. 
   \end{proposition}
-  \begin{corollary}[Reduction entails logical equivalence]
-    If $\M \leadsto^* \M'$, then $\M \simeq_\sigma \M'$. 
-  \end{corollary}
+  Therefore, if $\M \leadsto^* \M'$, then $\M \simeq_\sigma \M'$. 
 \end{frame}
 \note{
   \begin{proof}
@@ -240,14 +240,15 @@
       \item[$\sigma\to\tau$]
         By assumption that~$\M \leadsto \M'$ and ($\leadsto$-lapp), it follows
         that $\M\; P \leadsto \M'\; P$ for every term.  By induction
-        hypothesis, it follows that $\M\;P \succsim_\tau\M'\;P$ for every program of
+        hypothesis, it follows that $\M\;P \succsim_\tau\M'\;P$ for every
+        well-typed closed term of
         type~$\sigma$, so $\M \succsim_{\sigma\to\tau} \M'$.
     \end{description}
   \end{proof}
 }
 \begin{frame}
   However, logical equivalence goes beyond reduction.  
-  Consider the following two programs of type~$\nat\to\nat\to\nat$:
+  Consider the following two well-typed closed terms of type~$\nat\to\nat\to\nat$:
     \[
       \lambda x.\, \lambda y.\, x + \alert{y}
     \]
@@ -256,11 +257,13 @@
       \lambda x.\, \lambda y.\, \alert{y} + x
     \]
     Surely the addition of natural numbers are commutative, but \emph{why?}
+    \\~\\
+
     By definition they are already values, so they cannot be reduced to
     each other. 
     \\~\\
     \begin{remark}
-      We can show directly that these two programs are logically
+      We can show directly that these two well-typed closed terms are logically
       equivalent in dependent type theory. Yet, we will present an external
       approach using denotational semantics in the absense of
       the identity type. 
@@ -321,22 +324,22 @@
 %\end{frame}
 \section{Computational Adequacy}
 \begin{frame}
-  In the following, we will show that for every program~$\M$ of type~$\nat$ if
+  In the following, we will show that for every $\vdash \M : \nat$ if
   $\sem{\M} = n$ then $\M$ reduces to the numeral~$\underline{n}$.
   \\~\\
   \begin{itemize}
-    \item Define a relation~$R_\sigma$ for each type~$\sigma$ between the
-      domain~$\sem{\sigma} = D_\sigma$ and the collection of
-      programs of type~$\sigma$:
+    \item Define a relation $\alert{R_\sigma}$ for each type~$\sigma$ between
+      the domain~$\sem{\sigma} = D_\sigma$ and the collection of
+      well-typed closed terms of type~$\sigma$:
       \[
-        R_\sigma \subseteq D_\sigma \times \mathsf{Prg}_\sigma
+        \alert{R_{\sigma}} \subseteq D_\sigma \times \mathsf{Prg}_\sigma
       \]
       for every type~$\sigma$ where $\mathsf{Prg}_\sigma = \set{ \M }{{}\vdash
         \M : \sigma}$.
       \\~\\
-    \item Then prove that $\sem{\M}\mathrel{R_\sigma} \M$ for every
-      program~$\M$ of type~$\sigma$, and, by construction
-      $\sem{\M} \mathrel{R_\nat} \M$ is equivalent to that
+    \item Then show that $\sem{\M}\mathrel{\alert{R_\sigma}} \M$ for every
+      well-typed closed term~$\M$ of type~$\sigma$, and by construction
+      $\sem{\M} \mathrel{\alert{R_\nat}} \M$ is equivalent to that
       $\sem{M} = n$ implies $\M \Downarrow \underline{n}$. 
   \end{itemize}
   ~\\
@@ -736,10 +739,4 @@ $n + 1 \alert{\mathrel{R_\nat}}
   \end{proof}
 \end{frame}
 
-\begin{frame}{Exercises}
-  Show that the following pairs of programs are logically equivalent.
-  \begin{enumerate}
-    \item 
-  \end{enumerate}
-\end{frame}
 \end{document}
