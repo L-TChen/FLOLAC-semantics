@@ -93,7 +93,7 @@
   \\~\\
   \begin{itemize}
       \item For ($\Downarrow$-app), we show that $\sem{\M\;\N} = \sem{V}$
-        if $\sem{\M} = \sem{\lambda x.\, \mathsf{E}}$ and $\sem{E[\N/x]} =
+        if $\sem{\M} = \sem{\lambda x.\, \mathsf{E}}$ and $\sem{\mathsf{E}[\N/x]} =
         \sem{V}$. We calculate the denotation as follows
         \begin{align*}
           \sem{\M\;\N} & = \mathit{ev}(\sem{\M}, \sem{\N}) \\
@@ -120,28 +120,29 @@
     $\sem{\ifz(\M; \M_0; x.\, \M_1)} = \sem{\V}$. We calculate the
     denotation as follows
     \begin{align*}
-      \sem{\ifz(\M;\M_0;x.\,\M_1)}
-        & = \mathit{ifz}(\sem{\M}, \sem{\M_0}, \sem{\M_1}) \\
-        & = \mathit{ifz}(0, \sem{V}, \sem{\M_1}) \\
-        & = \sem{V}
+      & \sem{\ifz(\M;\M_0;x.\,\M_1)} \\
+         = &\mathit{ifz}(\sem{\M}, \sem{\M_0}, \sem{\M_1}) \\
+         = &\mathit{ifz}(0, \sem{V}, \sem{\M_1}) \\
+         = &\sem{V}
     \end{align*}
     where the last equation follows from the definition of~$\mathit{ifz}$. 
   \item For ($\Downarrow$-$\ifz_1$), we show that $\sem{\ifz(\M;\M_0;
       x.\,\M_1)}$ = \sem{V} if $\sem{\M} = \sem{\suc\;\N} = S \circ \sem{\N}$
     and $\sem{\M_1[\N/x]} = \sem{\V}$.
-  
-  We know that~$\V$ is a value for every~$\M\Downarrow\V$ and $\sem{\V}
-  = n$ for some natural number~$n \in \mathbb{N}$, so $\sem{\M}$ is a natural
-  number $n + 1$. It follows that 
+
+  We know that $\V$ is a value because $\M\Downarrow\V$\footnote{
+    Why? See Lecture I}, and $\sem{\V} = n$ for some natural number $n
+  \in \mathbb{N}$.  Thus $\sem{\M}$ is a natural number $n + 1$. It follows
+  that 
   \begin{align*}
-    \sem{\ifz(\M; \M_0; x.\,\M_1)}
-    & = \mathit{ifz}(\sem{\M}, \sem{\M_0}, \sem{x : \nat\vdash \M_1 :
+       & \sem{\ifz(\M; \M_0; x.\,\M_1)} \\
+     = & \mathit{ifz}(\sem{\M}, \sem{\M_0}, \sem{x : \nat\vdash \M_1 :
       \tau}) \\
-    & = \sem{x : \nat \vdash \M_1}(n) \\
-    & = \sem{x : \nat \vdash \M_1}(\sem{N}) \\
-    & = \sem{\M_1[\N/x]} = \sem{\V}
+     = & \sem{x : \nat \vdash \M_1}(n) \\
+     = & \sem{x : \nat \vdash \M_1}(\sem{N}) \\
+     = &\sem{\M_1[\N/x]} = \sem{\V}
   \end{align*}
-  where the last but one equation follows from Substitution Lemma.
+  where the last but one equality follows from Substitution Lemma.
 
   \item For ($\Downarrow$-fix), we show that $\sem{\fix x.\,\M} = \sem{\V}$ if
     $\sem{\M[\fix x.\,\M/x]} = \sem{\V}$.  Let $f \defeq \sem{x : \sigma \vdash
@@ -159,7 +160,7 @@
 
 \section{Equational reasoning}
 
-\begin{frame}{Logical equivalence}
+\begin{frame}{Logical Equivalence}
   \begin{definition}[Applicative approximation]
     For each type~$\sigma$, we define a relation~$\precsim_\sigma$ between
     well-typed closed terms $\vdash \M : \sigma$. 
@@ -188,7 +189,10 @@
 
 \begin{frame}
   The relation $\precsim_\sigma$ is a preorder, so
-  $\simeq_\sigma$ is indeed an equivalence. (Why? Prove it.)
+  $\simeq_\sigma$ is indeed an equivalence.\footnote{ Why? Prove it.
+    Note that an equivalence relation is defined to be a reflexive, symmetric,
+    and transitive relation.
+  }
   \\~\\
 
   \begin{proposition}
@@ -203,9 +207,8 @@
     \begin{example}
       The following two well-typed closed terms are logically equivalent:
       \[
-        \lambda x.\, x
-        \quad\text{and}\quad
-        \lambda x.\, \mathtt{pred}\; (\mathtt{suc}\; x)
+        \lambda x.\, x : \nat \to \nat \quad\text{and}\quad
+        \lambda x.\, \mathtt{pred}\; (\mathtt{suc}\; x) : \nat \to \nat
       \]
     \end{example}
 \end{frame}
@@ -457,14 +460,16 @@ $n + 1 \alert{\mathrel{R_\nat}}
 \end{frame}
 \begin{frame}{Substitution Lemm and completeness}
   \begin{lemma}[Substitution]
-    Let $\Gamma = x_1:\sigma_1, \dots, x_k:\sigma_k$ be a context and $d_i
-    \alert{\mathrel{R_{\sigma_i}}} \N_i$ for $i = 1, \dots, n$.
+    Let $\Gamma = x_1:\sigma_1, \dots, x_n:\sigma_n$ be a context and $d_i
+    \alert{\mathrel{R_{\sigma_i}}} \N_i$ for all $i = 1, \dots, n$.
     For every well-typed term~$\M$ we have
     \[
       \sem{\, \Gamma \vdash \M : \tau\,}(\vec{d})
       \alert{\mathrel{R_\tau}}
       \M[\vec{N}/\vec{x}]
     \]
+    where $\vec{d}$ stands for $(d_1, \dots, d_n)$ 
+    and $\vec{\N}$ stands for $(\N_1, \dots, \N_n)$.
   \end{lemma}
   \begin{theorem}[Completeness]
     For every~${}\vdash \M:\nat$, we have $\M \Downarrow \underline{n}$
