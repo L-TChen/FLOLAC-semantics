@@ -127,20 +127,19 @@
     \end{align*}
     where the last equation follows from the definition of~$\mathit{ifz}$. 
   \item For ($\Downarrow$-$\ifz_1$), we show that $\sem{\ifz(\M;\M_0;
-      x.\,\M_1)}$ = \sem{V} if $\sem{\M} = \sem{\suc\;\N} = S \circ \sem{\N}$
+      x.\,\M_1)}$ = \sem{V} if $\sem{\M} = \sem{\suc\;\N} = S(\sem{\N})$
     and $\sem{\M_1[\N/x]} = \sem{\V}$.
 
-  We know that $\N$ is a value because $\M\Downarrow\suc N$\footnote{
-    Why? See Lecture I}, and $\sem{\N} = n$ for some natural number $n
-  \in \mathbb{N}$.  Thus $\sem{\M}$ is a natural number $n + 1$. It follows
-  that 
+  We know that $\N$ is a value by $\M\Downarrow\suc\;\N$\footnote{Why? See
+    Lecture I}, so $\sem{\N} = n$ for some natural number~$n$. It follows that 
   \begin{align*}
        & \sem{\ifz(\M; \M_0; x.\,\M_1)} \\
-     = & \mathit{ifz}(\sem{\M}, \sem{\M_0}, \sem{x : \nat\vdash \M_1 :
+     ={} & \mathit{ifz}(\sem{\M}, \sem{\M_0}, \sem{x : \nat\vdash \M_1 :
       \tau}) \\
-     = & \sem{x : \nat \vdash \M_1}(n) \\
-     = & \sem{x : \nat \vdash \M_1}(\sem{N}) \\
-     = &\sem{\M_1[\N/x]} = \sem{\V}
+     ={} & \mathit{ifz}(\sem{\N} + 1, \sem{\M_0}, \sem{x : \nat\vdash \M_1 :
+      \tau}) \\
+     ={} & \sem{x : \nat \vdash \M_1}(\sem{\N}) \\
+     ={} &\sem{\M_1[\N/x]} = \sem{\V}
   \end{align*}
   where the last but one equality follows from Substitution Lemma.
 
