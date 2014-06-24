@@ -1,5 +1,5 @@
 \title{Semantics of Functional Programming}
-\subtitle{Lecture III: The Scott Model of \PCF}
+\subtitle{The Scott Model of \PCF}
 \author[T.-R. Chuang]{Chuang, Tyng-Ruey \\
   \href{mailto@trc.iis.sinica.edu.tw}{\texttt{trc.iis.sinica.edu.tw}}}
 \institute[IIS, Sinica]{Institute of Information Science, Academia Sinica}
@@ -7,38 +7,48 @@
 \frame{\maketitle}
 \section{Scott domain model of PCF}  
 \begin{frame}{Interpretation of types and contexts}
+  Every type is interpreted as a domain and a context is a product of domains:
   \begin{definition}
-  Every type $\sigma$ in \PCF{} associates with a domain~$D_\sigma$ as
+  Every type $\sigma$ in \PCF{} associates with a domain $D_\sigma$ as
   follows:
 
     \begin{enumerate}
-      \item $\sem{\nat} \defeq \mathbb{N}_\bot$, and
-      \item $\sem{\tau \to \sigma} \defeq \sem{\sigma}^{\sem{\tau}}$.
+      \item $D_\nat \defeq \mathbb{N}_\bot$, and
+      \item $D_{\tau \to \sigma} \defeq \dspace{D_\sigma}{D_{\tau}}$.
     \end{enumerate}
   \end{definition}
   \begin{definition}
-    For each context $\Gamma = x_1 : \sigma_1, x_2 : \sigma_2,
-    \dots, x_n : \sigma_n$, the associated domain is defined as
+    For each context $\Gamma = x_1 : \sigma_1, 
+    \ldots, x_n : \sigma_n$, the associated domain is defined as
     \[
-      \sem{\Gamma} \defeq \sem{\sigma_1} \times \sem{\sigma_2}
-      \times \dots \times \sem{\sigma_n}
+      D_\Gamma \defeq D_{\sigma_1} \times D_{\sigma_2}
+      \times \dots \times D_{\sigma_n}
     \]
     and the associated domain of the empty context is $1 = \{*\}$. 
   \end{definition}
-  Every judgement of this form $\Gamma \vdash \M : \tau$ will be interpreted as
-  a function
-  \[
-    \sem{\Gamma \vdash \M : \tau} : \sem{\Gamma} \to \sem{\tau}.
-  \]
 \end{frame}
 
 \begin{frame}{Interpretation of simply type lambda calculus
   and natural numbers}
+  Every judgement $\Gamma \vdash \M : \tau$ is interpreted as
+  a Scott-continuous function
   \[
-    \sem{ x_1 : \sigma_1, \dots, x_n : \sigma_n \vdash
-      x_i : \sigma_i } \defeq \pi_i
-    \quad\text{for $i = 1 \dots n$}
+    \sem{\Gamma \vdash \M : \tau} : D_\Gamma \to D_{\tau}
   \]
+  and defined inductively on the derivation of $\Gamma \vdash \M:\tau$ as
+  follows. 
+
+  \begin{enumerate}
+    \item For (var), we interpret the judgement as the projection
+      from the product to the component:
+      \[
+        \sem{x_1 : \sigma_1, \ldots, x_i : \sigma_i, ldots, x_n : \sigma_n \vdash x_i : \sigma_i} \defeq \pi 
+      \]
+      or pointwise
+      \[
+        \sem{\Gamma, x : \tau, \Delta \vdash x : \tau}(\vec{x}) = x
+      \]
+  \end{enumerate}
   \[ 
     \sem{\Gamma \vdash \lambda x.\, \M : \sigma \to \tau} \defeq
     \Lambda\sem{\Gamma, x : \sigma \vdash \M : \tau}
