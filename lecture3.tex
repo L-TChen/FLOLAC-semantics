@@ -5,21 +5,41 @@
 \institute[IIS, Sinica]{Institute of Information Science, Academia Sinica}
 \begin{document}
 \frame{\maketitle}
-\section{Scott domain model of PCF}  
+
+\section{Scott domain model}
+\begin{frame}{Denotational semantics of \PCF}
+  Instead of specifying \emph{how} a program runs, we specify \emph{what} a
+  program is, the \emph{denotation} of a program. 
+  \\~\\
+  To assign a denotation to a program, 
+  \begin{itemize}
+    \item each type $\sigma$ is interpreted as some domain $D_\sigma$;
+    \item a context $\Gamma = x_1 : \sigma_1, \ldots, x_n : \sigma_n$
+      is interpreted as a product $\prod_{i = 1}^n D_{\sigma_i}$ of domains;
+    \item in particular, each term of type $\tau$ under the empty context
+      is an element of $D_\tau$. 
+  \end{itemize}
+
+  ~\\
+  In the end, we show that $(\lambda x.\, \M)\;\N$ and $\lambda x.\, \M\; x$
+  have the same denotation as $\M[\N/x]$ and $\M$ respectively, and also the
+  Compactness Theorem for the Scott domain model of \PCF.
+\end{frame}
+
 \begin{frame}{Interpretation of types and contexts}
-  Every type is interpreted as a domain and a context is a product of domains:
+  Define the denotation of a type inductively:
   \begin{definition}
   Every type $\sigma$ in \PCF{} associates with a domain $D_\sigma$ as
   follows:
-
     \begin{enumerate}
       \item $D_\nat \defeq \mathbb{N}_\bot$, and
-      \item $D_{\tau \to \sigma} \defeq \dspace{D_\sigma}{D_{\tau}}$.
+      \item $D_{\tau \to \sigma} \defeq \dspace{D_\tau}{D_{\sigma}}$.
     \end{enumerate}
   \end{definition}
+  Define the denotation of a context inductively on its length:
   \begin{definition}
-    For each context $\Gamma = x_1 : \sigma_1, 
-    \ldots, x_n : \sigma_n$, the associated domain is defined as
+    For each context $\Gamma = x_1 : \sigma_1,\,
+    \ldots,\, x_n : \sigma_n$, the associated domain is defined as
     \[
       D_\Gamma \defeq D_{\sigma_1} \times D_{\sigma_2}
       \times \dots \times D_{\sigma_n}
@@ -28,95 +48,347 @@
   \end{definition}
 \end{frame}
 
-\begin{frame}{Interpretation of simply type lambda calculus
-  and natural numbers}
-  Every judgement $\Gamma \vdash \M : \tau$ is interpreted as
-  a Scott-continuous function
-  \[
-    \sem{\Gamma \vdash \M : \tau} : D_\Gamma \to D_{\tau}
-  \]
-  and defined inductively on the derivation of $\Gamma \vdash \M:\tau$ as
-  follows. 
-
-  \begin{enumerate}
-    \item For (var), we interpret the judgement as the projection
-      from the product to the component:
+\begin{frame}{Interpretation of judgements}
+  To proceed with the denotational semantics, we further define
+  the denotation for each judgement inductively on its derivation
+  of the following form
+  \begin{itemize}
+    \item Every judgement $\Gamma \vdash \M : \tau$ is interpreted as a
+      \emph{continuous} function
       \[
-        \sem{x_1 : \sigma_1, \ldots, x_i : \sigma_i, ldots, x_n : \sigma_n \vdash x_i : \sigma_i} \defeq \pi 
-      \]
-      or pointwise
+        \sem{\Gamma \vdash \M : \tau} : D_\Gamma \to D_{\tau}.
+      \] 
+    \item In particular, 
       \[
-        \sem{\Gamma, x : \tau, \Delta \vdash x : \tau}(\vec{x}) = x
+        \sem{ {} \vdash \M : \tau} : 1 \to D_\tau
       \]
-  \end{enumerate}
-  \[ 
-    \sem{\Gamma \vdash \lambda x.\, \M : \sigma \to \tau} \defeq
-    \Lambda\sem{\Gamma, x : \sigma \vdash \M : \tau}
-  \]
-  \[
-    \sem{\Gamma \vdash \M\;\N : \tau} = \mathit{ev}
-    \circ \<\sem{\Gamma \vdash
-      \M : \sigma \to \tau}, \sem{\Gamma \vdash \N : \sigma}\>
-  \]
-  \[
-    \sem{\Gamma \vdash \zero : \nat}(\vec{d}) \defeq 0
-  \]
-  \[
-    \sem{\Gamma \vdash \suc\;\M : \nat} \defeq S \circ \sem{\Gamma
-      \vdash \M : \nat}
-  \]
+      is identified 
+      with an element $\sem{{}\vdash \M : \tau}(*) = d$ of $D_\tau$.
+  \end{itemize}
+  \begin{block}{Convention}
+    In the following context, $\sem{\Gamma \vdash \M : \tau}(\vec{d})$
+    is written as
+    \[
+      \sem{\Gamma \vdash \M : \tau}\;\vec{d}.
+    \]
+    for any sequence $\vec{d} \in D_\Gamma$ if there is no danger of ambiguity. 
+  \end{block}
 \end{frame}
-
-\begin{frame}{Interpretation of general recursion and if-zero test}
+\begin{frame}
+  \begin{description}
+    \item[(var)] 
+      Suppose that $\Gamma \vdash \M : \tau$ is of the form
+      \[
+        x_1 : \sigma_1,\;\ldots,\; x_n : \sigma_n \vdash x_i : \sigma_i
+      \]
+      derived by the rule (var).  It is interpreted as the projection
+      from $D_\Gamma$ to its $i$-th component $D_{\sigma_i}$
+      \[
+        \sem{x_1 : \sigma_1,\, \ldots,\, x_n : \sigma_n
+          \vdash x_i : \sigma_i}(\vec{d}) \defeq (d_i)
+      \]
+      for $i = 1,\ldots,n$ where $\vec{d} = (d_1, \ldots, d_n) \in D_{\sigma_1}
+      \times \dots \times D_{\sigma_n}$.
+  \end{description}
+  ~\\
+  Note that the denotation of this judgement is equal to 
   \[
-    \sem{\Gamma \vdash \fix x.\, \M : \sigma} \defeq
-    \mu \circ \Lambda\sem{\Gamma, x : \sigma \vdash \M : \sigma}
+    \sem{x_1 : \sigma_1, \ldots, x_n:\sigma_n \vdash x_i:\sigma_i}
+    = \pi_i 
   \]
-  \begin{align*}
-    & \sem{\Gamma \vdash \ifz(\M; \M_0; \M_1) : \tau} \\
-    \defeq{} & \mathit{ifz}_\tau \circ \<\,
-    \sem{\Gamma \vdash \M  : \nat},
-    \sem{\Gamma \vdash \M_0 : \tau},
-    \Lambda\sem{\Gamma, x : \nat \vdash \M_1 : \tau}\,\>
-  \end{align*}
-  where $S$ and $\mathit{ifz}_\tau$ are defined by
-  \begin{columns}
-    \column{.5\textwidth}
-      \[
-        S(n) \defeq
-        \begin{cases}
-          \bot & \text{if $d = \bot$} \\
-          n + 1 & \text{otherwise.}
-        \end{cases}
-      \]
-    \column{.5\textwidth}
-      \[
-        \mathit{ifz}_\tau(n, x, f) \defeq
-        \begin{cases}
-          \bot & \text{if $n = \bot$,} \\
-          x   & \text{if $n = 0$,} \\
-          f(m) & \text{if $n = m +1$.} \\
-        \end{cases}
-      \]
-  \end{columns}
+  where $\pi_i \colon D_\Gamma \to D_{\sigma_i}$ is the $i$-th projection
+  and thus it is a continuous function. 
+
 \end{frame}
 
 \begin{frame}
-  In particular, every program~$\M:\tau$ associates with a function from~$1$
-  to~$\sem{\tau}$, and thus determines a unique element~$\sem{\M}(*)$
-  of~$\sem{\tau}$. 
-  \begin{block}{Convention}
-    For brevity, we write $\sem{\M}$ instead of~$\sem{{}\vdash\M : \tau}(*)$ for
-    every program~$\M$ of type~$\tau$
-  \end{block}
+  \begin{description}
+    \item[(abs)] Let $f \defeq \sem{\Gamma, x : \sigma \vdash \M : \tau}$
+      be the continuous function from $D_\Gamma \times D_\sigma$
+      to $D_\tau$.
+      \[ 
+        \sem{\Gamma \vdash \lambda x.\, \M : \sigma \to \tau} \defeq
+        \Lambda f
+      \]
+      where $\Lambda f: D_\Gamma \to \dspace{D_\sigma}{D_\tau}$ is the
+      \emph{curried} $f$. In other words
+      \[
+        \left(\sem{\Gamma \vdash \lambda x.\, \M :
+            \sigma\to\tau}\;\vec{d}\right)\; d = \sem{\Gamma, x : \sigma \vdash
+          \M : \tau}\; (\vec{d}, d).
+      \]
+      ~\\
+    \item[(app)] Define
+      \begin{align*}
+        & \sem{\Gamma \vdash \M\;\N : \tau}\; \vec{d} \\
+        \defeq{} & \mathit{ev}\left(
+        \sem{\Gamma \vdash
+          \M : \sigma \to \tau}\; \vec{d}, \sem{\Gamma \vdash \N :
+          \sigma}\; \vec{d} \right)
+      \end{align*}
+      where $\mathit{ev}\colon \dspace{D_1}{D_2} \times D_1 \to D_2$ is the
+      \emph{evaluation map} which maps a continuous function $f\colon D_1 \to
+      D_2$ with an element $d \in D_1$ to $f(d)$.
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  The cases for $\zero$ and $\suc\;\M$ are rather obvious:
+  \\~\\
+  \begin{description}
+    \item[(z)] $\zero$ is a constant, so it does not matter what the context is:
+      \[
+        \sem{\Gamma \vdash \zero : \nat}\; \vec{d} \defeq 0
+      \]
+      i.e.\ a constant function. 
+      \\~\\
+    \item[(s)] The denotation of $\suc$ is the successor function
+      \[
+        \sem{\Gamma \vdash \suc\;\M : \nat}\;\vec{d} \defeq
+        \left (S \circ \sem{\Gamma
+          \vdash \M : \nat} \right)\;\vec{d}
+      \]
+      where $S\colon \Natbot \to \Natbot$ is defined by
+          \[
+            S(n) \defeq
+            \begin{cases}
+              \bot & \text{if $n = \bot$} \\
+              n + 1 & \text{if $n \in \mathbb{N}$.}
+            \end{cases}
+          \]
+\end{description}
+\end{frame}
+
+\begin{frame}
+  \begin{description}
+    \item[(Y)] The denotation of $\fix$ is the fixpoint operation 
+      \[
+        \sem{\Gamma \vdash \fix x.\, \M : \sigma}\;\vec{d} \defeq
+        \dfix
+        \left(
+          \sem{\Gamma, x : \sigma \vdash \M : \sigma}\;\vec{d}
+        \right)
+      \]
+      where $\dfix$ is defined previously as $\dfix(f) \defeq \bigsqcup_{i \in
+        \mathbb{N}} f^i(\bot)$.
+    \item[(ifz)] The denotation of $\ifz$ 
+      \begin{align*}
+        & \sem{\Gamma \vdash \ifz(\M; \M_0; \M_1) : \tau}\;\vec{d} \\
+        \defeq{} & \mathit{ifz}_\tau (n , d, f)
+      \end{align*}
+      where
+      \begin{enumerate}
+        \item $n \defeq \sem{\Gamma \vdash \M  : \nat}\;\vec{d}$, 
+        \item $d \defeq \sem{\Gamma \vdash \M_0 : \tau}\;\vec{d}$, 
+        \item $f \defeq \sem{\Gamma, x : \nat \vdash \M_1 : \tau}\; \vec{d}$,
+      \end{enumerate} and $\mathit{ifz}_\tau$ is defined by
+          \[
+            \mathit{ifz}_\tau(n, x, f) \defeq
+            \begin{cases}
+              \bot & \text{if $n = \bot$,} \\
+              x   & \text{if $n = 0$,} \\
+              f(m) & \text{if $n = m +1$.} \\
+            \end{cases}
+          \]
+      \end{description}
+\end{frame}
+
+\begin{frame}
   \begin{theorem}
     For every judgement~$\Gamma \vdash \M:\tau$, 
     the associated function
     \[
-      \sem{\Gamma \vdash \M : \tau} \colon \sem{\Gamma} \to \sem{\tau}
+      \sem{\Gamma \vdash \M : \tau} \colon D_\Gamma \to D_{\tau}
     \]
     is Scott continuous. 
   \end{theorem}
+  \begin{proof}[Proof sketch.]
+    It is not hard to see that each case of $\sem{\Gamma \vdash \M : \tau}$
+    is a Scott continuous function.
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Examples}
+\end{frame}
+
+\begin{frame}{In-class exercise}
+\end{frame}
+
+\section{Substitution and Compactness}
+
+\begin{frame}{Substitution Lemma}
+  \begin{lemma}
+    Let $\Gamma = x_1 : \sigma_1, \ldots, x_n : \sigma_n$ be a context, and
+    $\Gamma \vdash \M : \tau$ a judgement.  Then the following equation 
+    \[
+      \sem{\Delta \vdash \M[\vec{N}/\vec{x}] : \tau}\; \vec{d}
+      = \sem{\Gamma \vdash \M : \tau}
+      \left(
+        \sem{\Delta\vdash \N_1}\;\vec{d}, \ldots, 
+        \sem{\Delta\vdash \N_n}\;\vec{d}
+      \right)
+    \]
+    holds for any context $\Delta$ and judgements $\Delta \vdash \N_i :
+    \sigma_i$ for $i = 1, \ldots, n$.
+  \end{lemma}
+  \begin{proof}
+    We prove it by induction on derivations of $\Gamma \vdash \M : \tau$. 
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Proof of Substitution Lemma}
+  \begin{description}
+    \item[(var)] Suppose that $\Gamma \vdash \M : \tau$ is of the form
+      \[
+        x_1 : \sigma_1, \ldots, x_n : \sigma_n \vdash x_i : \sigma_i
+      \]
+      for $i = 1, \ldots, n$. \\ 
+      Then, for each family of judgements
+      $\Delta \vdash \N_i : \sigma_i$, 
+      it follows that 
+      \begin{align*}
+          & \sem{\Delta \vdash x_i[\vec{n}/\vec{x}] : \sigma_i} \\
+        ={} & \sem{\Delta \vdash \N_i : \sigma_i} \\
+        ={} & \pi_i\left(\sem{\Delta \vdash \N_1 : \sigma_1}, \ldots,
+        \sem{\Delta\vdash \N_n : \sigma_n}\right) 
+      \end{align*}
+      where $\sem{x_1 : \sigma_1, \ldots, x_n : \sigma_n\vdash x_i:\sigma_i}
+      = \pi_i$. 
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \begin{corollary}[Application]
+    For every judgement $\Gamma, x : \sigma \vdash \M : \tau$
+    and $\Gamma \vdash \N : \sigma$, we have
+    \[
+      \sem{\Gamma \vdash (\lambda x.\,\M)\;\N : \tau}
+      = \sem{\Gamma \vdash \M[\N/x] : \tau}.
+    \]
+  \end{corollary}
+  Observe that $\vec{d} = (\sem{\Gamma \vdash x_1 : \sigma_1}\;\vec{d}, \ldots,
+  \sem{\Gamma \vdash x_n : \sigma_n}\;\vec{d})$ for any context
+  $\Gamma = x_1 : \sigma_1, \ldots, x_n : \sigma_n$. Then, this corollary
+  is a series of simple facts:
+    \begin{align*}
+          & \sem{\Gamma \vdash (\lambda x.\,\M)\; \N : \tau}\;\vec{d} \\
+      ={} &
+        \mathit{ev}
+        \left(
+          \sem{\Gamma \vdash (\lambda x.\, \M) : \sigma\to\tau}\;\vec{d},
+          \sem{\Gamma \vdash \N : \sigma}\;\vec{d}
+        \right) \\
+      = {} & 
+        \mathit{ev}
+        \left(
+          \sem{\Gamma, x : \sigma \vdash \M : \tau}\;\vec{d}, 
+          \sem{\Gamma \vdash \N : \sigma}\;\vec{d}
+        \right)\\
+        ={} & 
+        \sem{\Gamma, x : \sigma \vdash \M : \tau}\;
+        (\vec{d}, \sem{\Gamma \vdash \N : \sigma\;\vec{d}}) \\
+        ={} &
+        \sem{\Gamma \vdash \M[ \vec{x}, \N / \vec{x}, x] : \tau}\;\vec{d} \\
+        ={} & 
+        \sem{\Gamma \vdash \M[\N / x ] : \tau}\;\vec{d}
+    \end{align*}
+\end{frame}
+
+\begin{frame}
+  \begin{lemma}[Weakening]
+    Let $\Gamma \vdash \M : \tau$ be a judgement. Then the following
+    \[
+      \sem{\Gamma \vdash \M : \tau} 
+      = \sem{\Gamma, x : \sigma \vdash \M : \tau} 
+    \]
+    holds for any variable $x : \sigma$ not in $\Gamma$. 
+  \end{lemma}
+  It follows from Substitution Lemma. (\emph{Why?})
+\end{frame}
+
+\begin{frame}
+  \begin{corollary}[Extensionality]
+    Let $\Gamma \vdash \M : \sigma \to \tau$ be a judgement. Then, 
+    \[
+      \sem{\Gamma \vdash \lambda x.\, \M\; x : \sigma\to\tau}
+      = \sem{\Gamma \vdash \M : \sigma\to\tau}
+    \]
+    if $x$ is not a variable in $\Gamma$. 
+  \end{corollary}
+  For every sequence $\vec{d} \in D_\Gamma$ and $d \in D_\sigma$, we have
+  \begin{align*}
+    & \left( \sem{\Gamma \vdash \lambda x.\, \M\; x : \sigma \to \tau}
+      \;\vec{d}\right)\; d \\
+    ={} & \sem{\Gamma, x : \sigma \vdash \M\;x : \tau}(\vec{d}, d) \\
+    ={} & \mathit{ev}\left(
+      \sem{\Gamma, x : \sigma \vdash \M : \sigma\to\tau}(\vec{d}, d), 
+      \sem{\Gamma, x : \sigma \vdash x : \sigma}(\vec{d}, d)\right)\\
+    ={} & \mathit{ev}\left(
+      \sem{\Gamma, x : \sigma \vdash \M : \sigma\to\tau}(\vec{d}, d), d\right)\\
+    ={} & \left( \sem{\Gamma, x : \sigma \vdash \M : \sigma \to \tau}
+      (\vec{d}, d)\right) d \\
+    ={} & \left( \sem{\Gamma \vdash \M : \sigma \to \tau}\;\vec{d}\right)\;d. 
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Compactness}
+  Define $\fix^i x.\, \M$ inductively for each $i \in \mathbb{N}$ by
+  \begin{enumerate}
+    \item $\fix^0 x.\, \M \defeq \fix x.\, x$ and
+    \item $\fix^{n + 1} x.\, \M \defeq
+      \M[\fix^n x.\, \M/ x]$. 
+  \end{enumerate}
+  ~\\
+  \begin{theorem}
+    For every judgement $\Gamma, x : \sigma \vdash \M : \sigma$, we have
+    \[
+      \sem{\Gamma \vdash \fix x.\, \M : \sigma}
+      = \bigsqcup_{i \in \mathbb{N}} \sem{\Gamma \vdash \fix^i x.\, \M :
+        \sigma}.
+    \]
+  \end{theorem}
+  To show this theorem, it suffices to show the following 
+  \[
+    \sem{{}\vdash \fix^i x.\,\M : \sigma}
+    = \sem{x : \sigma \vdash \M : \sigma}^i(\bot)
+  \]
+  for $i \in \mathbb{N}$. (Why?)
+\end{frame}
+
+\begin{frame}
+  \begin{description}
+    \item[For $n = 0$] we show that $\sem{{}\vdash \fix^0 x.\,\M : \sigma} =
+      \bot_{D_\sigma} \in D_\sigma$.
+      \\~\\
+
+      By definition, $\fix^0 x.\, \M : \sigma$ is equal to
+     $\fix x.\, x$, so  
+      \begin{align*}
+        \sem{{}\vdash \fix x .\, x : \sigma} & = \mu(\id) = \bigsqcup_{i \in
+          \mathbb{N}}  \id^i(\bot) \\
+        &= \bigsqcup \bot = \bot
+      \end{align*}
+    \item[For $i = n+1$] it suffices to show that
+      \[
+        \sem{{}\vdash \fix^{n+1} x.\,\M : \sigma} = \sem{x : \sigma \vdash \M :
+          \sigma} \left(\sem{{}\vdash \fix^n x.\,\M:\sigma}\right),
+      \] so the statement follows by the induction hypothesis.
+      \\~\\
+
+      By definition, $\fix^{n+1} x.\,\M$ is equal to
+      $\M[\fix^n x.\,\M/x]$, and by Substitution Lemma we have
+      \begin{align*}
+        \sem{{}\vdash \M[\fix^n x.\,\M/x]}
+        = \sem{x : \sigma \vdash \M : \tau} \left(
+          \sem{{}\vdash \fix^n x.\, \M} \right).
+      \end{align*}
+  \end{description}
+\end{frame}
+
+\begin{frame}{Examples}
+\end{frame}
+
+\begin{frame}{In-class exercise}
 \end{frame}
 
 \end{document}
