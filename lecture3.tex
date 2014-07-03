@@ -1,29 +1,24 @@
 \title{Semantics of Functional Programming}
 \subtitle{The Scott Model of \PCF}
-\author[T.-R. Chuang]{Chuang, Tyng-Ruey \\
-  \href{mailto@trc.iis.sinica.edu.tw}{\texttt{trc.iis.sinica.edu.tw}}}
+\author[T.-R. Chuang]{\alert{Chuang, Tyng-Ruey} and Chen, Liang-Ting  \\
+  {\texttt{[\alert{trc}|lxc]@iis.sinica.edu.tw}}}
 \institute[IIS, Sinica]{Institute of Information Science, Academia Sinica}
 \begin{document}
 \frame{\maketitle}
 
 \section{Scott domain model}
 \begin{frame}{Denotational semantics of \PCF}
-  Instead of specifying \emph{how} a program runs, we specify \emph{what} a
+  Instead of specifying \emph{how} a \PCF{} program runs, we specify \emph{what} a
   program is, the \emph{denotation} of a program. 
   \\~\\
   To assign a denotation to a program, 
   \begin{itemize}
-    \item each type $\sigma$ is interpreted as some domain $D_\sigma$;
+    \item each type $\sigma$ is interpreted as a domain $D_\sigma$;
     \item a context $\Gamma = x_1 : \sigma_1, \ldots, x_n : \sigma_n$
       is interpreted as a product $\prod_{i = 1}^n D_{\sigma_i}$ of domains;
     \item in particular, each term of type $\tau$ under the empty context
       is an element of $D_\tau$. 
   \end{itemize}
-
-  ~\\
-  In the end, we show that $(\lambda x.\, \M)\;\N$ and $\lambda x.\, \M\; x$
-  have the same denotation as $\M[\N/x]$ and $\M$ respectively, and also the
-  Compactness Theorem for the Scott domain model of \PCF.
 \end{frame}
 
 \begin{frame}{Interpretation of types and contexts}
@@ -85,7 +80,7 @@
       from $D_\Gamma$ to its $i$-th component $D_{\sigma_i}$
       \[
         \sem{x_1 : \sigma_1,\, \ldots,\, x_n : \sigma_n
-          \vdash x_i : \sigma_i}(\vec{d}) \defeq (d_i)
+          \vdash x_i : \sigma_i}\;\vec{d}  \defeq d_i
       \]
       for $i = 1,\ldots,n$ where $\vec{d} = (d_1, \ldots, d_n) \in D_{\sigma_1}
       \times \dots \times D_{\sigma_n}$.
@@ -166,28 +161,28 @@
         \sem{\Gamma \vdash \fix x.\, \M : \sigma}\;\vec{d} \defeq
         \dfix
         \left(
-          \sem{\Gamma, x : \sigma \vdash \M : \sigma}\;\vec{d}
+          \sem{\Gamma \vdash \lambda x.\, \M : \sigma \to \sigma}\;\vec{d}
         \right)
       \]
       where $\dfix$ is defined previously as $\dfix(f) \defeq \bigsqcup_{i \in
         \mathbb{N}} f^i(\bot)$.
     \item[(ifz)] The denotation of $\ifz$ 
       \begin{align*}
-        & \sem{\Gamma \vdash \ifz(\M; \M_0; \M_1) : \tau}\;\vec{d} \\
-        \defeq{} & \mathit{ifz}_\tau (n , d, f)
+        & \sem{\Gamma \vdash \ifz(\M; \M_0; x.\,\M_1) : \tau}\;\vec{d} \\
+        \defeq{} & \mathit{ifz}_\tau (n , e, f)
       \end{align*}
       where
       \begin{enumerate}
         \item $n \defeq \sem{\Gamma \vdash \M  : \nat}\;\vec{d}$, 
-        \item $d \defeq \sem{\Gamma \vdash \M_0 : \tau}\;\vec{d}$, 
-        \item $f \defeq \sem{\Gamma, x : \nat \vdash \M_1 : \tau}\; \vec{d}$,
-      \end{enumerate} and $\mathit{ifz}_\tau$ is defined by
+        \item $e \defeq \sem{\Gamma \vdash \M_0 : \tau}\;\vec{d}$, 
+        \item $f \defeq \sem{\Gamma \vdash \lambda x.\, \M_1 : \sigma\to\tau}\; \vec{d}$,
+      \end{enumerate} and $\mathit{ifz}$ is defined by
           \[
-            \mathit{ifz}_\tau(n, x, f) \defeq
+            \mathit{ifz}(n, x, f) \defeq
             \begin{cases}
               \bot & \text{if $n = \bot$,} \\
               x   & \text{if $n = 0$,} \\
-              f(m) & \text{if $n = m +1$.} \\
+              f(n-1) & \text{otherwise.} \\
             \end{cases}
           \]
       \end{description}
@@ -208,10 +203,97 @@
   \end{proof}
 \end{frame}
 
-\begin{frame}{Examples}
+\begin{frame}
+  \begin{example}
+  Consider the denotations of the following judgements. 
+    \begin{enumerate}
+      \item $y : \nat \vdash y : \nat$
+      \item ${}\vdash \lambda x.\, \underline{0} : \nat \to \nat$
+      \item ${}\vdash \fix f.\,\lambda n.\,\ifz(n; \underline{0}; x.\, f\; x) : \nat
+          \to \nat$.
+    \end{enumerate}
+  \end{example}
+  ~\\
+  \begin{enumerate}
+    \item $\sem{ y : \nat \vdash y : \nat }\;d = d$
+      \\~\\
+    \item $\sem{{}\vdash \lambda x.\,\underline{0} : \nat \to\nat} = \Lambda f$ where
+      \[
+        f \defeq \sem{ x : \nat \vdash \zero : \nat} = \mathit{const}_0,
+      \] i.e.\ the constant function at $0$.  
+      \\~\\
+      \seti
+ \end{enumerate}
 \end{frame}
 
-\begin{frame}{In-class exercise}
+\begin{frame}
+  \begin{enumerate}
+      \conti
+    \item
+      \begin{align*}
+            & \sem{ {}\vdash \fix f.\,\lambda n.\,\ifz(n; \underline{0}; x.\, f\; x) : \nat
+          \to \nat} \\
+        ={} & \mu(g)
+      \end{align*}
+        where $g : \dspace{D_\nat}{D_\nat} \to \dspace{D_\nat}{D_\nat}$ is defined by
+        \begin{align*}
+           g & \defeq \sem{f : \nat \to \nat \vdash \lambda
+          n.\,\ifz(n;\underline{0}; x.\,f\;x) : \nat \to \nat} \\
+            & = \Lambda \sem{f : \nat \to \nat, n : \nat \vdash \ifz(n;
+          \underline{0}; x.\,f\;x) : \nat}
+        \end{align*}
+        and
+        \begin{align*}
+         & \sem{f: \nat \to \nat, n : \nat \vdash
+           \ifz(n; \underline{0}; x.\, f\;x) : \nat}\; (h,d) \\
+         ={} & \mathit{ifz}(d, 0, h) 
+        \end{align*}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  Then, what is $\mu(g)$? Let's calculate $g(\bot)$ and $g^2(\bot)$. 
+  \\~\\
+  \[
+    g(\bot_{D_\nat \to D_\nat})\;d = \mathit{ifz}(d, 0, \bot_{D_\nat \to D_\nat}) = 
+    \begin{cases}
+      \bot & \text{if $d = \bot$} \\
+      0 & \text{if $d = 0$} \\
+      \bot & \text{otherwise.} \\
+    \end{cases}
+  \]
+  \[
+    g(g(\bot))\;d
+    = \mathit{ifz}(d, 0, g(\bot))
+    = 
+    \begin{cases}
+      \bot & \text{if $d = \bot$} \\
+      0 & \text{if $d = 0, 1$} \\
+      \bot & \text{otherwise.} \\
+    \end{cases}
+  \] 
+  By induction, we can show that 
+  \[
+    g^i(d) = 
+    \begin{cases}
+      \bot & \text{if $d = \bot$} \\
+      0 & \text{if $d < i$} \\
+      \bot & \text{otherwise,}
+    \end{cases}
+  \]
+  so $\mu(g)\;d= 0$ if $d \neq \bot$ and $\mu(g)\;d = \bot$ if $d = \bot$. 
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Exercise}
+    Consider the denotations of the following judgements.
+    \begin{enumerate}
+      \item $y : \nat \vdash (\lambda x.\,\underline{0})\; y : \nat$
+      \item ${}\vdash \lambda n.\,\ifz(n; \underline{0}; x.\, x) : \nat \to \nat$
+      \item ${}\vdash \lambda n.\,\ifz(n; \underline{1}; x.\, \underline{0}) : \nat
+          \to \nat$
+      \end{enumerate}
+  \end{block}
 \end{frame}
 
 \section{Substitution and Compactness}
@@ -220,43 +302,40 @@
   \begin{lemma}
     Let $\Gamma = x_1 : \sigma_1, \ldots, x_n : \sigma_n$ be a context, and
     $\Gamma \vdash \M : \tau$ a judgement.  Then the following equation 
-    \[
-      \sem{\Delta \vdash \M[\vec{N}/\vec{x}] : \tau}\; \vec{d}
-      = \sem{\Gamma \vdash \M : \tau}
+    \begin{align*}
+      & \sem{\Delta \vdash \M[\vec{N}/\vec{x}]}\; \vec{d} \\
+      ={} & \sem{\Gamma \vdash \M}
       \left(
         \sem{\Delta\vdash \N_1}\;\vec{d}, \ldots, 
         \sem{\Delta\vdash \N_n}\;\vec{d}
       \right)
-    \]
+    \end{align*}
     holds for any context $\Delta$ and judgements $\Delta \vdash \N_i :
     \sigma_i$ for $i = 1, \ldots, n$.
   \end{lemma}
-  \begin{proof}
-    We prove it by induction on derivations of $\Gamma \vdash \M : \tau$. 
-  \end{proof}
 \end{frame}
 
-\begin{frame}{Proof of Substitution Lemma}
-  \begin{description}
-    \item[(var)] Suppose that $\Gamma \vdash \M : \tau$ is of the form
-      \[
-        x_1 : \sigma_1, \ldots, x_n : \sigma_n \vdash x_i : \sigma_i
-      \]
-      for $i = 1, \ldots, n$. \\ 
-      Then, for each family of judgements
-      $\Delta \vdash \N_i : \sigma_i$, 
-      it follows that 
-      \begin{align*}
-          & \sem{\Delta \vdash x_i[\vec{n}/\vec{x}] : \sigma_i} \\
-        ={} & \sem{\Delta \vdash \N_i : \sigma_i} \\
-        ={} & \pi_i\left(\sem{\Delta \vdash \N_1 : \sigma_1}, \ldots,
-        \sem{\Delta\vdash \N_n : \sigma_n}\right) 
-      \end{align*}
-      where $\sem{x_1 : \sigma_1, \ldots, x_n : \sigma_n\vdash x_i:\sigma_i}
-      = \pi_i$. 
-  \end{description}
-\end{frame}
-
+%\begin{frame}{Proof of Substitution Lemma}
+%  \begin{description}
+%    \item[(var)] Suppose that $\Gamma \vdash \M : \tau$ is of the form
+%      \[
+%        x_1 : \sigma_1, \ldots, x_n : \sigma_n \vdash x_i : \sigma_i
+%      \]
+%      for $i = 1, \ldots, n$. \\ 
+%      Then, for each family of judgements
+%      $\Delta \vdash \N_i : \sigma_i$, 
+%      it follows that 
+%      \begin{align*}
+%          & \sem{\Delta \vdash x_i[\vec{n}/\vec{x}] : \sigma_i} \\
+%        ={} & \sem{\Delta \vdash \N_i : \sigma_i} \\
+%        ={} & \pi_i\left(\sem{\Delta \vdash \N_1 : \sigma_1}, \ldots,
+%        \sem{\Delta\vdash \N_n : \sigma_n}\right) 
+%      \end{align*}
+%      where $\sem{x_1 : \sigma_1, \ldots, x_n : \sigma_n\vdash x_i:\sigma_i}
+%      = \pi_i$. 
+%  \end{description}
+%\end{frame}
+%
 \begin{frame}
   \begin{corollary}[Application]
     For every judgement $\Gamma, x : \sigma \vdash \M : \tau$
@@ -266,10 +345,13 @@
       = \sem{\Gamma \vdash \M[\N/x] : \tau}.
     \]
   \end{corollary}
-  Observe that $\vec{d} = (\sem{\Gamma \vdash x_1 : \sigma_1}\;\vec{d}, \ldots,
-  \sem{\Gamma \vdash x_n : \sigma_n}\;\vec{d})$ for any context
-  $\Gamma = x_1 : \sigma_1, \ldots, x_n : \sigma_n$. Then, this corollary
-  is a series of simple facts:
+  Observe that
+  \[
+    \vec{d} = (\sem{\Gamma \vdash x_1 : \sigma_1}\;\vec{d}, \ldots,
+  \sem{\Gamma \vdash x_n : \sigma_n}\;\vec{d})
+  \]
+  for any context $\Gamma = x_1 : \sigma_1, \ldots, x_n : \sigma_n$. Then, this
+  corollary is a series of simple facts:
     \begin{align*}
           & \sem{\Gamma \vdash (\lambda x.\,\M)\; \N : \tau}\;\vec{d} \\
       ={} &
@@ -278,20 +360,34 @@
           \sem{\Gamma \vdash (\lambda x.\, \M) : \sigma\to\tau}\;\vec{d},
           \sem{\Gamma \vdash \N : \sigma}\;\vec{d}
         \right) \\
-      = {} & 
-        \mathit{ev}
-        \left(
-          \sem{\Gamma, x : \sigma \vdash \M : \tau}\;\vec{d}, 
-          \sem{\Gamma \vdash \N : \sigma}\;\vec{d}
-        \right)\\
         ={} & 
         \sem{\Gamma, x : \sigma \vdash \M : \tau}\;
-        (\vec{d}, \sem{\Gamma \vdash \N : \sigma\;\vec{d}}) \\
+        (\vec{d}, \sem{\Gamma \vdash \N : \sigma}\;\vec{d}) \\
         ={} &
         \sem{\Gamma \vdash \M[ \vec{x}, \N / \vec{x}, x] : \tau}\;\vec{d} \\
         ={} & 
         \sem{\Gamma \vdash \M[\N / x ] : \tau}\;\vec{d}
     \end{align*}
+\end{frame}
+
+\begin{frame}
+  \begin{example}
+    The denotation of 
+    \[
+      {}\vdash (\lambda n.\,\ifz(n; \underline{1}; x.\, x))\;\underline{1} : \nat
+    \]
+    and
+    \[
+      {}\vdash \ifz(\underline{1}; \underline{1}; x.\,x) : \nat
+    \]
+    are equal and calculated as follows:
+    \begin{align*}
+          & \sem{{}\vdash \lambda n.\,\ifz(n; \underline{1}; x.\,x)\;\underline{1}}\\
+      ={} & \sem{{}\vdash \lambda n.\,\ifz(n; \underline{1}; x.\,x)}( \sem{{}\vdash
+        \underline{1} : \nat}) \\
+      ={} & \mathit{ifz}(1, 1, \mathit{id}) = 0
+    \end{align*}
+  \end{example} 
 \end{frame}
 
 \begin{frame}
@@ -307,7 +403,7 @@
 \end{frame}
 
 \begin{frame}
-  \begin{corollary}[Extensionality]
+  \begin{corollary}[$\eta$-conversion]
     Let $\Gamma \vdash \M : \sigma \to \tau$ be a judgement. Then, 
     \[
       \sem{\Gamma \vdash \lambda x.\, \M\; x : \sigma\to\tau}
@@ -385,10 +481,15 @@
   \end{description}
 \end{frame}
 
-\begin{frame}{Examples}
-\end{frame}
 
-\begin{frame}{In-class exercise}
+\begin{frame}
+  \begin{block}{Exercise}
+    Find the denotation of
+    \[
+      {}\vdash \fix f.\,\lambda n.\,\ifz(n; \underline{0};
+      m.\, \ifz((f\; m); \underline{1}; x.\,\underline{0}) : \nat\to\nat
+    \]
+  \end{block}
 \end{frame}
 
 \end{document}
