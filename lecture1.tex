@@ -264,7 +264,7 @@
   \end{proof}
   ~\\
 
-  Similarly, we can do induction on the formulation of terms, typing rules,
+  Similarly, we can do induction on the formation of terms, typing rules,
   and any other inductive definitions. 
   \\~\\
 
@@ -311,13 +311,12 @@
 \begin{frame}
   \begin{proof}
     \begin{enumerate}
-      \item ${}\vdash \M : \tau$ cannot be given by
+      \item The context of 
         \AXC{}\UIC{$\Gamma, x : \sigma, \Delta \vdash x : \sigma$}\DP, 
-        since the context is empty. 
+        is non-empty, so it does not satisfy the assumption.
       \item For that case \AXC{$x : \sigma\vdash \M : \tau$}
         \RightLabel{(abs)}
         \UIC{${}\vdash \lambda x.\, \M : \sigma \to \tau$}\DP, 
-         $(\lambda x.\, \M') \leadsto^* (\lambda x.\, \M)$
          we have already given a term in this form $\lambda x.\, \M$. 
          \\~\\
        \item For \AXC{${}\vdash \M : \sigma\to\tau$}\AXC{${}\vdash \N :
@@ -408,7 +407,7 @@
   We will introduce the latter two features step by step.
   \\~\\
 
-  It has two rules of type formulation:
+  It has two rules of type formation:
     \begin{columns}[t]
       \column{.5\textwidth}
       \begin{prooftree}
@@ -435,7 +434,7 @@
 %  \textbf{general recursion}.
 %\end{frame}
 
-\begin{frame}{Term formulation, typing, and reduction for natural numbers}
+\begin{frame}{Term formation, typing, and reduction for natural numbers}
   Every natural number is either $\zero$ or a successor of some natural number. 
       \begin{columns}
         \column{.5\textwidth}
@@ -497,7 +496,7 @@
   $\underline{n+1}$ for $\suc\;\underline{n}$ inductively. 
   \\~\\
   \begin{example}
-    By this formulation, we have well-typed values $\suc\; (\suc\; \zero)$, 
+    By this formation, we have well-typed values $\suc\; (\suc\; \zero)$, 
     $\lambda x.\, \suc\; x$, and $\lambda x.\, x$, and also ill-typed values
     $\suc\; \lambda x.\, x$, $\lambda y.\, y\; y$.
   \end{example}
@@ -569,18 +568,17 @@
   \textbf{Exercise}.
   \begin{enumerate}
     \item Show that $\pred\;\underline{0} \leadsto^* \underline{0}$
-      and $\pred\;\underline{n+1}\leadsto^*\underline{n}$ by induction
-      on~$\underline{0}$.
+      and $\pred\;\underline{n+1}\leadsto^*\underline{n}$.
     \item Define $\mathtt{flip}\colon \nat \to \nat$ such that
       $\mathtt{flip}\;\underline{0} \leadsto^* \underline{1}$
       and $\mathtt{flip}\; \underline{n+1} \leadsto^* \underline{0}$. 
   \end{enumerate}
 \end{frame}
 
-\begin{frame}{Term formulation, typing rule, and reduction for general
+\begin{frame}{Term formation, typing rule, and reduction for general
     recursion}
   The $\fix$ operator, used to do general recursion, has the same term
-  formulation as $\lambda$-abstraction and a similar typing rules. 
+  formation as $\lambda$-abstraction and a similar typing rules. 
       \begin{columns}
         \column{.5\textwidth}
         \begin{prooftree}
@@ -643,17 +641,19 @@
 \end{frame}
 
 \begin{frame}
-  The higher-order function~$F\colon (\mathbb{N}\to\mathbb{N})
-  \to(\mathbb{N}\to\mathbb{N})$ can be presented in \PCF{} as  
-  \begin{align*}
-    \lambda. f\, F \defeq \lambda f. & \\
-    \lambda & n.\\
-    & \ifz(n; \underline{1}; m.\,n\times (f\; m))
-  \end{align*}
-  with the type $(\nat\to\nat)\to(\nat\to\nat)$.
+  The higher-order function ${F\colon (\mathbb{N}\to\mathbb{N})
+  \to(\mathbb{N}\to\mathbb{N})}$ can be presented in \PCF{} as  
+  \[
+    F \defeq \lambda f.\, F'
+  \]
+  with
+  \[
+    F' \defeq \lambda n.\, \ifz(n; \underline{1}; m.\, n\times (f\;m)).
+  \]
   \\~\\
-  A fixpoint of~$\lambda. f\, F$ can be given by~$\fix. f\, F$ as the
-  evaluation of~$(\lambda f.\, F)(\fix f.\, F)$ and $\fix f.\, F$ 
+  A fixpoint of $F$ can be given by $\fix f.\,F'$ because the
+  evaluation of $(\lambda f.\, F')\;(\fix f.\, F')$
+  and $\fix f.\, F'$ 
   \begin{align*}
     (\lambda f.\, F)(\fix f.\,F)
     & \leadsto F[(\fix f.\,F)/f] \\
@@ -941,7 +941,7 @@
       \BIC{$\fix x.\, \M\;\,\term$}
     \end{prooftree}
 
-    \caption{Term formulation rules for \protect\PCF}
+    \caption{Term formation rules for \protect\PCF}
   \end{figure}
 
   \begin{figure}[b]
