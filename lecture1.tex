@@ -39,7 +39,7 @@
   \frametitle{\protect\textbf{Standard ML}}
   \begin{itemize}
     \item Semantics-led design.
-    \item R.\ Milner, M.\ Tofte, and R.\ Harper, \emph{The Definition of
+    \item R.\ Milner, M.\ Tofte, R.\ Harper, and D.\ MacQueen \emph{The Definition of
         \textbf{Standard ML} (Revised)}, \alert{128~pp.}, 1997. \\
     \item Standard ML is a safe, modular, strict, functional, polymorphic
       programming language \dots and \alert{a formal definition with a proof of
@@ -207,7 +207,6 @@
     (\lambda y.\, \M)\; \N
   \]
   by the derivation 
-  \small
   \begin{prooftree}
     \AXC{}
     \UIC{$(\lambda x.\, \lambda y.\, x)\;\M \leadsto (\lambda y.\, \M)$}
@@ -217,7 +216,6 @@
     \AXC{$(\lambda y.\,\M)\;\N \leadsto^* (\lambda y.\,\M)\;\N$}
     \BIC{$(\lambda x.\, y.\, x)\;\M\;\N \leadsto^* (\lambda y.\,\M)\;\N$}
   \end{prooftree}
-  \normalsize
   ~\\
   
   \textbf{Exercise}. Evaluate the following terms (formally or
@@ -485,7 +483,7 @@
           \UIC{$\suc\; \M \;\,\val$}
           \DP
         &
-          \AXC{$\M\;\,\term$}
+          \AXC{}
           \UIC{$\lambda x .\,\M \;\, \val$}
           \DP
           \\
@@ -504,7 +502,6 @@
 
 \begin{frame}
   Moreover, we can do branching according to the argument is zero or not. 
-        \small
         \begin{prooftree}
           \AXC{$\M \;\,\term$}
           \AXC{$\M_0\;\,\term$}
@@ -524,7 +521,6 @@
   accompanying with three reductions rules
   \\~\\
   \begin{prooftree}
-  \small
       \AXC{$\M \leadsto \M'$}
       \RightLabel{($\leadsto$-$\ifz$)}
       \UIC{$\ifz(\M; \M_0; x .\,\M_1) \leadsto \ifz(\M'; \M_0; x.\,\M_1)$}
@@ -539,7 +535,6 @@
       \RightLabel{($\leadsto$-$\ifz_1$)}
       \UIC{$\ifz(\suc\;\M; \M_0; x .\, \M_1) \leadsto
         \M_1[\M/x]$}
-    \normalsize
     \end{prooftree}
 \end{frame}
 
@@ -587,13 +582,11 @@
           \BIC{$\fix \alert{x.\, \M}\;\,\term$}
         \end{prooftree}
         \column{.5\textwidth}
-        \small
       \begin{prooftree}
         \AXC{$\Gamma, x : \sigma \vdash \M : \sigma$}
         \RightLabel{(Y)}
         \UIC{$\Gamma\vdash \fix x .\, \M : \sigma$}
       \end{prooftree}
-     \normalsize
    \end{columns}
   ~\\
 
@@ -651,15 +644,11 @@
     F' \defeq \lambda n.\, \ifz(n; \underline{1}; m.\, n\times (f\;m)).
   \]
   \\~\\
-  A fixpoint of $F$ can be given by $\fix f.\,F'$ because the
-  evaluation of $(\lambda f.\, F')\;(\fix f.\, F')$
-  and $\fix f.\, F'$ 
+  $\fix f.\,F"$ is a a fixpoint of $F$
   \begin{align*}
-    (\lambda f.\, F)(\fix f.\,F)
-    & \leadsto F[(\fix f.\,F)/f] \\
-    \fix f.\, F & \leadsto F[(\fix f.\, F)/ f]
+    (\lambda f.\,F')\;(\fix f.\,F') & \leadsto F' [(\fix f.\,F')/f] \\
+    & = \lambda n.\,\ifz(n; \underline{1}; m.\, n\times (\fix f.\, F')\; m)
   \end{align*}
-  shows that they reduce to the same term. 
   \\~\\
   \only<article>{We will explain this in more details in the lectures on
     denotational semantics.}
@@ -690,7 +679,6 @@
   \\~\\
   \begin{itemize}
     \item simply typed lambda calculus 
-  \small
     \begin{prooftree}
       \AXC{}
       \RightLabel{($\Downarrow$-lam)}
@@ -702,9 +690,7 @@
       \RightLabel{($\Downarrow$-app)}
       \BIC{$\M\;\N \Downarrow \V$}
     \end{prooftree}
-  \normalsize
 \item natural numbers
-  \small
     \begin{prooftree}
       \AXC{}
       \RightLabel{($\Downarrow$-zero)}
@@ -715,13 +701,11 @@
       \RightLabel{($\Downarrow$-suc)}
       \UIC{$\suc\;\M \Downarrow \suc\;\V$}
     \end{prooftree}
-    \normalsize
 \end{itemize}
 \end{frame}
 \begin{frame}[c]
   \begin{itemize}
     \item if-zero test
-      \small
           \begin{prooftree}
             \AXC{$\M\Downarrow \zero$}
             \AXC{$\M_0\Downarrow \V$}
@@ -734,15 +718,12 @@
             \RightLabel{($\Downarrow$-$\ifz_1$)}
             \BIC{$\ifz(\M; \M_0; x.\, \M_1) \Downarrow \V$}
           \end{prooftree}
-          \normalsize
     \item general recursion 
-      \small
     \begin{prooftree}
       \AXC{$\M[\fix x.\, \M/ x] \Downarrow \V$}
       \RightLabel{($\Downarrow$-fix)}
       \UIC{$\fix x.\, \M \Downarrow \V$}
     \end{prooftree}
-          \normalsize
   \end{itemize}
 \end{frame}
 \begin{frame}
