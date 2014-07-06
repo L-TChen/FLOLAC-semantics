@@ -160,7 +160,7 @@
       evaluated to values before applications, and this evaluation strategy is
       called \emph{call-by-value}.  }
   \begin{example}
-  $ (\lambda x.\, \lambda y.\,x)\;\M\;\N$ can be reduced to~$\M$
+  $ (\lambda x.\, \lambda y.\,x)\;\M\;\N$ can reduce to~$\M$
   by the following derivation
   \begin{prooftree}
     \AXC{}
@@ -271,30 +271,10 @@
   the derivation of~$\M \leadsto^* \M'$. 
 \end{frame}
 
-\begin{frame}{Reductions on ill-typed terms}
-  Reductions can be applied to ill-typed terms
-  and sometimes it reduces to a well-typed closed term! 
-  \[
-        (\lambda x.\,\lambda y.\,x)\;(\lambda x.\,x)\;(\lambda x.\,x\;x)
-        \leadsto^* (\lambda x.\, x)
-  \]
-  ~\\
-
-  On the other hand, 
-  the reduction of ill-typed terms may be reduced to itself:
-  \begin{align*}
-    (\lambda x.\, x\; x)\;(\lambda x.\, x\; x)
-    & \leadsto (x\; x)[(\lambda x.\, x\; x)/ x] \\
-    & = (\lambda x.\, x\; x)\;(\lambda x.\, x\; x) 
-    \leadsto \cdots
-  \end{align*}
-\end{frame}
 
 \begin{frame}{Type safety: well-typed programs don't go wrong}
-  In contrast to ill-typed terms, well-typed closed terms have some nice
-  properties.  First, every well-typed closed term can be reduced further or it
-  is a
-  \alert{value}.
+  Well-typed closed terms have some nice properties.  First, every well-typed
+  closed term can reduce further or it is a \alert{value}.
   \\~\\
   \begin{theorem}[Progress Theorem]
     If ${}\vdash \M:\tau$, then either $\M \leadsto \M'$ for some~$\M'$
@@ -373,6 +353,23 @@
     \end{enumerate}
   \end{proof}
 \end{frame}
+
+\begin{frame}{Reductions on ill-typed terms}
+  Reductions can be applied to ill-typed terms
+  and it reduces to a well-typed closed term! 
+  \[
+        (\lambda x.\,\lambda y.\,x)\;(\lambda x.\,x)\;(\lambda x.\,x\;x)
+        \leadsto^* (\lambda x.\, x)
+  \]
+  ~\\
+
+  On the other hand, 
+  the reduction of ill-typed terms may not reduce to a value at all
+  \begin{align*}
+    x\; x \not\leadsto
+  \end{align*}
+\end{frame}
+
 \begin{frame}{Summary}
   To define a language, we specify following sets of rules 
   \begin{description}[Semantics]
@@ -383,8 +380,8 @@
   In particular, well-typed closed terms share type safety:
   \\~\\
   \begin{description}[Preservation Theorem]
-    \item[Progress Theorem] for every well-typed closed term, it either can be
-      reduced further or is a value;
+    \item[Progress Theorem] for every well-typed closed term, it either can 
+      reduce further or is a value;
     \item[Preservation Theorem] 
       for every well-typed closed term, its type is preserved by reduction. 
   \end{description}
