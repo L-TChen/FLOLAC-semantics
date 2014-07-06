@@ -1,6 +1,6 @@
 tex = pdflatex --output-dir=output
 
-lectures   = lecture1 lecture2 lecture3 lecture4
+lectures   = lecture1 lecture3 lecture4 lecture5 
 
 all: $(lectures)
 
