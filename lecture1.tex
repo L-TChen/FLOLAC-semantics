@@ -183,7 +183,7 @@
     The many-step reduction relation~$\leadsto^*$ is defined inductively by 
     \begin{center}
     \begin{tabular}[c]{c c}
-      \AXC{}
+      \AXC{$\vphantom{\M_2 \leadsto^* \M_3}$}
       \UIC{$\M \leadsto^* \M$}
       \DP & 
       \AXC{$\M_1 \leadsto \M_2$}
@@ -281,7 +281,7 @@
   ~\\
 
   On the other hand, 
-  the reduction of ill-typed terms may not stop at all.
+  the reduction of ill-typed terms may be reduced to itself:
   \begin{align*}
     (\lambda x.\, x\; x)\;(\lambda x.\, x\; x)
     & \leadsto (x\; x)[(\lambda x.\, x\; x)/ x] \\
@@ -409,7 +409,7 @@
     \begin{columns}[t]
       \column{.5\textwidth}
       \begin{prooftree}
-        \AXC{}
+        \AXC{$\vphantom{\tau_1\;\,\type}$}
         \UIC{$\nat\;\,\type$}
       \end{prooftree}
       \column{.5\textwidth}
@@ -475,7 +475,7 @@
     A \textbf{value} is a term of the following form:
     \begin{center}
       \begin{tabular}{c c c}
-          \AXC{}
+          \AXC{$\vphantom{\M \;\,\val}$}
           \UIC{$\zero\;\,\val$}
           \DP
         &
@@ -483,7 +483,7 @@
           \UIC{$\suc\; \M \;\,\val$}
           \DP
         &
-          \AXC{}
+          \AXC{$\vphantom{\M \;\,\val}$}
           \UIC{$\lambda x .\,\M \;\, \val$}
           \DP
           \\

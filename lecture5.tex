@@ -14,18 +14,18 @@
     \item Formation: 
       \[
         \AXC{}
-        \UIC{$\Gamma \vdash \mathtt{Type} : \mathcal{U}$}
+        \UIC{$\vdash \mathtt{Type} : \mathcal{U}$}
         \DP
       \]
     \item Introduction:
       \[
-        \AXC{}
-        \UIC{$\Gamma \vdash \nat : \mathtt{Type}$}
+        \AXC{$\vphantom{\vdash \tau_1 : \mathtt{Type}}$}
+        \UIC{$\vdash \nat : \mathtt{Type}$}
         \DP
         \qquad
-        \AXC{$\Gamma \vdash \tau_1 : \mathtt{Type}$}
-        \AXC{$\Gamma \vdash \tau_2 : \mathtt{Type}$}
-        \BIC{$\Gamma \vdash \tau_1 \Rightarrow \tau_2 : \mathtt{Type}$}
+        \AXC{$\vdash \tau_1 : \mathtt{Type}$}
+        \AXC{$\vdash \tau_2 : \mathtt{Type}$}
+        \BIC{$\vdash \tau_1 \Rightarrow \tau_2 : \mathtt{Type}$}
         \DP
       \]
   \end{itemize}
@@ -38,17 +38,17 @@
 \begin{frame}{Predicates}
   In case that you have been polluted by set theory, we distinguish a few
   \alert{set-theoretic} and \alert{type-theoretic} notions. 
-  \begin{block}{In set Theory}
+  \begin{block}{In set theory}
     A \textbf{predicate} $P$ over a set $X$ is a subset $P \subseteq X$. 
   \end{block}
-  \begin{block}{In type Theory}
-    A \textbf{predicate} $P$ over a type $A$ is a judgement 
+  \begin{block}{In type theory}
+    A term $P$ is a \textbf{predicate} over a type $A$ if and only if
     \[
       \Gamma \vdash P : A \to \mathcal{U}
     \]
-    A \textbf{decidable predicate} over a type $A$ is a judgement
+    A term $f$ is a \textbf{membership function} if and only if
     \[
-      \Gamma \vdash t : A \to \top + \top
+      \Gamma \vdash p : A \to \mathbf{Bool}
     \]
   \end{block}
 \end{frame}
@@ -61,8 +61,8 @@
       n = 2k}.
   \]
   ~\\
-  In type theory, it is a predicate $\mathtt{even}: \mathbb{N} \to \mathcal{U}$
-  introduced by
+  In type theory, it can be defined inductively as a predicate $\mathtt{even}:
+  \mathbb{N} \to \mathcal{U}$ by
   \begin{itemize}
     \item Formation:
       \[
@@ -72,7 +72,7 @@
       \]
     \item Introduction:
       \[
-        \AXC{}
+        \AXC{$\vphantom{\Gamma \vdash p : \mathtt{even}\;n}$}
         \UIC{$\Gamma \vdash \texttt{zero} : \mathbf{even}\;\mathtt{zero}$}
         \DP
         \qquad
@@ -96,7 +96,7 @@
   \begin{itemize}
     \item \textbf{reflexive} if $x \mathrel{R} x$ for every $x \in X$.
     \item \textbf{transitive} if $x \mathrel{R} z$ whenever $x \mathrel{R} y$
-      and $x \mathrel{R} z$
+      and $y \mathrel{R} z$
   \end{itemize}
   ~\\
   A \textbf{reflexive transitive closure} of a relation $R$ is
@@ -114,22 +114,23 @@
   \]
   A relation is
   \begin{itemize}
-    \item $\textbf{reflexive}$ if
+    \item $\textbf{reflexive}$ if and only if
       \[
-        \prod[ x : A ]\; R\;x\;x 
+        \Pi[ x : A ]\; R\;x\;x 
       \]
-      is provable.
-    \item $\textbf{transitive}$ if 
+    \item $\textbf{transitive}$ if and only if
       \[
-        \prod[ x : A]\; \prod[ y : A]\;\prod[ z : A]\;R\;x\;y \to R\;y\;z\to
+        \Pi[ x : A]\; \Pi[ y : A]\;\Pi[ z : A]\;R\;x\;y \to R\;y\;z\to
         R\;x\;z
       \]
-      is provable.
   \end{itemize} 
+  ~\\
+  \textbf{Exercise.} Define the one-step reduction
+  $\_\!\!\leadsto\!\!\_$ over $\mathtt{Term}$. 
 \end{frame}
 
 \begin{frame}
-  A \textbf{transitive reflexive closure} $R^*$ of a relation $R$ over $A$:
+  A \textbf{reflexive transitive closure} $R^*$ of a relation $R$ over $A$:
   \begin{itemize}
     \item Formation:
       \[
@@ -141,7 +142,7 @@
     \item Introduction:
       \[
         \AXC{$\Gamma \vdash x : A$}
-        \UIC{$\Gamma \vdash \mathtt{refl}_x : R^*\;x\;x$}
+        \UIC{$\Gamma \vdash \mathtt{refl}\;x : R^*\;x\;x$}
         \DP
       \]
       \[
@@ -158,7 +159,7 @@
   \end{itemize}
   where the elimination rule and the computation rule are omitted.
   \\~\\
-  \textbf{Exercise}.
+  \textbf{Exercise.}
   Show the following statements in \texttt{Transitive-Closure.agda}.
   \begin{enumerate}
     \item $R^*$ is reflexive and transitive for every relation $R$ over $A$.
@@ -170,7 +171,7 @@
 \begin{frame}{Judgements in type theory}
   A \textbf{judgement} is a ternary predicate 
   \[
-    {\text{\_}\vdash\text{\_}:\text{\_}} : \mathtt{Cxt} \to
+    {\_\!\!\vdash\!\!\_\!\!:\!\!\_} : \mathtt{Cxt} \to
     \mathtt{Term} \to \mathtt{Type} \to \mathcal{U}.
   \]
   in type theory. 
@@ -183,19 +184,35 @@
 \end{frame}
 
 \begin{frame}{Progress Theorem in type theory}
-  Recall Progress Theorem:
-  \begin{theorem}
+  Recall Progress Theorem in \PCF: 
+  \begin{quote}
     Every closed well-typed \PCF{} term $\M$ is either a value or there exists
     another term $\M'$ such that $\M \leadsto \M'$. 
-  \end{theorem} 
+  \end{quote} 
   which corresponds to a witness of 
   \begin{align*}
-    & \prod[ \M : \texttt{Term}]\prod[ \tau : \texttt{Type} ] \\
-    & [\,] \vdash \M : \tau \to (\mathtt{Val}\;\M) +
-    \Sigma[ \M' : \mathtt{Term} ]\;
+    & \Pi[ \M : \texttt{Term}]\Pi[ \tau : \texttt{Type} ] \\
+    & [\,] \vdash \M : \tau \to (\mathbf{Val}\;\M) +
+    \Sigma [ \M' : \mathtt{Term} ]\;
     \M \leadsto \M'
   \end{align*}
+\end{frame}
 
+\begin{frame}{Preservation Theorem in type theory}
+  Similarly, Preservation Theorem 
+  \begin{quote}
+    For every closed well-typed \PCF{} term $\M$ of type $\tau$
+    with $\M \leadsto \N$, the term $\N$ is also of type $\tau$.
+  \end{quote}
+  is translated to a term of type
+  \begin{align*}
+    & \Pi[ \M : \texttt{Term}]\Pi[ \N : \texttt{Term} ] \Pi[ \tau :
+    \texttt{Type} ] \\
+    & [\,] \vdash \M : \tau \to \M \leadsto \N \to [\,] \vdash \N : \tau
+  \end{align*}
+
+  ~\\
   \textbf{Exercise}. Finish \texttt{PCF\_blank.agda}. 
 \end{frame}
+
 \end{document}
