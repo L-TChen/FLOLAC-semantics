@@ -22,13 +22,13 @@
 \end{frame}
 
 \begin{frame}[c]
-  \frametitle{\protect\textbf{C++}}
+  \frametitle{\protect\textbf{C\textplus\textplus}}
   \begin{itemize}
       \item Implementation-led design.
-      \item \emph{\textbf{C++} The International Standard},
+      \item \emph{\textbf{C\textplus\textplus} The International Standard},
         \alert{1338~pp.}, 2012. \\
-        Note that the committee consists of \alert{200+ people}.
-      \item \alert{1900+} language issues!
+        Note that the committee consists of \alert{200\textplus{} people}.
+      \item \alert{1900\textplus} language issues!
   \end{itemize}
   \begin{center}
     \only<presentation>{\includegraphics[scale=.5]{C++issues.png}}
@@ -73,25 +73,31 @@
   \begin{columns}
     \column{.5\textwidth}
     \begin{prooftree}
-    \AXC{$x\;\,\var$} \UIC{$x\;\,\term$}
+    \AXC{$x\;\,\var$}
+    \UIC{$x\;\,\term\vphantom{\Gamma, x : \sigma, \Delta \vdash x : \sigma}$}
     \end{prooftree}
 
     \column{.5\textwidth}
     \begin{prooftree}
-    \AXC{} \RightLabel{(var)} \UIC{$\Gamma, x :
+    \AXC{$\vphantom{x\;\,\var}$}
+    \RightLabel{(var)} \UIC{$\Gamma, x :
       \sigma, \Delta \vdash x : \sigma$}
     \end{prooftree}
   \end{columns}
+
   \begin{columns}
     \column{.5\textwidth}
     \begin{prooftree}
-      \AXC{$x \;\,\var$} \AXC{$\M \;\, \term$}
-      \BIC{$\lambda \alert{x.\, \M} \;\,\term$}  
+      \AXC{$x \;\,\var$} \AXC{$\M \;\, \term\vphantom{\Gamma, x : \sigma \vdash
+          \M : \tau}$}
+      \BIC{$\lambda \alert{x.\, \M} \;\,\term
+      \vphantom{\Gamma \vdash \lambda x .\, \M : \sigma \to \tau}$} 
     \end{prooftree}
 
     \column{.5\textwidth}
     \begin{prooftree}
-      \AXC{$\Gamma, x : \sigma \vdash \M : \tau$} \RightLabel{(abs)}
+      \AXC{$\Gamma, x : \sigma \vdash \M : \tau$}
+      \RightLabel{(abs)}
       \UIC{$\Gamma \vdash \lambda x .\, \M : \sigma \to \tau$} 
     \end{prooftree}
   \end{columns}
@@ -99,13 +105,18 @@
   \begin{columns}
     \column{.5\textwidth}
     \begin{prooftree}
-      \AXC{$\M\;\,\term$} \AXC{$\N\;\,\term$} \BIC{$\M\;\N\;\,\term$} 
+      \AXC{$\M\;\,\term$} \AXC{$\N\;\,\term \vphantom{\Gamma \vdash \M : \sigma
+          \to \tau}$}
+      \BIC{$\M\;\N\;\,\term
+      \vphantom{\Gamma \vdash \M\; \N : \tau}$}
     \end{prooftree}
 
     \column{.5\textwidth}
     \begin{prooftree}
       \AXC{$\Gamma \vdash \M : \sigma \to \tau$} \AXC{$\Gamma \vdash \N :
-      \sigma$} \RightLabel{(app)} \BIC{$\Gamma \vdash \M\; \N : \tau$}
+      \sigma$}
+    \RightLabel{(app)}
+    \BIC{$\Gamma \vdash \M\; \N : \tau$}
     \end{prooftree}
   \end{columns}
 \end{frame}
