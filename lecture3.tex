@@ -175,7 +175,7 @@
       \begin{enumerate}
         \item $n \defeq \sem{\Gamma \vdash \M  : \nat}\;\vec{d}$, 
         \item $e \defeq \sem{\Gamma \vdash \M_0 : \tau}\;\vec{d}$, 
-        \item $f \defeq \sem{\Gamma \vdash \lambda x.\, \M_1 : \sigma\to\tau}\; \vec{d}$,
+        \item $f \defeq \sem{\Gamma \vdash \lambda x.\, \M_1 : \nat\to\tau}\; \vec{d}$,
       \end{enumerate} and $\mathit{ifz}$ is defined by
           \[
             \mathit{ifz}(n, x, f) \defeq
@@ -394,10 +394,11 @@
   \begin{lemma}[Weakening]
     Let $\Gamma \vdash \M : \tau$ be a judgement. Then the following
     \[
-      \sem{\Gamma \vdash \M : \tau} 
-      = \sem{\Gamma, x : \sigma \vdash \M : \tau} 
+      \sem{\Gamma \vdash \M : \tau}\;\vec{d}
+      = \sem{\Gamma, x : \sigma \vdash \M : \tau}\;(\vec{d}, d)
     \]
-    holds for any variable $x : \sigma$ not in $\Gamma$. 
+    holds for any variable $x : \sigma$ not in $\Gamma$,
+    $\vec{d} \in D_\Gamma$ and $d \in D_\sigma$. 
   \end{lemma}
   It follows from Substitution Lemma. (\emph{Why?})
 \end{frame}
