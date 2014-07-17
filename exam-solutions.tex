@@ -1,0 +1,133 @@
+\documentclass{article}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\newcommand{\sem}[1]{[\![#1]\!]}
+\title{Semantics of Functional Programming: Sample Solution}
+\author{Liang-Ting Chen and Tyng-Ruey Chuang}
+\date{11 July 2014}
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+  \item (20\%) Which of the following posets are cpos? Why?
+    \begin{enumerate}
+      \item The set $(\mathbb{N}, \leq)$
+        of natural numbers with the natural ordering. 
+        \begin{proof}
+          No. The set $\mathbb{N}$ of all natural numbers is directed, because
+          for every two elements $x$ and $y$, either $x \leq y$ or $y \leq x$.
+          However, there is no upper bound of $\mathbb{N}$ in $\mathbb{N}$.
+        \end{proof}
+      \item $(\mathbb{N} \cup \{\infty\}, \leq')$ with the natural ordering
+        i.e.\ $n \leq' \infty$ for every $n \in \mathbb{N}$
+        and $n \leq' m$ if $n \leq m$ for $m \in \mathbb{N}$. 
+        \begin{proof}
+          Yes. 
+        \end{proof}
+    \end{enumerate}
+  \item (30\%) Evaluate the following terms using $\leadsto$ step by step
+    \emph{without} formal derivations.
+    \begin{enumerate}
+      \item $(\lambda x.\, \lambda y.\, \lambda z.\, z) \;(\mathtt{Y} n.\,
+        n)\;\underline{3}\;\underline{1}$
+        \begin{proof}[Answer]
+          $(\lambda x.\, \lambda y.\, \lambda z.\, z)
+          \;(\mathtt{Y} n.\, n)\;\underline{3}\;\underline{1}
+          \leadsto (\lambda y.\,\lambda z.\, z)\;\underline{3}\;\underline{1}
+          \leadsto (\lambda z.\, z)\;\underline{1}
+          \leadsto \underline{1}$
+        \end{proof}
+      \item $\left(\lambda z.\,\lambda n.\,\mathtt{ifz}(n; z; x.\,x)\right)\;
+        \mathtt{ifz}(\underline{0}; \underline{1}; m.\, \mathtt{suc}\;m)$
+        \begin{proof}[Answer]
+          \begin{align*}
+            & \left(\lambda z.\,\lambda n.\,\mathtt{ifz}(n; z; x.\,x)\right)\;
+            \mathtt{ifz}(\underline{0}; \underline{1}; m.\, \mathtt{suc}\;m) \\
+            \leadsto&(\lambda n.\, \mathtt{ifz}(n; \mathtt{ifz}(\underline{0};
+            \underline{1}; m.\, \mathtt{suc}\;m);
+            x. x)
+          \end{align*}
+        \end{proof}
+    \end{enumerate}
+  \item (30\%) Find the denotation of the following terms.
+    \begin{enumerate}
+      \item $z : \sigma \vdash \lambda x.\,\lambda y.\, x : \sigma_1 \to
+        \sigma_2 \to \sigma_1$
+        \begin{proof}[Answer]
+          \begin{align*}
+            &\sem{z : \sigma \vdash \lambda x.\,\lambda y.\, x : \sigma_1 \to
+              \sigma_2 \to \sigma_1} \\
+            ={} & \Lambda \sem{z : \sigma, x : \sigma_1
+              \vdash \lambda y.\, x : \sigma_2\to\sigma_1} \\
+            ={} & \Lambda (\Lambda
+            \sem{z : \sigma, x : \sigma_1, y : \sigma_2 \vdash x : \sigma_1}) =
+            \Lambda (\Lambda \pi_2)
+        \end{align*}
+        where $\pi_2 : 1 \times D_\sigma \times D_{\sigma_1} \times
+        D_{\sigma_2}$ maps $(*, d, d_1, d_2) \in 1 \times D_\sigma \times
+        D_{\sigma_1} \times D_{\sigma_2}$ to~$d_1$. 
+      \end{proof}
+      \item $x : \mathtt{nat}, y : \sigma, z : \sigma \vdash
+        \mathtt{ifz}(x; y; m.\, z) : \sigma$
+        \begin{proof}[Answer]
+          For every $(*, d_1, d_2, d_3) \in 1 \times D_{\mathtt{nat}} \times D_\sigma
+          \times D_\sigma$, we have
+          \begin{align*}
+            &\sem{x : \mathtt{nat}, y : \sigma, z : \sigma \vdash \mathtt{ifz}(x; y;
+            m.\, z) : \sigma}\;(*, d_1, d_2, d_3) \\
+          ={} & \mathit{ifz}(d_1, d_2, \mathit{const}_{d_3})
+          \end{align*}
+          or equivalently 
+          \[
+            \sem{x : \mathtt{nat}, y : \sigma, z : \sigma \vdash \mathtt{ifz}(x; y;
+            m.\, z) : \sigma}\;(*, d_1, d_2, d_3) =
+          \begin{cases}
+            \bot & \text{if } d_1 = \bot \\
+            d_2 & \text{if } d_1 = 0 \\
+            d_3 & \text{if } d_1 > 0
+          \end{cases}
+          \]
+        \end{proof}
+    \end{enumerate}
+  \item (10\%) Show that there is no term $\mathsf{V}$ satisfying
+    $\mathtt{Y} x.\,x\Downarrow \mathsf{V}$.
+    \textit{Hint}. Use the agreement of the one-step reduction and the big-step
+    reduction, and the fact that $\leadsto$ is deterministic, i.e.\ 
+    if $\mathsf{M} \leadsto \mathsf{M}_1$ and $\mathsf{M} \leadsto
+    \mathsf{M}_2$ then $\mathsf{M}_1 = \mathsf{M}_2$. 
+        \begin{proof}
+          Suppose that there is a term $\mathsf{V}$ with $\mathtt{Y} x.\,
+          x\Downarrow V$. By the agreement, $\mathtt{Y} x.\, x \leadsto^* V$
+          and $V$ is a value.  By ($\leadsto$-fix),
+          $\mathtt{Y} x.\,x\leadsto \mathtt{Y} x.\, x$
+          and by determinacy every term $\mathsf{V}$ with $\mathtt{Y} x.\, x \leadsto V$ 
+          must be $\mathtt{Y} x.\,x$ 
+          By induction, every term $\mathsf{V}$ with $\mathtt{Y} x.\, x
+          \leadsto^*\mathsf{V}$ must be $\mathtt{Y} x.\, x$. 
+
+          However, $\mathtt{Y}x.\,x$ is not a value, so we reach a contradiction. 
+        \end{proof}
+        \begin{proof}
+          Alternatively, we do induction on the derivation of $\mathtt{Y}x.\,x
+          \Downarrow \mathsf{V}$, and the only case is ($\Downarrow$-fix), i.e. 
+          to have $\mathtt{Y}x.\, x\Downarrow \mathsf{V}$ we must have
+          ${x[\mathtt{Y}x.\, x/x] \Downarrow \mathsf{V}}$ as a premise
+          satisfying the induction hypothesis. That is, there is no term
+          $\mathsf{V}$ satisfying $\mathtt{Y} x.\,x \Downarrow \mathsf{V}$. 
+        \end{proof}
+  \item (10\%) Find a monotonic function
+    $f : \mathbb{N} \cup \{\infty\}  \to \mathbb{N} \cup \{\infty\}$
+    which is \emph{not} continuous. You have to give an example
+    such that $f({\mbox{\Large $\sqcup$}} S) \neq
+    {\mbox{\Large $\sqcup$}}_{x \in S} f(x)$.
+        \begin{proof}[Answer]
+          Let $f(n) = 0$ for $n < \infty$ and $f(\infty) = \infty$. 
+          It is clear that $f$ is a monotonic function. 
+          Since $\infty$ is the greatest element of $\mathbb{N}$,
+          $\mbox{\Large $\sqcup$} \mathbb{N} = \infty$.
+          Thus, $f(\mbox{\Large $\sqcup$} \mathbb{N}) = \infty
+          \neq 0 = \mbox{\Large $\sqcup$}_{n \in \mathbb{N}} f(n)$.
+        \end{proof}
+\end{enumerate}
+\end{document}

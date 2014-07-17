@@ -1,0 +1,46 @@
+\documentclass{article}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\title{Semantics of Functional Programming: Exam}
+\author{Liang-Ting Chen and Tyng-Ruey Chuang}
+\date{11 July 2014}
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+  \item (20\%) Which of the following posets are cpos? Why?
+    \begin{enumerate}
+      \item The set $(\mathbb{N}, \leq)$
+        of natural numbers with the natural ordering. 
+      \item $(\mathbb{N} \cup \{\infty\}, \leq')$ with the natural ordering
+        i.e.\ $n \leq' \infty$ for every $n \in \mathbb{N}$
+        and $n \leq' m$ if $n \leq m$ for $m \in \mathbb{N}$. 
+    \end{enumerate}
+  \item (30\%) Evaluate the following terms using $\leadsto$ step by step
+    \emph{without} formal derivations.
+    \begin{enumerate}
+      \item $(\lambda x.\, \lambda y.\, \lambda z.\, z) \;(\mathtt{Y} n.\,
+        n)\;\underline{3}\;\underline{1}$
+      \item $\left(\lambda z.\,\lambda n.\,\mathtt{ifz}(n; z; x.\,x)\right)\;
+        \mathtt{ifz}(\underline{0}; \underline{1}; m.\, \mathtt{suc}\;m)$
+    \end{enumerate}
+  \item (30\%) Find the denotation of the following terms.
+    \begin{enumerate}
+      \item $z : \sigma \vdash \lambda x.\,\lambda y.\, x : \sigma_1 \to
+        \sigma_2 \to \sigma_1$
+      \item $x : \mathtt{nat}, y : \sigma, z : \sigma \vdash
+        \mathtt{ifz}(x; y; m.\, z) : \sigma$
+    \end{enumerate}
+  \item (10\%) Show that there is no term $\mathsf{V}$ satisfying
+    $\mathtt{Y} x.\,x\Downarrow \mathsf{V}$.
+    \textit{Hint}. Use the agreement of the one-step reduction and the big-step
+    reduction, and the fact that $\leadsto$ is deterministic, i.e.\ 
+    if $\mathsf{M} \leadsto \mathsf{M}_1$ and $\mathsf{M} \leadsto
+    \mathsf{M}_2$ then $\mathsf{M}_1 = \mathsf{M}_2$. 
+  \item (10\%) Find a monotonic function
+    $f : \mathbb{N} \cup \{\infty\}  \to \mathbb{N} \cup \{\infty\}$
+    which is \emph{not} continuous. You have to give an example
+    such that $f({\mbox{\Large $\sqcup$}} S) \neq
+    {\mbox{\Large $\sqcup$}}_{x \in S} f(x)$.
+\end{enumerate}
+\end{document}
