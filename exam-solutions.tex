@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{mathtools}
+\usepackage{geometry}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \newcommand{\sem}[1]{[\![#1]\!]}
@@ -20,10 +21,24 @@
           However, there is no upper bound of $\mathbb{N}$ in $\mathbb{N}$.
         \end{proof}
       \item $(\mathbb{N} \cup \{\infty\}, \leq')$ with the natural ordering
-        i.e.\ $n \leq' \infty$ for every $n \in \mathbb{N}$
+        i.e.\ $n \leq' \infty$ for every $n \in \mathbb{N} \cup \{\infty\}$
         and $n \leq' m$ if $n \leq m$ for $m \in \mathbb{N}$. 
         \begin{proof}
-          Yes. 
+          Yes.
+          \begin{enumerate}
+            \item $0$ is the element satisfying $0 \leq n$ with $n \in
+              \mathbb{N}\cup\{\infty\}$, i.e.\ the bottom element. 
+            \item We claim that every directed subset has the least upper
+              bound. Let $D$ be a directed subset. If $D$ is finite, then by
+              induction there is an upper bound $z$ of $D$ \emph{in} $D$ so that
+              $z$ is the least upper bound. 
+              If $D$ is infinite, then every element $x \in \mathbb{N}$ is not
+              an upper bound. Otherwise $D$ is finite, since there are only
+              finitely many elements below $x$. 
+              By definition, $\infty$ is the upper bound of $D$,
+              and any element $x$ with $\infty \leq x$ must be $\infty$. 
+          \end{enumerate}
+
         \end{proof}
     \end{enumerate}
   \item (30\%) Evaluate the following terms using $\leadsto$ step by step
